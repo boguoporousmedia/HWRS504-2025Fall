@@ -45,9 +45,9 @@ Missing a page.html & a home.html file in the _layout
 
 <h3>4. Course Description:</h3> 
 
-> This course is for senior undergraduate and graduate students. The goal of this course is to introduce commonly used numerical methods for ordinary and partial differential equations encountered in transport problems in environmental systems. The course covers finite difference and finite element methods with emphasis on basic discretization schemes and how to select the appropriate numerical schemes for a given differential equation. We will also discuss accuracy, stability, and convergence properties of the introduced numerical methods. Students will use MATLAB or other programming languages to implement numerical schemes to solve example problems. Experience with MATLAB is not required.
+> This course is for senior undergraduate and graduate students. The goal of this course is to introduce commonly used numerical methods for ordinary and partial differential equations encountered in transport problems in environmental systems. The course covers finite difference and finite element methods with emphasis on basic discretization schemes and how to select the appropriate numerical schemes for a given differential equation. We will also discuss accuracy, stability, and convergence properties of the introduced numerical methods. Students will Python or Julia or other programming languages to implement numerical schemes to solve example problems. Experience with Python or Julia is not required.
 
-The 2025 edition retains its core coverage of finite-difference/finite-volume and finite-element methods and adds a new module on machine-learning approaches for partial differential equations, including physics-informed neural networks (PINNs) and operator-learning surrogates.
+> The 2025 edition retains its core coverage of finite-difference/finite-volume and finite-element methods and adds a new module on machine-learning approaches for partial differential equations, including physics-informed neural networks (PINNs) and operator-learning surrogates.
 
 <h3>5. Prerequisites:</h3> 
 
