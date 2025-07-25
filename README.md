@@ -8,6 +8,8 @@ seo:
   name: HWRS504-404-2025Fall
 ---
 
+# HWRS 504/404 – Fall 2025
+
 <!--
 Notes: 
 Missing a page.html & a home.html file in the _layout
