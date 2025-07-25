@@ -1,12 +1,4 @@
----
-layout: default
-title: Home
-nav_order: 1
-permalink: /:path/
-seo:
-  type: Course
-  name: HWRS504-404-2025Fall
----
+
 
 # HWRS 504/404 – Fall 2025
 
