@@ -5,7 +5,7 @@ nav_order: 1
 permalink: /:path/
 seo:
   type: Course
-  name: HWRS505-405-2023Fall
+  name: HWRS504-404-2025Fall
 ---
 
 <!--
@@ -13,7 +13,7 @@ Notes:
 Missing a page.html & a home.html file in the _layout
 -->
 
-<h2>Vadose Zone Hydrology (University of Arizona) </h2>
+<h2>Numerical Methods for Environmental Transport Problems (University of Arizona) </h2>
 
 
 <h3>1. Lecture time:</h3> 
@@ -45,12 +45,13 @@ Missing a page.html & a home.html file in the _layout
 
 <h3>4. Course Description:</h3> 
 
-> The course focuses on the physical concepts underlying water flow and solute transport in variably saturated media. We will approach these concepts from a fundamental perspective of multiphase flow and transport in porous media to help students build a strong physical intuition. This will be complemented by a discussion of measurement methods and analysis of the relevant processes. New cutting-edge topics on the fate and transport of emerging contaminants (e.g., PFAS) in the vadose zone will also be introduced.
+> This course is for senior undergraduate and graduate students. The goal of this course is to introduce commonly used numerical methods for ordinary and partial differential equations encountered in transport problems in environmental systems. The course covers finite difference and finite element methods with emphasis on basic discretization schemes and how to select the appropriate numerical schemes for a given differential equation. We will also discuss accuracy, stability, and convergence properties of the introduced numerical methods. Students will use MATLAB or other programming languages to implement numerical schemes to solve example problems. Experience with MATLAB is not required.
 
-<h3>5. Prerequisites and Equipment/Software Requirements:</h3> 
+The 2025 edition retains its core coverage of finite-difference/finite-volume and finite-element methods and adds a new module on machine-learning approaches for partial differential equations, including physics-informed neural networks (PINNs) and operator-learning surrogates.
 
-> - HWRS 518 or with permission of Dr. Bo Guo.
-> - You will need access to a computer to run [Jupyter Notebooks](https://jupyter.org/), [MS Excel spreadsheets](https://www.remote-learning.arizona.edu/install-office-365-your-computer), the software [HYDRUS-1D](https://www.pc-progress.com/en/Default.aspx?Downloads).
+<h3>5. Prerequisites:</h3> 
+
+> - Differential Equations or with permission of Dr. Bo Guo.
 
 
 <h3>6. Assignments and Exams:</h3>
@@ -66,15 +67,12 @@ Missing a page.html & a home.html file in the _layout
 > **Final Project:** *Only required for students who take the graduate version of the class HWRS 505.*
 > 
 > Students will have two options for the final project: 
-> - (1) Choose a research topic of interest related to processes in the vadose zone, read 3 to 5 relevant papers, and provide a critical review of their research questions, methodologies, results, and implications.
-> - (2) Choose a research problem in your own field of interest and apply the concepts and research tools covered in class to systematically tackle the problem.
+> - (1) Choose a journal paper that has a core contribution on a numerical method, understand the advancement of the numerical methods developed in the paper, implement the method and reproduce the key results, and apply the numerical method to some new example problems.
+> - (2) Choose a research problem in their own filed of interest and apply the numerical methods they have learned in the course to solve the chosen problem. 
 > 
 > For either option, you will need to summarize your key findings in a formal report and deliver a presentation in class.
 > 
-> **Art of Porous Media Flow**
-> 
-> As we will see in this class, the movement of fluids especially those in porous structures is full of beauty and you see it almost every day. During the semester, I encourage all of you to pay attention to any porous media flow phenomena in your day-to-day life. At the end of the semester, I would like all of you to submit a piece of artwork illustrating at least one interesting aspect of porous media flow. It can be a photo or short video you take or other forms of artwork of your choice. Whatever you decide to submit, make sure that it is entertaining!
-
+>
 <h3>7. Course Grade:</h3>
 
 > **Evaluation and Grading for HWRS 405 (Undergraduate)**
@@ -88,8 +86,6 @@ Missing a page.html & a home.html file in the _layout
 > - 20% Final Project (Final Report and Class Presentation)
 > - 5% Class Participation
 >
-> **Bonus Grade (Undergraduate & Graduate)**
-> - +5% Art of Porous Media Flow Submission
 >   
 > **Grading Scheme:**
 > - A: 90-100
