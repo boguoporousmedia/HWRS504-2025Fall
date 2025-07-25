@@ -18,7 +18,7 @@ tagline: Course websites
 description: A course website for HWRS 404/504 Numerical Methods at the University of Arizona
 author: Bo Guo and Jianwen Du
 # baseurl: '/GuoPorousMediaLab/HWRS504-404-2025Fall' # the subpath of your site, e.g. /blog
-url: 'https://github.com/GuoPorousMediaLab/HWRS504-404-2025Fall'  
+url: 'https://github.com/boguoporousmedia/HWRS504-404-2025Fall'  
 exclude: ["Gemfile", "Gemfile.lock", "LICENSE"]
 
 # Theme settings
