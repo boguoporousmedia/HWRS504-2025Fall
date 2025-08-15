@@ -1,8 +1,10 @@
 ---
-title: "Lecture #18: Mid-term review"
+title: "Lecture #18: Richards Equation (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 24, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 23, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_18_(10-24-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- Richards Equation (continued)
+
+- [Pluto Notebook](../pluto_notebooks/Lec18_richards_equation_continued.jl)

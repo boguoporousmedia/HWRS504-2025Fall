@@ -1,8 +1,10 @@
 ---
-title: "Lecture #23: Transport of PFAS under unsat. flow"
+title: "Lecture #23: Operator-learning Surrogates"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Nov 19, 11:00 am – 12:15 pm (Jianwen Du)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Nov 11, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_23_(11-19-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- Operator-learning Surrogates
+
+- [Pluto Notebook](../pluto_notebooks/Lec23_operator_learning.jl)

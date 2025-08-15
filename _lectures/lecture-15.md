@@ -1,8 +1,12 @@
 ---
-title: "Lecture #15: Numerical solution of Richards equation"
+title: "Lecture #15: Fourier Stability Analysis (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 15, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 14, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_15_(10-15-2024).pdf) 
-- [Recording: [Video - not available]]()
+**Topics:**
+- Fourier stability analysis (continued)
+
+**Readings:** CG: Ch4
+
+- [Pluto Notebook](../pluto_notebooks/Lec15_fourier_stability_continued.jl)

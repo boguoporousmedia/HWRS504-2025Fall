@@ -1,8 +1,14 @@
 ---
-title: "Lecture #06: Multiphase fluids in capillary tubes & advanced porous media models"
+title: "Lecture #06: FDA in Space (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Sep 12, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Sep 11, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_6_(9-12-2024).pdf)
-- [Recording: [Video]](https://arizona.zoom.us/rec/share/Wv0umhM1wIKqgSmH7480qCAymPn63Pa7ezC6ybSxfdlTkXTsCnQCw5mVY4Uyd1cI.SCGP9TMc6MQy1X2A?startTime=1726163751000)
+**Topics:**
+- FDA in space (continued)
+
+**Readings:** CG: Ch2
+
+**Problem Sets:** Release #2
+
+- [Pluto Notebook](../pluto_notebooks/Lec6_fda_space_continued.jl)

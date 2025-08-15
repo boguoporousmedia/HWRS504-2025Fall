@@ -1,8 +1,10 @@
 ---
-title: "Lecture #24: Fluid-fluid interfacial area"
+title: "Lecture #24: Operator-learning Surrogates (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Nov 21, 11:00 am – 12:15 pm (Jianwen Du)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Nov 13, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_24_(11-21-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- Operator-learning Surrogates (continued)
+
+- [Pluto Notebook](../pluto_notebooks/Lec24_operator_learning_continued.jl)

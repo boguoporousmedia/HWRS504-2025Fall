@@ -1,8 +1,14 @@
 ---
-title: "Lecture #22: Introduction to PFAS contamination"
+title: "Lecture #22: PINN (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Nov 14, 11:00 am – 12:15 pm (Jianwen Du)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Nov 6, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_22_(11-14-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- PINN (continued)
+
+**Readings:** Hasani 2022
+
+**Problem Sets:** Release #5
+
+- [Pluto Notebook](../pluto_notebooks/Lec22_pinn_continued.jl)

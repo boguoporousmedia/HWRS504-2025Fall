@@ -1,8 +1,14 @@
 ---
-title: "Lecture #04: Solute transport & multiphase fluids in capillary tubes"
+title: "Lecture #04: Numerical Integration"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Sep 5, 11:00 am – 12:15 pm (Jianwen Du)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Sep 4, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_4_(9-5-2024).pdf) 
-- [Recording: [Video]](https://d2l.arizona.edu/d2l/le/content/1506694/viewContent/17489565/View)
+**Topics:**
+- Numerical integration
+
+**Readings:** Gerritsen: Ch3
+
+**Problem Sets:** #1 DUE
+
+- [Pluto Notebook](../pluto_notebooks/Lec4_numerical_integration.jl)

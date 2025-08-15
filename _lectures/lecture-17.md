@@ -1,8 +1,12 @@
 ---
-title: "Lecture #17: 2D transient unsat flow"
+title: "Lecture #17: Richards Equation"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 22, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 21, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_17_(10-22-2024).pdf) 
-- [Recording: [Video - not available]]()
+**Topics:**
+- Richards Equation
+
+**Readings:** Celia 1990
+
+- [Pluto Notebook](../pluto_notebooks/Lec17_richards_equation.jl)

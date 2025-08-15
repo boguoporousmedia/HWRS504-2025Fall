@@ -1,8 +1,11 @@
 ---
-title: "Lecture #02: Steady-state saturated flow"
+title: "Lecture #02: Introduction to Julia & Interpolation"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Aug 29, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Aug 28, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_2_(8-29-2024).pdf) 
-- [Recording: [Video]](https://arizona.zoom.us/rec/share/07Fn-FV3abhaVYv6oweVPEzq63AjL48kyiHkBzSSQydheJnSoRjPuul0UnE5bd27.ByOd6db-TL8ZViB4?startTime=1724954312000)
+**Topics:**
+- Introduction to Julia
+- Interpolation
+
+- [Pluto Notebook](../pluto_notebooks/Lec2_julia_interpolation.jl)

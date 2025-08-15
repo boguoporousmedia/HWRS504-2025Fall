@@ -1,8 +1,14 @@
 ---
-title: "Lecture #14: Transient unsaturated flow"
+title: "Lecture #14: Fourier Stability Analysis (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 10, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 9, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_14_(10-10-2024).pdf)  
-- [Recording: [video]](https://arizona.zoom.us/rec/share/BDl7Gm9_FBqIRQ2Wq1iVL-SiI9K8nFnfN0BRxRxAeQ4bSHNb_IY4IpMZY9heKIR0.Mw_Dsl511wMzflXA?startTime=1728583022000)
+**Topics:**
+- Fourier stability analysis (continued)
+
+**Readings:** CG: Ch4
+
+**Problem Sets:** #3 DUE
+
+- [Pluto Notebook](../pluto_notebooks/Lec14_fourier_stability_continued.jl)

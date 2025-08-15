@@ -1,8 +1,12 @@
 ---
-title: "Lecture #21: Parameter estimation (HYDRUS)"
+title: "Lecture #21: PINN (continued)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Nov 12, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Nov 4, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_21_(11-12-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- PINN (continued)
+
+**Readings:** Chen 2019
+
+- [Pluto Notebook](../pluto_notebooks/Lec21_pinn_continued.jl)

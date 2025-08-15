@@ -1,8 +1,12 @@
 ---
-title: "Lecture #19: Measurement methods"
+title: "Lecture #19: Midterm Exam (Oral)"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 29, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 28, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_19_(10-29-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- Midterm Exam (Oral)
+
+**Problem Sets:** #4 DUE
+
+- [Pluto Notebook](../pluto_notebooks/Lec19_midterm_exam.jl)

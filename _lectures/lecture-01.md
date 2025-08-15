@@ -1,8 +1,16 @@
 ---
-title: "Lecture #01: Introduction & Steady-state saturated flow"
+title: "Lecture #01: Course Introduction & Review: Linear Algebra, Vector Calculus"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Aug 27, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Aug 26, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_1_(8-27-2024).pdf)
+**Topics:**
+- Course introduction
+- Review: linear algebra, vector calculus
+
+**Readings:** CG: Appendix A
+
+**Problem Sets:** Release #1
+
+- [Pluto Notebook](../pluto_notebooks/Lec1_course_intro.jl)
 - [Recording: [Video - not available]]

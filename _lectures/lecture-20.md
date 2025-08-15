@@ -1,8 +1,10 @@
 ---
-title: "Lecture #20: Parameter estimation (spreadsheet model)"
+title: "Lecture #20: PINN"
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Nov 5, 11:00 am – 12:15 pm (Bo Guo)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 30, 3:30 pm – 4:45 pm (Bo Guo)
 
-- [Lecture slides: [PDF]](../assets/lecture_slides/Lecture_20_(11-7-2024).pdf) 
-- [Recording: [video - not available]]()
+**Topics:**
+- PINN
+
+- [Pluto Notebook](../pluto_notebooks/Lec20_pinn.jl)
