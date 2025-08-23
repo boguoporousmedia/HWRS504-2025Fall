@@ -56,7 +56,7 @@ end
 
 # ╔═╡ ce9c0405-5338-47bd-b252-36e5f3d139bd
 md"""
-# Lecture 1: Course introduction
+# Course introduction
 - **Overview**
 - **Review of linear algebra and vector calculus**
 - **Intro to Julia and Pluto**
@@ -1868,7 +1868,7 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─208aba7d-8454-4f39-860d-53d1a9105466
-# ╟─ce9c0405-5338-47bd-b252-36e5f3d139bd
+# ╠═ce9c0405-5338-47bd-b252-36e5f3d139bd
 # ╟─0a4a5dbe-1b87-46fe-a568-0b5f3ac484d3
 # ╟─ad2b4c8a-0bc0-4a20-aeaa-c46e722b31ba
 # ╟─66b3418f-c5a3-4c06-9f9d-f0aa6d3aefaa
