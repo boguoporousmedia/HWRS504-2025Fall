@@ -50,7 +50,7 @@ Missing a page.html & a home.html file in the _layout
 
 > **Homework Problem Sets**
 > 
-> Five problem sets will be assigned throughout the semester, due in one or two weeks after release. When submitting on D2L, convert your file to PDF and name it as *Last_name_HW1*. For example, *Guo_HW1.pdf*. Whether you type or handwrite, the text and figures need to be readable to an average human being. Nonreadable homework will be returned without grading. See [Schedule](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/schedule/) for the specific dates.
+> Five problem sets will be assigned throughout the semester, due in one or two weeks after release. When submitting on D2L, convert your file to PDF and name it as *Last_name_HW1*. For example, *Guo_HW1.pdf*. Whether you type or handwrite, the text and figures need to be readable to an average human being. Nonreadable homework will be returned without grading. See [Schedule](https://boguoporousmedia.github.io/HWRS504-2025Fall/schedule/) for the specific dates.
 > 
 > **Exams**
 > 
