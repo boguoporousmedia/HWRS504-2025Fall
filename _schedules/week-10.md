@@ -2,11 +2,10 @@
 title: Week 10
 ---
 
-Oct 29
-: [Review session for the midterm exam](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [](#)
-: **Release**{: .label .label-purple}[**HW #4**](#)
+Oct 28
+: [Midterm Exam (Oral)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #19](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Oct 31
-: [Midterm Oral Exam](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Time & Location (TBD)](#)
+Oct 30
+: [PINN](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #20](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)

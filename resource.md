@@ -19,4 +19,8 @@ description: Class resources.
 > - [Pinder & Celia, Subsurface Hydrology, 2006](https://arizona-primo.hosted.exlibrisgroup.com/primo-explore/fulldisplay?docid=01UA_ALMA51627996240003843&context=L&vid=01UA&lang=en_US&search_scope=Everything&adaptor=Local%20Search%20Engine&tab=default_tab&query=any,contains,Subsurface%20Hydrology&offset=0)
 > - Stephens, Vadose zone Hydrology, 1995
 
-<h3>3. Python and Jupyter Notebook Instructions (will be included later):</h3>
+
+<h3>3. Julia and Pluto:</h3>
+
+> - [First-time installation of Julia and Pluto](https://computationalthinking.mit.edu/Fall24/installation/)
+> - [Julia tutorials](https://julialang.org/learning/tutorials/)

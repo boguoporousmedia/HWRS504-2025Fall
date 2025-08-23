@@ -2,12 +2,12 @@
 title: Week 13
 ---
 
-Nov 19
-: [Introduction to PFAS](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [](#)
+Nov 18
+: [Operator-learning Surrogates (continued)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #25](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Nov 21
-: [Transport of PFAS under unsat. flow](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Guo 2020](https://guolab.arizona.edu/pdfs/publications/2020_Guo_et_al_WRR.pdf)
+Nov 20
+: [Hybrid Modeling & Differentiable Simulators](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #26](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 : **Release**{: .label .label-purple}[**HW #5**](#)		
 

@@ -14,7 +14,7 @@ Missing a page.html & a home.html file in the _layout
 
 <h3>2. Lecture location:</h3>
 
-> [Modern Languages Bldg](https://www.google.com/maps/place/AZPM/@32.2321425,-110.9499052,18.71z/data=!4m6!3m5!1s0x86d671a9fb1d3e09:0x61757677b1166bb8!8m2!3d32.2323371!4d-110.950108!16s%2Fg%2F1tddb8wg?entry=ttu), Rm 503
+> [Harshbarger 203](https://maps.app.goo.gl/BkheyxAvZb3DP8rh6)
 
 
 <h3>3. Instructors:</h3> 
@@ -39,11 +39,11 @@ Missing a page.html & a home.html file in the _layout
 
 > This course is for senior undergraduate and graduate students. The goal of this course is to introduce commonly used numerical methods for ordinary and partial differential equations encountered in transport problems in environmental systems. The course covers finite difference and finite element methods with emphasis on basic discretization schemes and how to select the appropriate numerical schemes for a given differential equation. We will also discuss accuracy, stability, and convergence properties of the introduced numerical methods. Students will Python or Julia or other programming languages to implement numerical schemes to solve example problems. Experience with Python or Julia is not required.
 
-> The 2025 edition retains its core coverage of finite-difference/finite-volume and finite-element methods and adds a new module on machine-learning approaches for partial differential equations, including physics-informed neural networks (PINNs) and operator-learning surrogates.
+> The 2025 edition retains its core coverage of finite-difference/finite-volume methods and adds a few new modules on machine-learning approaches for partial differential equations, including physics-informed neural networks (PINNs), operator-learning surrogates, and hybrid modeling & differentiable simulators.
 
 <h3>5. Prerequisites:</h3> 
 
-> - Differential Equations or with permission of Dr. Bo Guo.
+> - MATH 254 (Differential Equations) or with permission of the instructor.
 
 
 <h3>6. Assignments and Exams:</h3>

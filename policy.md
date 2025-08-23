@@ -60,7 +60,7 @@ description: Policy.
 
  
 
-<h3>8. Confidentality of Student Records</h3>  
+<h3>8. Confidentiality of Student Records</h3>  
 
 > [http://www.registrar.arizona.edu/personal-information/family-educational-rights-and-privacy-act-1974-ferpa?topic=ferpa](http://www.registrar.arizona.edu/personal-information/family-educational-rights-and-privacy-act-1974-ferpa?topic=ferpa)
 

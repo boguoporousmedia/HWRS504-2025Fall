@@ -2,10 +2,10 @@
 title: Week 16
 ---
 
-Dec 10
-: [*No class (review for final exam)*](#)
-  : [](#)
+Dec 9
+: [Final Project Presentation](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #31](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Dec 16
-: [Final Exam](#)
-  : [Time & Location (2-4 pm in Harshbarger 203)](#)
+Dec 11
+: [Reading Day (No Class)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #32](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)

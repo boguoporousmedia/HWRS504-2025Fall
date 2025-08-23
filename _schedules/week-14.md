@@ -2,11 +2,11 @@
 title: Week 14
 ---
 
-Nov 26
-: [Fluid-fluid interfacial area](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [](#)
+Nov 25
+: [Hybrid Modeling & Differentiable Simulators (continued)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #27](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Nov 28
-: *No class (Thanksgiving recess*)
-  : [](#)
+Nov 27
+: [Thanksgiving Recess (No Class)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #28](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 

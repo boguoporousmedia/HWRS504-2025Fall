@@ -2,12 +2,10 @@
 title: Week 04
 ---
 
-Sep 17
-: [Porous medium models and characteristic curves](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [J&H Ch 3](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
-: **Due**{: .label .label-purple}[**HW #1**](#)
+Sep 16
+: [FDA in Space (continued)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #07](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Sep 19
-: [Macroscopic description of two-phase flow](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [P&C Ch 11](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
-: **Release**{: .label .label-purple}[**HW #2**](#)
+Sep 18
+: [FDA for Initial Value Problems](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #08](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)

@@ -2,10 +2,10 @@
 title: Week 01
 ---
 
-Aug 27
-: [Introduction & Steady-state saturated flow](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Lecture note #01](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
+Aug 26
+: [Course Introduction & Review: Linear Algebra, Vector Calculus](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #01](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Aug 29
-: [Steady-state saturated flow](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Lecture note #01](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
+Aug 28
+: [Introduction to Julia & Interpolation](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #02](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)

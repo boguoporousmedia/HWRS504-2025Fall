@@ -2,10 +2,10 @@
 title: Week 03
 ---
 
-Sep 10
-: [Multiphase fluids in capillary tubes (a)](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Lecture note #04](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
+Sep 9
+: [FDA in Space](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #05](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Sep 12
-: [Multiphase fluids in capillary tubes (b)](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [Lecture note #05](https://d2l.arizona.edu/d2l/le/content/1506694/Home)
+Sep 11
+: [FDA in Space (continued)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #06](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)

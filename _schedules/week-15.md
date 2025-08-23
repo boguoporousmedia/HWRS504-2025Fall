@@ -2,13 +2,12 @@
 title: Week 15
 ---
 
-Dec 3
-: [Presentation of final projects](#)
-  : [](#)
-: **Due**{: .label .label-purple}[**HW #5**](#)
+Dec 2
+: [Hybrid Modeling & Differentiable Simulators (continued)](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #29](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
-Dec 5
-: [Informal presentation of “Art of Porous Media Flow” & Review session for the final exam](https://guoporousmedialab.github.io/HWRS505-405-2024Fall/lecture/)
-  : [](#)
+Dec 4
+: [Review Session for Final Exam](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
+  : [Lecture note #30](https://boguoporousmedia.github.io/HWRS504-404-2025Fall/lecture/)
 
 
