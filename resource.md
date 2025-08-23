@@ -22,5 +22,5 @@ description: Class resources.
 
 <h3>3. Julia and Pluto:</h3>
 
-> - [First-time installation of Julia and Pluto](https://computationalthinking.mit.edu/Fall24/installation/)
+> - [First-time use and setup of Julia and Pluto](https://computationalthinking.mit.edu/Fall24/installation/)
 > - [Julia tutorials](https://julialang.org/learning/tutorials/)
