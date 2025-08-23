@@ -5,9 +5,9 @@ title: Week 13
 Nov 18
 : [Operator-learning Surrogates (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #25](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Due**{: .label .label-purple}[**HW #5**](#)
 
 Nov 20
 : [Hybrid Modeling & Differentiable Simulators](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #26](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-: **Release**{: .label .label-purple}[**HW #5**](#)		
+  : [Lecture note #26](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)		
 

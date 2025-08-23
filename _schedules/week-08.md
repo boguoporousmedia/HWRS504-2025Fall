@@ -9,4 +9,5 @@ Oct 14
 Oct 16
 : [Particle Methods](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #16](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Release**{: .label .label-green}[**HW #4**](#)
 

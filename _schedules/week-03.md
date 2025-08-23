@@ -9,3 +9,4 @@ Sep 9
 Sep 11
 : [FDA in Space (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #06](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Release**{: .label .label-green}[**HW #2**](#)

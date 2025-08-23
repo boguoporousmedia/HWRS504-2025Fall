@@ -9,4 +9,4 @@ Nov 4
 Nov 6
 : [PINN (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #22](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-: **Due**{: .label .label-purple}[**HW #4**](#)
+: **Release**{: .label .label-green}[**HW #5**](#)

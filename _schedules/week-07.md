@@ -9,4 +9,5 @@ Oct 7
 Oct 9
 : [Fourier Stability Analysis (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #14](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Due**{: .label .label-purple}[**HW #3**](#)
 

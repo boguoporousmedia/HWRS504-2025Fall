@@ -9,3 +9,4 @@ Sep 2
 Sep 4
 : [Numerical Integration](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #04](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Due**{: .label .label-purple}[**HW #1**](#)
