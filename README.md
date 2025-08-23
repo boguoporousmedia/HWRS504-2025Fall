@@ -1,4 +1,4 @@
-# HWRS 504/404 – Fall 2025
+# HWRS 504 – Fall 2025
 
 <!--
 Notes: 
