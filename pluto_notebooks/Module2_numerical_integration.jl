@@ -353,7 +353,7 @@ Simpson’s Rule as a combination:
 I_S = \tfrac{2}{3} I_R + \tfrac{1}{3} I_T
 ```
 
-👉 The **third-order error** term `\mathcal{O}(h^3)` cancels out.
+The **third-order error** term ``\mathcal{O}(h^3)`` cancels out.
 
 ---
 
@@ -577,185 +577,6 @@ md"""
 """
 
 
-# ╔═╡ 9b135dd8-d873-4289-a037-1fa9c8d28165
-begin
-    # Problem setup
-    f3(x) = exp(-x^2)
-    local x0, xN = -4.0, 4.0
-    local exact, _ = quadgk(f3, x0, xN)
-    
-    println("Exact integral value: ", exact)
-    
-    # Axis range to match screenshot
-    xlo, xhi = 1e-4, 1e-1
-    ylo, yhi = 1e-16, 1e-6
-    
-    # Choose K so min(h) <= xlo
-    local N0 = 8
-    local L = (xN - x0)
-    local K = ceil(Int, log2(L/(xlo*N0))) + 1
-    local Ns = [N0 * 2^(k-1) for k in 1:K]
-    local hs = L ./ Ns
-    
-    println("Number of refinements K: ", K)
-    println("h values: ", hs)
-    
-    # Romberg table (4 levels)
-    R = Array{Float64}(undef, 4, K)
-    for k in 1:K
-        R[1,k] = trap_rule(f3, x0, xN, Ns[k])
-        for m in 2:4
-            if k >= m
-                R[m,k] = R[m-1,k] + (R[m-1,k] - R[m-1,k-1])/(4.0^(m-1) - 1.0)
-            else
-                R[m,k] = NaN
-            end
-        end
-    end
-    
-    # Compute errors more carefully
-    err_I1 = abs.(R[1, :] .- exact)
-    
-    # Only compute errors where Romberg values exist
-    err_I12 = abs.(R[2, 2:end] .- exact)
-    h_I12 = hs[2:end]
-    
-    err_I123 = abs.(R[3, 3:end] .- exact)
-    h_I123 = hs[3:end]
-    
-    err_I1234 = abs.(R[4, 4:end] .- exact)
-    h_I1234 = hs[4:end]
-    
-    # Filter out any zero or very small errors that might cause log issues
-    valid_idx1 = err_I1 .> 1e-17
-    valid_idx12 = err_I12 .> 1e-17
-    valid_idx123 = err_I123 .> 1e-17
-    valid_idx1234 = err_I1234 .> 1e-17
-    
-    # Custom tick function
-    function logticks_pow10(lo, hi)
-        kmin = floor(Int, log10(lo))
-        kmax = ceil(Int, log10(hi))
-        pos = [10.0^k for k in kmin:kmax]
-        labels = ["10^$k" for k in kmin:kmax]
-        return (pos, labels)
-    end
-    
-    xt, yt = logticks_pow10(xlo, xhi), logticks_pow10(ylo, yhi)
-    
-    # Create base plot
-    local p = plot(xaxis=:log10, yaxis=:log10, 
-             legend=:topleft, 
-             linewidth=2,
-             markersize=4,
-             xlabel="h", 
-             ylabel="|Error|", 
-             title="Romberg Integration Error Convergence",
-             xlims=(xlo, xhi), 
-             ylims=(ylo, yhi),
-             grid=true,
-             gridwidth=1,
-             gridcolor=:gray,
-             gridalpha=0.3)
-    
-    # Plot error curves with markers
-    plot!(p, hs[valid_idx1], err_I1[valid_idx1], 
-          label="I₁ (Trapezoidal)", 
-          color=:blue, 
-          marker=:circle)
-    
-    if any(valid_idx12)
-        plot!(p, h_I12[valid_idx12], err_I12[valid_idx12], 
-              label="I₁₂", 
-              color=:red, 
-              marker=:square)
-    end
-    
-    if any(valid_idx123)
-        plot!(p, h_I123[valid_idx123], err_I123[valid_idx123], 
-              label="I₁₂₃", 
-              color=:green, 
-              marker=:diamond)
-    end
-    
-    if any(valid_idx1234)
-        plot!(p, h_I1234[valid_idx1234], err_I1234[valid_idx1234], 
-              label="I₁₂₃₄", 
-              color=:purple, 
-              marker=:triangle)
-    end
-    
-    # Add trend lines with better slope calculation
-    xgrid = 10 .^ range(log10(xlo), log10(xhi), length=100)
-    
-    # Calculate trend line coefficients using least squares fit on log scale
-    function fit_slope_and_plot!(h_vals, err_vals, expected_slope, label_str, color_val)
-        if length(h_vals) >= 2 && all(err_vals .> 0)
-            # Fit in log space: log(err) = log(C) + slope * log(h)
-            log_h = log10.(h_vals)
-            log_err = log10.(err_vals)
-            
-            # Use middle portion of data for better fit
-            mid_start = max(1, length(log_h) ÷ 3)
-            mid_end = min(length(log_h), 2 * length(log_h) ÷ 3 + 1)
-            
-            if mid_end > mid_start
-                log_h_fit = log_h[mid_start:mid_end]
-                log_err_fit = log_err[mid_start:mid_end]
-                
-                # Linear regression
-                n = length(log_h_fit)
-                slope = (n * sum(log_h_fit .* log_err_fit) - sum(log_h_fit) * sum(log_err_fit)) / 
-                       (n * sum(log_h_fit.^2) - sum(log_h_fit)^2)
-                intercept = (sum(log_err_fit) - slope * sum(log_h_fit)) / n
-                
-                # Generate trend line
-                log_trend = intercept .+ slope .* log10.(xgrid)
-                trend_line = 10 .^ log_trend
-                
-                plot!(p, xgrid, trend_line, 
-                      linestyle=:dash, 
-                      color=color_val, 
-                      linewidth=2,
-                      alpha=0.7,
-                      label="$label_str (slope≈$(round(slope, digits=1)))")
-                
-                println("$label_str: fitted slope = $(round(slope, digits=2)), expected = $expected_slope")
-            end
-        end
-    end
-    
-    # Add trend lines
-    fit_slope_and_plot!(hs[valid_idx1], err_I1[valid_idx1], -2, "O(h²)", :blue)
-    
-    if any(valid_idx12)
-        fit_slope_and_plot!(h_I12[valid_idx12], err_I12[valid_idx12], -4, "O(h⁴)", :red)
-    end
-    
-    if any(valid_idx123)
-        fit_slope_and_plot!(h_I123[valid_idx123], err_I123[valid_idx123], -6, "O(h⁶)", :green)
-    end
-    
-    if any(valid_idx1234)
-        fit_slope_and_plot!(h_I1234[valid_idx1234], err_I1234[valid_idx1234], -8, "O(h⁸)", :purple)
-    end
-    
-    # Print some diagnostics
-    println("\nError ranges:")
-    println("I₁: $(minimum(err_I1[valid_idx1])) to $(maximum(err_I1[valid_idx1]))")
-    if any(valid_idx12)
-        println("I₁₂: $(minimum(err_I12[valid_idx12])) to $(maximum(err_I12[valid_idx12]))")
-    end
-    if any(valid_idx123)
-        println("I₁₂₃: $(minimum(err_I123[valid_idx123])) to $(maximum(err_I123[valid_idx123]))")
-    end
-    if any(valid_idx1234)
-        println("I₁₂₃₄: $(minimum(err_I1234[valid_idx1234])) to $(maximum(err_I1234[valid_idx1234]))")
-    end
-    
-    p
-end
-
 # ╔═╡ 5ae36632-fc1b-4089-af63-a9dbc7606695
 md"""
 # Improve integration schemes with non-uniform grid spacing
@@ -770,7 +591,7 @@ md"""
 
 ```math
 I = \int_a^b f(x)\, dx \;=\; \sum_{i=0}^N w_i f(x_i)
-````
+```
 
 ---
 
@@ -1951,26 +1772,25 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═d1d973f0-3671-43bb-b461-07b27ca5b5e0
-# ╠═e34e84c4-7eca-11f0-20bb-6ff86d3d3926
-# ╠═dc539d88-d67a-40db-9161-ce1fcd35d3a7
-# ╠═d975c170-126a-456d-8c2d-5ef6a402326f
+# ╟─d1d973f0-3671-43bb-b461-07b27ca5b5e0
+# ╟─e34e84c4-7eca-11f0-20bb-6ff86d3d3926
+# ╟─dc539d88-d67a-40db-9161-ce1fcd35d3a7
+# ╟─d975c170-126a-456d-8c2d-5ef6a402326f
 # ╟─ef6c56b3-326e-48cb-9cd7-75dde895c84e
-# ╠═8fc99f2e-6062-42eb-a06b-30907fa53526
-# ╠═7f103b7e-0bff-4809-ae3c-4d2e75a0d6f3
-# ╠═efcc88d3-36b1-4f1e-aa07-cc5d9d96ad72
-# ╠═05ec1c9a-8783-49e4-bcbc-038e0c587c73
-# ╠═3a2afc61-680a-4a2e-bc08-1416a98ecf6d
-# ╠═15ee6522-a706-41c4-8f2d-1c77e8e189d8
-# ╠═25742cc1-393b-4584-a1c5-07749a5cd44b
+# ╟─8fc99f2e-6062-42eb-a06b-30907fa53526
+# ╟─7f103b7e-0bff-4809-ae3c-4d2e75a0d6f3
+# ╟─efcc88d3-36b1-4f1e-aa07-cc5d9d96ad72
+# ╟─05ec1c9a-8783-49e4-bcbc-038e0c587c73
+# ╟─3a2afc61-680a-4a2e-bc08-1416a98ecf6d
+# ╟─15ee6522-a706-41c4-8f2d-1c77e8e189d8
+# ╟─25742cc1-393b-4584-a1c5-07749a5cd44b
 # ╠═c2502c88-5516-40e2-b94e-f6d710edfaf6
-# ╠═56c8a6e6-7ad0-415b-9de3-ff8033a3ebd0
-# ╠═9513518f-f34b-4f86-850c-067c2db263e9
-# ╠═7dca3842-d78c-4bcb-b73d-997fe6cb5666
-# ╠═7d8ee60e-d348-493c-8682-44743c7d2eab
-# ╠═43c8c08c-8b2a-447e-8fd1-c9632c1209eb
-# ╠═7cbd12fb-ff2f-497f-9aa1-dca8f9513e7a
-# ╠═9b135dd8-d873-4289-a037-1fa9c8d28165
-# ╠═5ae36632-fc1b-4089-af63-a9dbc7606695
+# ╟─56c8a6e6-7ad0-415b-9de3-ff8033a3ebd0
+# ╟─9513518f-f34b-4f86-850c-067c2db263e9
+# ╟─7dca3842-d78c-4bcb-b73d-997fe6cb5666
+# ╟─7d8ee60e-d348-493c-8682-44743c7d2eab
+# ╟─43c8c08c-8b2a-447e-8fd1-c9632c1209eb
+# ╟─7cbd12fb-ff2f-497f-9aa1-dca8f9513e7a
+# ╟─5ae36632-fc1b-4089-af63-a9dbc7606695
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

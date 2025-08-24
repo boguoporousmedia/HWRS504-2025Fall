@@ -56,7 +56,7 @@ Missing a page.html & a home.html file in the _layout
 > 
 > The class has mid-term and final exams. The mid-term is oral and the final is written. The final will be scheduled during the exam week. A review session will be scheduled before both exams.
 > 
-> **Final Project:** *Only required for students who take the graduate version of the class HWRS 505.*
+> **Final Project:** *Only required for students who take the graduate version of the class HWRS 504.*
 > 
 > Students will have two options for the final project: 
 > - (1) Choose a journal paper that has a core contribution on a numerical method, understand the advancement of the numerical methods developed in the paper, implement the method and reproduce the key results, and apply the numerical method to some new example problems.
@@ -67,12 +67,12 @@ Missing a page.html & a home.html file in the _layout
 >
 <h3>7. Course Grade:</h3>
 
-> **Evaluation and Grading for HWRS 405 (Undergraduate)**
+> **Evaluation and Grading for HWRS 404 (Undergraduate)**
 > - 55% Homework Problem Sets
 > - 40% Exams (20% each)
 > - 5% Class Participation
 > 
-> **Evaluation and Grading for HWRS 505 (Graduate)**
+> **Evaluation and Grading for HWRS 504 (Graduate)**
 > - 35% Homework Problem Sets
 > - 40% Exams (20% each)
 > - 20% Final Project (Final Report and Class Presentation)
