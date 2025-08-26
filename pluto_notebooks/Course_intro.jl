@@ -79,17 +79,17 @@ begin
 	env_pbm
 end
 
+# ╔═╡ 84034a64-f7cf-407d-b35e-1a97ebd6fedd
+md"""
+### How do we approach these problems?
+"""
+
 # ╔═╡ 1785fd17-101b-4321-b992-5e91e7f97380
 md"""
 - **Atmospheric flow/transport**
 - **River flow/transort**
 - **Vadose zone flow/transport**
 - **Groundwater flow/transport**
-"""
-
-# ╔═╡ 84034a64-f7cf-407d-b35e-1a97ebd6fedd
-md"""
-### How do we approach these problems?
 """
 
 # ╔═╡ 896ac70f-5772-42ae-bbb5-b4cc413ddaa8
@@ -134,16 +134,6 @@ md"""
 
 """
 
-# ╔═╡ 92859ca4-fbe7-42d9-9f41-0cc75c9ef028
-md"""
-**Note**: We will frequently use the contaminant transport equation (and its variations) as examples for our numerical methods.
-"""
-
-# ╔═╡ 8b083eb9-c010-4215-950c-82975dc38ef7
-md"""
-### Goal and scope of this class
-"""
-
 # ╔═╡ ca253d5b-2b03-484f-9cb6-ddc28eb4c7d4
 md"""
 - **How are we going to approach numerical methods in this class?**
@@ -159,6 +149,16 @@ md"""
   - Write Julia/Python programs to implement numerical schemes and machine learning methods to solve differential equations.
 """
 
+
+# ╔═╡ 92859ca4-fbe7-42d9-9f41-0cc75c9ef028
+md"""
+**Note**: We will frequently use the contaminant transport equation (and its variations) as examples for our numerical methods.
+"""
+
+# ╔═╡ 8b083eb9-c010-4215-950c-82975dc38ef7
+md"""
+### Goal and scope of this class
+"""
 
 # ╔═╡ 1461d5f8-d507-4cbe-9668-cd277fa86513
 md"""
@@ -1868,18 +1868,18 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─208aba7d-8454-4f39-860d-53d1a9105466
-# ╠═ce9c0405-5338-47bd-b252-36e5f3d139bd
+# ╟─ce9c0405-5338-47bd-b252-36e5f3d139bd
 # ╟─0a4a5dbe-1b87-46fe-a568-0b5f3ac484d3
 # ╟─ad2b4c8a-0bc0-4a20-aeaa-c46e722b31ba
 # ╟─66b3418f-c5a3-4c06-9f9d-f0aa6d3aefaa
-# ╟─1785fd17-101b-4321-b992-5e91e7f97380
 # ╟─84034a64-f7cf-407d-b35e-1a97ebd6fedd
+# ╟─1785fd17-101b-4321-b992-5e91e7f97380
 # ╟─896ac70f-5772-42ae-bbb5-b4cc413ddaa8
 # ╟─873204f3-38b1-4e06-aa35-d0777effd02b
 # ╟─a02bc5f7-417d-4f91-9612-317cbf274163
+# ╟─ca253d5b-2b03-484f-9cb6-ddc28eb4c7d4
 # ╟─92859ca4-fbe7-42d9-9f41-0cc75c9ef028
 # ╟─8b083eb9-c010-4215-950c-82975dc38ef7
-# ╟─ca253d5b-2b03-484f-9cb6-ddc28eb4c7d4
 # ╟─1461d5f8-d507-4cbe-9668-cd277fa86513
 # ╟─ccdf646e-4cfe-4228-a0a7-a4405e9fb39c
 # ╟─81a2f9b4-3f0d-4352-9db3-d80a430a5182
