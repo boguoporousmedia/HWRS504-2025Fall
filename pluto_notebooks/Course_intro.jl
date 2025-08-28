@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.17
 
 using Markdown
 using InteractiveUtils
@@ -654,7 +654,7 @@ are continuous.
 
 # ╔═╡ 7286c195-c091-4c4f-bf3a-e128429bd87a
 md"""
-*Example*: ``f(x)`` below is ``C^1``-continuous, i.e., ``f(x)`` is continuous, but ``\frac{df}{dx}`` is not discontinuous. 
+*Example*: ``f(x)`` below is ``C^0``-continuous, i.e., ``f(x)`` is continuous, but ``\frac{df}{dx}`` is not discontinuous. 
 """
 
 # ╔═╡ 4a4aa53e-fc9d-4bcd-8eb2-9d689ac94579
