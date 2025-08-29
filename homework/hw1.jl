@@ -18,6 +18,8 @@ md"""
 - Instructor: Bo Guo, University of Arizona
 
 - Semester: Fall 2025
+
+- **NOTE**: Read Appendix A of CG and Appendix A of Moin (both uploaded to D2L) before working on the homework.
 """
 
 # ╔═╡ 3b5eb3dc-b3d1-4bf9-9a83-1ba4e20b5f92
@@ -110,7 +112,7 @@ md"""
 6. (5 points) Watch this video on YouTube (https://youtu.be/ly4S0oi3Yz8), which provides a very nice introduction to partial differential equations using the Heat Equation as an example. The purpose of this video and the problem is to help you understand (or review in case you took partial differential equation classes before) what our primary target in this course (i.e., partial differential equations) is. 
     - Summarize the key points and insights. Use bullet points instead of paragraphs.
 
-    - If you take the 1-D advection-diffusion equation presented on slide 12 of Lecture 1 and assume the fluid velocity V=0 and the source/sink term R=0, you obtain a so-called diffusion equation that describes the transport of a contaminant driven by only molecular diffusion. How is this diffusion equation related to the heat equation introduced in the video? Compare the variables and coefficients of the two equations directly. 
+    - If you take the transient 1-D advection-diffusion equation presented in Lecture 1 and assume the fluid velocity V=0 and the source/sink term R=0, you obtain a so-called diffusion equation that describes the transport of a contaminant driven by only molecular diffusion. How is this diffusion equation related to the heat equation introduced in the video? Compare the variables and coefficients of the two equations directly. 
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -137,6 +139,6 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 # ╟─4f1026e0-b2c0-4803-ae2b-5c84af5574de
 # ╟─e8d7347a-b1ed-405f-ac76-86bd7a6f98ae
 # ╟─0ea5b326-1bba-43dc-91df-6b19c4f0a067
-# ╟─5d4d793f-4180-485d-97d4-8d698696f12d
+# ╠═5d4d793f-4180-485d-97d4-8d698696f12d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
