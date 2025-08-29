@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v0.20.13
 
 using Markdown
 using InteractiveUtils
@@ -561,7 +561,6 @@ begin
     local xs = range(xnodes[j-1] - 1, xnodes[j+1] + 1, length=600)
 
     local p = plot(xs, ϕj.(xs), lw=3, label=latexstring("φ_{", j, "}(x)"), legend=:outertopright)
-    hline!(p, [0.0], lw=1, label="")
     scatter!(p, [xnodes[j-1], xnodes[j], xnodes[j+1]], [0.0, 1.0, 0.0],
              ms=7, label="nodes")
     xt = xnodes[j-1:j+1]
@@ -2110,7 +2109,7 @@ version = "1.9.2+0"
 # ╟─ea2d65f5-d7c8-4036-8873-eca549529a93
 # ╟─2706cd9b-4b4c-4b4d-9cd7-f05a99dffaec
 # ╟─1e519a22-5f96-45f0-a982-9bb363741178
-# ╟─4fefdcb1-a12b-4122-b6a5-2128dba7df5c
+# ╠═4fefdcb1-a12b-4122-b6a5-2128dba7df5c
 # ╟─d1e04d74-8320-4b56-b895-f1bf5f41fe21
 # ╟─8d1b8e82-5e3e-4627-aec9-a1ecf8723cdf
 # ╟─6a9b3e15-360e-49c4-98f4-dcbc2afc2524
