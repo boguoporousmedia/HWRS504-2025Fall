@@ -391,7 +391,7 @@ end
 
 # ╔═╡ 3c390511-a3e9-4a7c-8a93-0964a11b96ad
 md"""
-	# Runge's Phenomenon (Julia + Pluto)
+	## Runge's Phenomenon (Julia + Pluto)
 
 	Explore polynomial interpolation of the Runge function
 	\[
@@ -437,7 +437,7 @@ end
 
 # ╔═╡ 824f0fe8-0d8d-4f7b-bc2e-52f9f78c860a
 md"""
-# Piecewise Interpolation
+## Piecewise Interpolation
 
 - **Chebyshev** points reduce oscillations of high–degree interpolants.
 - However, if we’re **given** values on **equispaced** points, can we do better?
@@ -573,12 +573,6 @@ begin
     p
 end
 
-# ╔═╡ d1e04d74-8320-4b56-b895-f1bf5f41fe21
-begin
-	img1 = LocalResource("./figs/lec3_piecewise_linear_f.png");
-	img1
-end
-
 # ╔═╡ 8d1b8e82-5e3e-4627-aec9-a1ecf8723cdf
 md"""
 # Functional definition of piecewise polynomials
@@ -628,9 +622,15 @@ On a uniform grid, each $\phi_j$ is piecewise linear, rising on $[x_{j-1},x_j]$ 
 
 """
 
+# ╔═╡ d1e04d74-8320-4b56-b895-f1bf5f41fe21
+begin
+	img1 = LocalResource("./figs/mod1_piecewise_linear_f.png");
+	img1
+end
+
 # ╔═╡ 6a9b3e15-360e-49c4-98f4-dcbc2afc2524
 md"""
-# Representation with Lagrange pieces
+## Representation with Lagrange pieces
 
 For all ``x \in [a,b]``, a piecewise polynomial interpolant can be written as
 ```math
@@ -648,7 +648,7 @@ support ``[x_{i-1},x_{i+1}]``, continuous across nodes (``C^0`` on ``[a,b]``).
 **A:** Yes.
 
 One can use **piecewise quadratic** Lagrange polynomials (or higher).  The
-functions are still tied together to ensure C⁰ continuity across element
+functions are still tied together to ensure $C^0$ continuity across element
 interfaces.  With quadratic pieces, each basis function spans two elements and
 the same global representation holds:
 
@@ -662,14 +662,20 @@ now with $\phi_i$ being **piecewise quadratic Lagrange polynomials**.
 
 * Linear pieces ⇒ nodes at ``\{x_i\}_{i=1}^{N}`` and hat-shaped ``\phi_i``.
 * Quadratic pieces ⇒ include midpoints (or other local nodes) in each element,
-  giving curved segments while maintaining C⁰ continuity.
+  giving curved segments while maintaining $C^0$ continuity.
 * The coefficients ``f_i`` are typically the function values at the chosen
   interpolation nodes.
 """
 
+# ╔═╡ 316fda26-172e-442c-999a-e05456d0cfa4
+begin
+	img2 = LocalResource("./figs/mod1_piecewise_quadratic_nonsmooth.png");
+	img2
+end
+
 # ╔═╡ 4d58a662-5f99-498d-a17d-3acdebf30471
 md"""
-# How about increased smoothness?
+## How about increased smoothness?
 
 ```math
 C^0[a,b] \;\rightarrow\; C^1[a,b]
@@ -683,13 +689,13 @@ C^0[a,b] \;\rightarrow\; C^1[a,b]
 
 # ╔═╡ 56dba066-0d87-4c8c-9cf7-8837ff29d627
 begin
-	img2 = LocalResource("./figs/lec3_quadratic.png");
-	img2
+	img3 = LocalResource("./figs/mod1_quadratic.png");
+	img3
 end
 
 # ╔═╡ f3a4824b-e261-4f3b-8684-bbe7cf50e590
 md"""
-# The `` C^{1}[a,b] `` case
+## The `` C^{1}[a,b] `` case
 
 Let ``x_1< x_2<\cdots< x_N `` and elements `` e_i=[x_i,x_{i+1}] `` for `` i=1,\dots,N-1``.
 On each element use a quadratic:
@@ -746,13 +752,13 @@ Common choices (one of the following):
 
 # ╔═╡ 1b9f799f-6709-479a-bfc1-f368c30d1d6a
 begin
-	img3 = LocalResource("./figs/lec3_cubic.png");
-	img3
+	img4 = LocalResource("./figs/mod1_cubic.png");
+	img4
 end
 
 # ╔═╡ a2da4b6e-ca17-4abd-a08d-d4291448c0ea
 md"""
-### The ``C^2[a, b]`` case
+## The ``C^2[a, b]`` case
 
 - Interpolation defined by cubic pieces between each \([xᵢ, xᵢ₊₁]\)  
   ⇒ **Cubic Splines**
@@ -808,7 +814,7 @@ Usually we impose:
 \frac{d^2 f_N}{dx^2}(x_N) = \frac{d^2 f}{dx^2}(x_N) \quad \text{or } 0
 ```
 
-* If imposed as **0**, it is called **natural splines**.
+* If imposed as $0$, it is called **natural splines**.
 
 """
 
@@ -2109,10 +2115,11 @@ version = "1.9.2+0"
 # ╟─ea2d65f5-d7c8-4036-8873-eca549529a93
 # ╟─2706cd9b-4b4c-4b4d-9cd7-f05a99dffaec
 # ╟─1e519a22-5f96-45f0-a982-9bb363741178
-# ╠═4fefdcb1-a12b-4122-b6a5-2128dba7df5c
-# ╟─d1e04d74-8320-4b56-b895-f1bf5f41fe21
+# ╟─4fefdcb1-a12b-4122-b6a5-2128dba7df5c
 # ╟─8d1b8e82-5e3e-4627-aec9-a1ecf8723cdf
+# ╠═d1e04d74-8320-4b56-b895-f1bf5f41fe21
 # ╟─6a9b3e15-360e-49c4-98f4-dcbc2afc2524
+# ╟─316fda26-172e-442c-999a-e05456d0cfa4
 # ╟─4d58a662-5f99-498d-a17d-3acdebf30471
 # ╟─56dba066-0d87-4c8c-9cf7-8837ff29d627
 # ╟─f3a4824b-e261-4f3b-8684-bbe7cf50e590

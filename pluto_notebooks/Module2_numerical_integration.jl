@@ -241,7 +241,7 @@ For the whole domain:
 
 # ╔═╡ 3a2afc61-680a-4a2e-bc08-1416a98ecf6d
 begin
-	local img= LocalResource("./figs/mod3_trapzoid.png");
+	local img= LocalResource("./figs/mod2_trapzoid.png");
 	img
 end
 
@@ -326,7 +326,7 @@ f_0
 
 # ╔═╡ c2502c88-5516-40e2-b94e-f6d710edfaf6
 begin
-	local img = LocalResource("./figs/mod3_simpson.png");
+	local img = LocalResource("./figs/mod2_simpson.png");
 	img
 end
 
@@ -434,19 +434,19 @@ f_0
 md"""
 # Example
 
-✓ ``f(x) = e^{-x^2}``;  
+The integral of ``f(x) = e^{-x^2}`` is
 ```math
 \int_{x_0}^{x_N} e^{-x^2}\, dx = \tfrac{\sqrt{\pi}}{2}\,[\mathrm{erf}(x_N) - \mathrm{erf}(x_0)]
-````
+```
 
-✓ `x_0 = -2, \; x_N = 2` (Exact: **1.76416278**)
+For $x_0 = -2, \; x_N = 2$, the exact solution is **1.76416278**
 
 ---
 
 ### Error comparison of Trapezoid vs. Simpson
 
-* Trapezoid Rule: global error scales as `\mathcal{O}(h^2)`
-* Simpson’s Rule: global error scales as `\mathcal{O}(h^4)`
+* Trapezoid Rule: global error scales as ``\mathcal{O}(h^2)``
+* Simpson’s Rule: global error scales as ``\mathcal{O}(h^4)``
 
 ---
 
@@ -581,12 +581,12 @@ md"""
 md"""
 # Improve integration schemes with non-uniform grid spacing
 
-✓ **Adaptive quadrature**  
+- **Adaptive quadrature**  
 *Idea:* use a finer mesh in regions of rapid functional variation and a coarser mesh where the integrand is varying slowly.
 
 ---
 
-✓ **Gauss quadrature**  
+- **Gauss quadrature**  
 *Idea:* make the choices of $x_i$ and $w_i$ for optimal accuracy.
 
 ```math
@@ -595,7 +595,7 @@ I = \int_a^b f(x)\, dx \;=\; \sum_{i=0}^N w_i f(x_i)
 
 ---
 
-✓ We will not further explore these methods, but you are encouraged to read more.
+- We will not further explore these methods, but you are encouraged to read more.
 """
 
 
@@ -1787,7 +1787,7 @@ version = "1.9.2+0"
 # ╠═c2502c88-5516-40e2-b94e-f6d710edfaf6
 # ╟─56c8a6e6-7ad0-415b-9de3-ff8033a3ebd0
 # ╟─9513518f-f34b-4f86-850c-067c2db263e9
-# ╟─7dca3842-d78c-4bcb-b73d-997fe6cb5666
+# ╠═7dca3842-d78c-4bcb-b73d-997fe6cb5666
 # ╟─7d8ee60e-d348-493c-8682-44743c7d2eab
 # ╟─43c8c08c-8b2a-447e-8fd1-c9632c1209eb
 # ╟─7cbd12fb-ff2f-497f-9aa1-dca8f9513e7a
