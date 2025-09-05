@@ -1010,13 +1010,7 @@ where ``\alpha`` is an arbitrary parameter.
 **Hint:**
 
 1. Taylor expansion
-2.
-
-```math
-\left.\frac{d^m u}{dx^m}\right|_{x_i}
-= \left(\frac{V}{D}\right)^{m-1}
-\left.\frac{du}{dx}\right|_{x_i}
-```
+2. ``\left.\frac{d^m u}{dx^m}\right|_{x_i} = \left(\frac{V}{D}\right)^{m-1} \left.\frac{du}{dx}\right|_{x_i} ``
 
 ---
 
@@ -1076,30 +1070,34 @@ begin
         return x, u, Δx, N
     end
 
-    # ---------- plot ----------
-    local plt = plot(; size=(900,600),
-        legend=:bottomleft, guidefontsize=14, tickfontsize=12, legendfontsize=12,
-        xlabel=L"x", ylabel=L"u(x)")
-
-    # analytic curve
-    xs_true = range(0, L; length=400)
-    plot!(plt, xs_true, u_true.(xs_true); lw=3, label=L"u_{\mathrm{true}}")
-
-    for Pe in Pe_list
-        # Upwind (alpha = 1)
-        xU, uU, ΔxU, _ = solve_advecdiff(1.0, Pe)
-        plot!(plt, xU, uU; lw=2, label="upwind, Pe=$(round(Pe,digits=2))")
-
-        # Central (alpha = 0)
-        xC, uC, ΔxC, _ = solve_advecdiff(0.0, Pe)
-        plot!(plt, xC, uC; lw=2, ls=:dash, label="central, Pe=$(round(Pe,digits=2))")
-    end
-
-    # make legend box lighter but keep axes frame
-    background_color_legend = :white
-    foreground_color_legend = RGBA(0,0,0,0)  # hide legend border
-
-    plt
+	local plt = plot(; size=(900,600),
+	legend=:bottomleft, guidefontsize=14, tickfontsize=12, legendfontsize=12,
+	xlabel=L"x", ylabel=L"u(x)")
+	
+	# analytic curve
+	xs_true = range(0, L; length=400)
+	plot!(plt, xs_true, u_true.(xs_true); lw=3, label=L"u_{\mathrm{true}}", color=:black)
+	
+	# generate a color palette with length(Pe_list) distinct colors
+	colors = palette(:tab10, length(Pe_list))
+	
+	for (i, Pe) in enumerate(Pe_list)
+	    col = colors[i]
+	
+	    # Upwind (alpha = 1) → solid line
+	    xU, uU, ΔxU, _ = solve_advecdiff(1.0, Pe)
+	    plot!(plt, xU, uU; lw=2, label="upwind, Pe=$(round(Pe,digits=2))", color=col, ls=:solid)
+	
+	    # Central (alpha = 0) → dashed line, same color
+	    xC, uC, ΔxC, _ = solve_advecdiff(0.0, Pe)
+	    plot!(plt, xC, uC; lw=2, label="central, Pe=$(round(Pe,digits=2))", color=col, ls=:dash)
+	end
+	
+	# make legend box lighter but keep axes frame
+	background_color_legend = :white
+	foreground_color_legend = RGBA(0,0,0,0)
+	
+	plt
 end
 
 
@@ -2281,7 +2279,7 @@ version = "1.9.2+0"
 # ╟─d01b8353-3a58-47f1-88c6-05c072a14238
 # ╟─91a049da-181b-4995-adaa-bb944bf67383
 # ╟─ca1a0c3a-c666-4534-abd2-6e578d4e660e
-# ╠═a9c3ec07-92b4-4f12-bf4e-155ae5f9ad28
+# ╟─a9c3ec07-92b4-4f12-bf4e-155ae5f9ad28
 # ╟─e6cb7e94-6f0b-480c-a44a-2fedc062289c
 # ╟─73d4b8b5-db48-4e70-8a04-2b9da72f3215
 # ╟─e5c1f03b-b604-478b-a771-8828b1f4e6d4
