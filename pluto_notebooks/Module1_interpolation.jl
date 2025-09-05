@@ -394,9 +394,7 @@ md"""
 	## Runge's Phenomenon (Julia + Pluto)
 
 	Explore polynomial interpolation of the Runge function
-	\[
-	f(x) = \frac{1}{1+25x^2}, \quad x\in[-1,1],
-	\]
+	``f(x) = \frac{1}{1+25x^2}, \, x\in[-1,1], ``
 	using either **equispaced** or **Chebyshev** nodes. Increase the degree to see oscillations appear near the interval ends for equispaced nodes.  
 	Use the toggles to show **bars at node locations** and a **bar chart of node values**.
 	"""
@@ -2117,7 +2115,7 @@ version = "1.9.2+0"
 # ╟─1e519a22-5f96-45f0-a982-9bb363741178
 # ╟─4fefdcb1-a12b-4122-b6a5-2128dba7df5c
 # ╟─8d1b8e82-5e3e-4627-aec9-a1ecf8723cdf
-# ╠═d1e04d74-8320-4b56-b895-f1bf5f41fe21
+# ╟─d1e04d74-8320-4b56-b895-f1bf5f41fe21
 # ╟─6a9b3e15-360e-49c4-98f4-dcbc2afc2524
 # ╟─316fda26-172e-442c-999a-e05456d0cfa4
 # ╟─4d58a662-5f99-498d-a17d-3acdebf30471

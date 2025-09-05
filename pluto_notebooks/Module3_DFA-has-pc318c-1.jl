@@ -1,618 +1,611 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.17
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ d1d973f0-3671-43bb-b461-07b27ca5b5e0
-using Plots, LaTeXStrings, PlutoUI, QuadGK, SpecialFunctions
+# ╔═╡ 6b928336-5bad-48f7-b480-1bf337e1607f
+using PlutoUI, Plots
 
-# ╔═╡ e34e84c4-7eca-11f0-20bb-6ff86d3d3926
+# ╔═╡ 1816242a-8054-11f0-152a-1d9edcfd46bc
 md"""
-# Module 2: Numerical integration
+# Module 3: Finite Difference Approximation
 """
 
-# ╔═╡ dc539d88-d67a-40db-9161-ce1fcd35d3a7
+# ╔═╡ f2cf33d1-948f-4d68-b52b-c9b750accbd7
 md"""
-## Why numerical integration?
+## Review of numerical integration
 
-- Many analytical solutions of ODE and PDE are in the form of integrals  
-
-- Integration cannot always be performed analytically  
-Example:  
-
-``\int_0^x e^{-x^2} \, dx = ? ``  
-
-Also needed when function is only known at discrete points.
+- Rectangle rule (local: 3rd-order, global: 2nd-order)  
+- Trapezoid rule (local: 3rd-order, global: 2nd-order)  
+- Simpson’s rule (local: 5th-order, global: 4th-order)  
+- Richardson extrapolation & Romberg integration (The idea of *error cancelation*)  
+- Improve numerical integration with non-uniform grid spacing  
+    - Adaptive quadrature  
+    - Gauss quadrature  
 """
 
 
-# ╔═╡ d975c170-126a-456d-8c2d-5ef6a402326f
+# ╔═╡ c1be78ce-9c9a-4f92-b12e-296679f4de8a
 md"""
 ## Problem Statement
 
-- Given set of ``N+1`` data points  
-    - ``x_i, f(x_i)`` with ``i = 0, 1, \ldots, N``  
-    - Grid points may be non-uniform with ``x_{i+1} - x_i = h_i``  
-    - However, most of our analysis will require uniform grid points with ``x_{i+1} - x_i = h``  
+- Given a set of ``N+1`` data points $x_i, f(x_i)$ with $i = 0,1,2, \dots, N$. Assume evenly spaced grid points with $x_{i+1} - x_i = h \; (\text{or } \Delta x)$  
 
-- Approximate the definite integral  
+- Approximate the derivative $f'(x_i)$  
 
-```math
-\int_{x_0}^{x_N} f(x)	
-```
 
-- The function values may either be known as given or computed from a known function.
+### Two Methods
 
-"""
-
-# ╔═╡ ef6c56b3-326e-48cb-9cd7-75dde895c84e
-md"""
-## Rectangle/Midpoint Rule
-
-- Approximate integral in an interval ``[x_i, x_{i+1}]`` with a rectangle  
-with height equal to the function value at the midpoint  
-
-```math
-y_i = \frac{x_i + x_{i+1}}{2}
-```
-
-of each interval, i.e., piecewise constant.
-
----
-
-- The rule:
-
-```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx \;\approx\; h_i f(y_i)
-```
-
----
-
-- Not useful in practice because we need to know the value of the function at the midpoint, but will form basis for error analysis
-
+- Analytically differentiate interpolating function  
+- Approximate the derivative with finite differences  
 """
 
 
-# ╔═╡ 8fc99f2e-6062-42eb-a06b-30907fa53526
+# ╔═╡ cc63f48e-9e72-4b55-b3f2-414ce3bae01e
 begin
-  
-    default(legend=false, lw=3, framestyle=:box)
+	local img = LocalResource("./figs/mod3_FD.png")
+end
 
-    # interval and midpoint
-    xi, xip1 = 0.0, 1.0
-    yi = (xi + xip1)/2
+# ╔═╡ eb5ffd0f-4f84-4aa4-ad33-de9178c2218b
+md"""
+## Finite Difference Approximations
 
-	  # choose tick positions, blank out labels
-    xtick_pos = 0:0.2:1
-    ytick_pos = -1:0.2:1
-	
-    # a smooth, increasing, convex-up demo function
-    f1(x) = 0.3 + 0.3 * exp(1.3*(x - yi))
+1. Backward difference
+```math
+\left.\frac{df}{dx}\right|_{x_i} \;=\; 
+\frac{f(x_i) - f(x_{i-1})}{x_i - x_{i-1}}
+```
 
-    # canvas & curve
-    xmin, xmax = xi - 0.25, xip1 + 0.25
-    xf = range(xmin, xmax, length=400)
-    p = plot(xf, f1.(xf), color=:blue,
-			 xaxis=true, yaxis=true,
-             xticks=(xtick_pos, fill("", length(xtick_pos))),
-             yticks=(ytick_pos, fill("", length(ytick_pos))))
-    xlims!(p, (xmin, xmax))
-    y0 = 0.0
-    ytop = maximum(f1.(xf))*1.1
-    ylims!(p, (y0-0.5, ytop))
+2. Forward difference
+```math
+\left.\frac{df}{dx}\right|_{x_i} \;=\; 
+\frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+```
 
-    # dashed verticals at xi and x_{i+1}
-	plot!(p, [xi, xi], [0, f1(xi)], c=:blue, l=:dash, lw=2)
-	plot!(p, [xip1, xip1], [0, f1(xip1)], c=:blue, l=:dash, lw=2)
-	
-    # rectangle at midpoint height
-    yrect = f1(yi)
-    plot!(p, [xi, xip1], [yrect, yrect], c=:red, lw=3)     # top edge
-    plot!(p, [xi, xi],     [y0, yrect],  c=:red, lw=2)
-    plot!(p, [xip1, xip1], [y0, yrect],  c=:red, lw=2)
-	plot!(p, [xmin, xmax], [y0, y0],  c=:black, lw=1)
-	
+3. Central difference
+```math
+\left.\frac{df}{dx}\right|_{x_i} \;=\; 
+\frac{f(x_{i+1}) - f(x_{i-1})}{x_{i+1} - x_{i-1}}
+```
 
-    # midpoint marker
-    scatter!(p, [yi], [yrect], ms=7, mc=:red)
+- Which one to use? Which one is better? Are there others?
 
-    # labels
-    annotate!(p, (xi,   y0 - 0.05*ytop, text(L"x_i", 11, :blue)))
-    annotate!(p, (yi,   y0 - 0.05*ytop, text(L"y_i", 11, :red)))
-    annotate!(p, (xip1, y0 - 0.05*ytop, text(L"x_{i+1}", 11, :blue)))
-	annotate!(p, (yi, f1(yi)+0.1*ytop, text(L"f(y_i)", 11, :blue)))
+"""
 
-    p
+
+# ╔═╡ b5933bf7-3f82-4e5f-95a7-829c0c0715c6
+md"""
+## Forward Differencing
+
+- Consider Taylor expansion for $f(x_{i+1})$ about $x_i$:
+
+```math
+f(x_{i+1}) = f(x_i) + f'(x_i)(x_{i+1}-x_i) + 
+\frac{f''(x_i)}{2!}(x_{i+1}-x_i)^2 + \cdots
+```
+
+If we let $\Delta x = x_{i+1} - x_i$:
+
+```math
+f(x_{i+1}) = f(x_i) + f'(x_i)\,\Delta x + \frac{f''(x_i)}{2}\,\Delta x^2 + \cdots
+```
+
+---
+
+- Solve for $f'(x_i)$:
+
+```math
+f'(x_i) = \frac{f(x_{i+1}) - f(x_i)}{\Delta x} 
+- \frac{f''(x_i)}{2}\,\Delta x + \cdots
+```
+
+This is the **forward finite difference approximation** with a **truncation error** of $\mathcal{O}(\Delta x)$.
+"""
+
+
+# ╔═╡ a9ed7ccd-4a73-4d04-8d1c-56c795c59f54
+md"""
+## Example — Forward Difference
+
+- ``f(x)=e^{-x^2}``, ``f'(x)=-2x\,e^{-x^2}``
+- Determine derivative at ``x=1``. Exact solution: ``f'(1) = -2e^{-1} = -0.73575888``
+
+We illustrate the order of the truncation error of the *forward difference*
+
+```math
+f'(x_0) \approx \frac{f(x_0+h)-f(x_0)}{h}
+```
+
+by varying ``h`` and plotting ``|\varepsilon|=\big|\frac{f(x_0+h)-f(x_0)}{h}-f'(x_0)\big|`` on log–log axes.
+
+"""
+
+
+# ╔═╡ 702a4721-c5ee-40ae-bbf6-0eae201e9d61
+begin
+	# Function and exact derivative
+	f(x)  = exp(-x^2)
+	fp(x) = -2x*exp(-x^2)
+
+	local x0 = 1.0
+	local hs = 10 .^ range(-6, 0; length=200)   # h from 1e-6 to 1
+	local fd(h) = (f(x0 + h) - f(x0)) / h
+	local err = abs.(fd.(hs) .- fp(x0))
+
+	# Reference ~ h^1 line (scaled to sit near the data)
+	local c = err[1] / hs[1]
+	local ref = 10c .* hs
+
+	local plt = plot(hs, err; xscale=:log10, yscale=:log10, lw=2,
+		label="Forward Difference", xlabel="h", ylabel="|ε|",
+		legend=:bottomright, grid=true)
+	plot!(plt, hs, ref; ls=:dash, lw=2, label="~h¹")
+
+	plt
 end
 
 
-# ╔═╡ 7f103b7e-0bff-4809-ae3c-4d2e75a0d6f3
+# ╔═╡ 45fbb6d6-dd13-4e1c-a2c8-702676aa20a5
 md"""
-## Rectangle/Midpoint Rule: Error Analysis
+## Backward Differencing
 
-- Taylor expansion about the midpoint  
-
-```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx 
-= \int_{x_i}^{x_{i+1}} \left[ 
-f(y_i) 
-+ f'(y_i)\frac{(x-y_i)}{1!} 
-+ f''(y_i)\frac{(x-y_i)^2}{2!} 
-+ f^{(3)}(y_i)\frac{(x-y_i)^3}{3!} 
-+ f^{(4)}(y_i)\frac{(x-y_i)^4}{4!} 
-+ \cdots 
-\right] dx
-```
-
-Evaluating the integral gives:
+- Similar idea: expand ``f(x_{i-1})`` about ``x_i`` and solve for ``f'(x_i)``:
 
 ```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx 
-= f(y_i) h_i 
-+ \frac{h_i^3}{24} f''(y_i) 
-+ \frac{h_i^5}{1920} f^{(4)}(y_i) 
-+ \cdots
+f(x_{i-1}) = f(x_i) + f'(x_i)(x_{i-1}-x_i) 
++ \frac{f''(x_i)}{2!}(x_{i-1}-x_i)^2 + \cdots
 ```
 
-where ``h_i = x_{i+1} - x_i``.
+If we let ``\Delta x = x_i - x_{i-1}``:
+
+```math
+f(x_{i-1}) = f(x_i) - f'(x_i)\,\Delta x + \frac{f''(x_i)}{2}\,\Delta x^2 - \cdots
+```
 
 ---
 
-- Rectangle/Midpoint rule is third-order accurate (locally, i.e., for one interval):
+- Solve for ``f'(x_i)``:
 
 ```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx 
-= h_i f(y_i) 
-+ \underline{ \frac{h_i^3}{24} f''(y_i) 
-+ \frac{h_i^5}{1920} f^{(4)}(y_i) 
-+ \cdots}
+f'(x_i) 
+= \frac{f(x_i)-f(x_{i-1})}{\Delta x} 
++ \frac{\Delta x}{2}\,f''(x_i) + \cdots
 ```
 
-- The order of the lowest-order term of the truncation error (underlined) is referred to as **the order of the approximation**.
-- *Truncation error*: The difference between the exact expression and the approximation (after truncating the series)
+---
+
+- Same *truncation error* order (``\mathcal{O}(\Delta x)``) as forward differencing, but with the *opposite sign*.  
+- Forward vs backward differencing will be important for some PDEs (this is where *upwinding / downwinding* ideas come in).
 
 """
 
 
-# ╔═╡ efcc88d3-36b1-4f1e-aa07-cc5d9d96ad72
+# ╔═╡ bd6b2079-37e9-45c2-a451-adc504619922
 md"""
-- Local error analysis is incomplete; we care about error of integral over all intervals  
+## Central Differencing
 
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= \sum_{i=0}^{N-1} \int_{x_i}^{x_{i+1}} f(x)\, dx
-= h \sum_{i=0}^{N-1} f(y_i) 
-+ \frac{h^3}{24} \sum_{i=0}^{N-1} f''(y_i) 
-+ \frac{h^5}{1920} \sum_{i=0}^{N-1} f^{(4)}(y_i) + \cdots
-```
-
-Applying the mean value theorem of integral calculus:
-
-```math
-\sum_{i=0}^{N-1} f''(y_i) = N f''(\bar{x}_{(2)}), 
-\qquad
-\sum_{i=0}^{N-1} f^{(4)}(y_i) = N f^{(4)}(\bar{x}_{(4)})
-```
-
-Thus:
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= h \sum_{i=0}^{N-1} f(y_i) 
-+ \underline{(x_N - x_0)\,\frac{h^2}{24} f''(\bar{x}_{(2)}) 
-+ (x_N - x_0)\,\frac{h^4}{1920} f^{(4)}(\bar{x}_{(4)}) 
-+ \cdots}
-```
-
-By definition:
-
-```math
-(x_N - x_0) = N h
-```
-
-- Therefore, rectangle/midpoint rule is second-order accurate *globally*.
-"""
-
-# ╔═╡ 05ec1c9a-8783-49e4-bcbc-038e0c587c73
-md"""
-## Trapezoid Rule
-
-- Instead of approximating the integral in an interval with a rectangle, use a trapezoid (i.e., piecewise linear polynomial).  
+- Can we do better by using both ``f(x_{i-1})`` and ``f(x_{i+1})``?  
 
 ---
 
-For one interval:  
+Subtract the Taylor expansion of ``f(x_{i-1})`` from that of ``f(x_{i+1})``:
 
 ```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx \;\approx\; \frac{h_i}{2}\,\big(f_i + f_{i+1}\big)
-```
-
-For the whole domain:
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx \;\approx\; \frac{h}{2}\left[\, f_0 + 2\sum_{i=1}^{N-1} f_i + f_N \,\right]
-```
-
-"""
-
-# ╔═╡ 3a2afc61-680a-4a2e-bc08-1416a98ecf6d
-begin
-	local img= LocalResource("./figs/mod2_trapzoid.png");
-	img
-end
-
-# ╔═╡ 15ee6522-a706-41c4-8f2d-1c77e8e189d8
-md"""
-## Trapezoid Rule: Error Analysis
-
-- Taylor Expansion  
-
----
-
-From Taylor series expansions about the midpoint:
-
-```math
-f(x_i) = f(y_i) - \tfrac{1}{2} h_i f'(y_i) + \tfrac{1}{8} h_i^2 f''(y_i) - \tfrac{1}{48} h_i^3 f^{(3)}(y_i) + \cdots
-```
-
-```math
-f(x_{i+1}) = f(y_i) + \tfrac{1}{2} h_i f'(y_i) + \tfrac{1}{8} h_i^2 f''(y_i) + \tfrac{1}{48} h_i^3 f^{(3)}(y_i) + \cdots
-```
-
-Averaging:
-
-```math
-\frac{f(x_i) + f(x_{i+1})}{2}
-= f(y_i) + \tfrac{1}{8} h_i^2 f''(y_i) + \tfrac{1}{384} h_i^4 f^{(4)}(y_i) + \cdots
+f(x_{i+1}) - f(x_{i-1}) 
+= 2 f'(x_i)\,\Delta x + \tfrac{1}{3} f^{(3)}(x_i)\,\Delta x^3 + \cdots
 ```
 
 ---
 
-### Local Error Expansion
+- Solve for ``f'(x_i)``:
 
 ```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx 
-= \tfrac{h_i}{2}\,\big(f_i + f_{i+1}\big) 
-- \tfrac{h_i^3}{12} f''(y_i) 
-- \tfrac{h_i^5}{480} f^{(4)}(y_i) 
-+ \cdots
+f'(x_i) = \frac{f(x_{i+1}) - f(x_{i-1})}{2\Delta x}
+- \frac{\Delta x^2}{6}\,f^{(3)}(x_i) + \cdots
 ```
 
 ---
 
-### Global Error Expansion
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= \tfrac{h}{2} \Big[ f_0 + 2 \sum_{i=1}^{N-1} f_i + f_N \Big]
-- \tfrac{h^2}{12}(x_N - x_0) f''(\bar{x}_{(2)})
-- \tfrac{h^4}{480}(x_N - x_0) f^{(4)}(\bar{x}_{(4)}) 
-+ \cdots
-```
+- Higher order of accuracy: second order (``\mathcal{O}(\Delta x^2)``).  
+- However, requires a wider *stencil* (three-point vs two-point).
 
 """
 
 
-# ╔═╡ 25742cc1-393b-4584-a1c5-07749a5cd44b
-md"""
-## Simpson’s Rule
-
-- Approximate integrand with piecewise quadratic polynomials  
-
----
-
-For two intervals (three points):  
-
-```math
-\int_{x_i}^{x_{i+2}} f(x)\, dx \;\approx\; \frac{h}{3} \Big( f_i + 4 f_{i+1} + f_{i+2} \Big)
-```
-
-For the whole domain:
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-\;\approx\; \frac{h}{3} \Bigg( 
-f_0 
-+ 4 \sum_{\substack{i=1 \\ i \,\text{odd}}}^{N-1} f_i 
-+ 2 \sum_{\substack{i=2 \\ i \,\text{even}}}^{N-2} f_i 
-+ f_N 
-\Bigg)
-```
-
-"""
-
-
-# ╔═╡ c2502c88-5516-40e2-b94e-f6d710edfaf6
-begin
-	local img = LocalResource("./figs/mod2_simpson.png");
-	img
-end
-
-# ╔═╡ 56c8a6e6-7ad0-415b-9de3-ff8033a3ebd0
-md"""
-## Simpson’s Rule: Error Analysis
-
-- Rewrite the rectangle and trapezoid rules over the interval ``[x_i, x_{i+2}]``  
-
-Rectangle:  
-```math
-I_R = f(y_i) h_i + f(y_{i+1}) h_{i+1}
-```
-
-Trapezoid:
-
-```math
-I_T = \tfrac{1}{2}(f_i + f_{i+1})h_i + \tfrac{1}{2}(f_{i+1} + f_{i+2})h_{i+1}
-```
-
-Simpson’s Rule as a combination:
-
-```math
-I_S = \tfrac{2}{3} I_R + \tfrac{1}{3} I_T
-```
-
-The **third-order error** term ``\mathcal{O}(h^3)`` cancels out.
-
----
-
-### Local Error
-
-```math
-\int_{x_i}^{x_{i+2}} f(x)\, dx 
-= \tfrac{h}{3}\big(f_i + 4 f_{i+1} + f_{i+2}\big) 
-- \tfrac{h_i^5}{90} f^{(4)}(\xi_i)
-```
-
----
-
-### Global Error
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= \tfrac{h}{3}\Bigg(
-f_0 + 4 \sum_{\substack{i=1 \\ i\;\text{odd}}}^{N-1} f_i 
-+ 2 \sum_{\substack{i=2 \\ i\;\text{even}}}^{N-2} f_i 
-+ f_N \Bigg)
-- \tfrac{h^4}{90}(x_N - x_0) f^{(4)}(\bar{x}_{(4)})
-```
-
-"""
-
-# ╔═╡ 9513518f-f34b-4f86-850c-067c2db263e9
-md"""
-## Summary of Schemes
-
-✓ **Trapezoid Rule**
-
-- **Local:**
-
-```math
-\int_{x_i}^{x_{i+1}} f(x)\, dx 
-= \tfrac{h_i}{2}(f_i + f_{i+1})
-- \tfrac{h_i^3}{12} f''(y_i)
-- \tfrac{h_i^5}{480} f^{(4)}(y_i)
-```
-
-* **Global:**
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= \tfrac{h}{2}\Bigg( f_0 + 2 \sum_{i=1}^{N-1} f_i + f_N \Bigg)
-- \tfrac{h^2}{12}(x_N - x_0) f''(\bar{x}_{(2)})
-- \tfrac{h^4}{480}(x_N - x_0) f^{(4)}(\bar{x}_{(4)})
-```
-
----
-
-✓ **Simpson’s Rule**
-
-* **Local:**
-
-```math
-\int_{x_i}^{x_{i+2}} f(x)\, dx 
-= \tfrac{h}{3}\big(f_i + 4 f_{i+1} + f_{i+2}\big)
-- \tfrac{h_i^5}{90} f^{(4)}(\xi_i)
-```
-
-* **Global:**
-
-```math
-\int_{x_0}^{x_N} f(x)\, dx 
-= \tfrac{h}{3}\Bigg( 
-f_0 
-+ 4 \sum_{\substack{i=1 \\ i \,\text{odd}}}^{N-1} f_i 
-+ 2 \sum_{\substack{i=2 \\ i \,\text{even}}}^{N-2} f_i 
-+ f_N \Bigg)
-- \tfrac{h^4}{90}(x_N - x_0) f^{(4)}(\bar{x}_{(4)})
-```
-
-"""
-
-# ╔═╡ 7dca3842-d78c-4bcb-b73d-997fe6cb5666
+# ╔═╡ 3c32791a-dee1-4873-bcf4-73abde73c57d
 md"""
 ## Example
 
-The integral of ``f(x) = e^{-x^2}`` is
-```math
-\int_{x_0}^{x_N} e^{-x^2}\, dx = \tfrac{\sqrt{\pi}}{2}\,[\mathrm{erf}(x_N) - \mathrm{erf}(x_0)]
-```
+- ``f(x)=e^{-x^2}``, ``\quad f'(x)=-2(2x^2 - 1)\,e^{-x^2}``
+- Determine derivative at ``x=1`` (Exact solution: $−0.73575888$)
 
-For $x_0 = -2, \; x_N = 2$, the exact solution is **1.76416278**
-
----
-
-### Error comparison of Trapezoid vs. Simpson
-
-* Trapezoid Rule: global error scales as ``\mathcal{O}(h^2)``
-* Simpson’s Rule: global error scales as ``\mathcal{O}(h^4)``
-
----
-
-**Question:** Can we achieve higher order of accuracy?
+We compare *forward*, *backward*, and *central* differences and plot
+``|\varepsilon|=\big|\widehat{f'}(x_0)-f'(x_0)\big|`` versus ``h`` on log–log axes.
 """
 
-# ╔═╡ 7d8ee60e-d348-493c-8682-44743c7d2eab
+
+# ╔═╡ ca7c7180-a026-40f4-b8bb-4bb9a8a3df1d
 begin
-    # function and exact integral
-    f(x) = exp(-x^2)
-    x0, xN = -2.0, 2.0
-    exact, _ = quadgk(f, x0, xN)   # high-accuracy reference
+	# Function and exact derivative
+	local x0 = 1.0
 
-    # trapezoid rule
-    function trap_rule(f, x0, xN, N)
-        h = (xN - x0)/N
-        x = range(x0, xN, length=N+1)
-        y = f.(x)
-        return h*(sum(y) - 0.5*(y[1] + y[end]))
-    end
+	# Step sizes
+	local hs = 10 .^ range(-6, -0.3; length=250)
 
-    # simpson's rule (requires even N)
-    function simpson_rule(f, x0, xN, N)
-        @assert iseven(N) "N must be even for Simpson's rule"
-        h = (xN - x0)/N
-        x = range(x0, xN, length=N+1)
-        y = f.(x)
-        return h/3 * (y[1] + y[end] + 4*sum(y[2:2:end-1]) + 2*sum(y[3:2:end-2]))
-    end
+	# Discrete derivatives
+	forward(h)  = (f(x0 + h) - f(x0)) / h
+	backward(h) = (f(x0) - f(x0 - h)) / h
+	central(h)  = (f(x0 + h) - f(x0 - h)) / (2h)
 
-    # convergence study
-    Ns = [10, 20, 40, 80, 160, 320, 640, 1280]
-    hs = (xN - x0)./Ns
-    err_trap = [abs(trap_rule(f, x0, xN, N) - exact) for N in Ns]
-    err_simp = [abs(simpson_rule(f, x0, xN, N) - exact) for N in Ns]
+	# Errors
+	err_f = abs.(forward.(hs)  .- fp(x0))
+	err_b = abs.(backward.(hs) .- fp(x0))
+	err_c = abs.(central.(hs)  .- fp(x0))
 
-    # plot
-    local p = plot(xaxis=:log, yaxis=:log, lw=2, legend=:bottomright,
-             xlabel="h", ylabel="|error|", title="Error Convergence")
+	# Reference lines (~h^1 and ~h^2), offset so they don't overlap with curves
+	c1 = err_f[1] / hs[1]              # slope-1 scaling
+	ref1 = 10c1 .* hs                # move it down a bit
 
-    plot!(p, hs, err_trap, marker=:circle, label="Trapezoid", color=:blue)
-    plot!(p, hs, err_simp, marker=:diamond, label="Simpson", color=:green)
+	c2 = err_c[60] / hs[60]^2          # slope-2 scaling from a mid point
+	ref2 = 10c2 .* hs.^2               # move it above the central curve
 
-    # reference slopes
-    plot!(p, hs, 0.2 * hs.^2 * err_trap[1]/hs[1]^2, ls=:dash, c=:black, label="O(h²)")
-    plot!(p, hs, 0.2 * hs.^4 * err_simp[1]/hs[1]^4, ls=:dash, c=:gray, label="O(h⁴)")
+	local plt = plot(hs, err_f; xscale=:log10, yscale=:log10, lw=2, label="Forward Difference",
+	           xlabel="h", ylabel="|ε|", legend=:bottomright, grid=true)
+	plot!(plt, hs, err_b; lw=2, label="Backward Difference")
+	plot!(plt, hs, err_c; lw=2, label="Central Difference")
+	plot!(plt, hs, ref1; ls=:dash, lw=2, label="~h¹")
+	plot!(plt, hs, ref2; ls=:dash, lw=2, label="~h²")
 
-    p
+	xlims!(plt, 1e-4, 1)
+
+	plt
 end
 
-# ╔═╡ 43c8c08c-8b2a-447e-8fd1-c9632c1209eb
+
+# ╔═╡ 6bafe47c-316c-4a7a-96de-1842ef0f3a0f
 md"""
-## Richardson Extrapolation
+## Higher-Order Derivatives
 
-- Consider generic notation for the trapezoid rule  
+- The same process applies for higher-order derivatives  
+
+- Example: Second derivative $f''(x_i)$
 
 ```math
-I = \int_{x_0}^{x_N} f(x)\, dx 
-= \tfrac{h}{2}\left(f_0 + 2\sum_{i=1}^{N-1} f_i + f_N \right) 
-+ c_1 h^2 + c_2 h^4 + \cdots 
-= \tilde{I}_1 + c_1 h^2 + c_2 h^4 + \cdots
+f(x_{i+1}) = f(x_i) 
++ f'(x_i)h 
++ \tfrac{1}{2} f''(x_i) h^2 
++ \tfrac{1}{6} f^{(3)}(x_i) h^3 
++ \tfrac{1}{24} f^{(4)}(x_i) h^4 
++ \cdots
 ```
 
-* Expansion form:
+```math
+f(x_{i-1}) = f(x_i) 
+- f'(x_i)h 
++ \tfrac{1}{2} f''(x_i) h^2 
+- \tfrac{1}{6} f^{(3)}(x_i) h^3 
++ \tfrac{1}{24} f^{(4)}(x_i) h^4 
+- \cdots
+```
+
+From Taylor expansions of $f(x_{i+1})$ and $f(x_{i-1})$:
 
 ```math
-\tilde{I}_1 = I - c_1 h^2 - c_2 h^4 + \cdots
+f(x_{i+1}) + f(x_{i-1})
+= 2f(x_i) + f''(x_i) \, h^2 + \tfrac{1}{12} f^{(4)}(x_i) \, h^4 + \cdots
 ```
 
 ---
 
-- Consider the trapezoid rule with `2h` grid spacing
+- Solve for $f''(x_i)$:
 
 ```math
-\tilde{I}_2 = I - c_1 (2h)^2 - c_2 (2h)^4 + \cdots 
-= I - 4c_1 h^2 - 16 c_2 h^4 + \cdots
+f''(x_i) \;=\; \frac{f_{i-1} - 2f_i + f_{i+1}}{h^2}
+- \tfrac{1}{12} h^2 f^{(4)}(x_i) + \cdots
+```
+
+- This is *second-order* accurate.
+
+"""
+
+
+# ╔═╡ a13d06f1-7383-4630-a4a5-73c9a54f92ed
+md"""
+## Nomenclature
+
+- *Stencil*: Extent of grid points used for approximation  
+
+    - First derivative central difference is a three-point stencil even though the coefficient of $f_i$ is zero  
+    - Centered Scheme: Stencil is from $f_{i-k}$ to $f_{i+k}$, where $k$ is some integer  
+    - One-Sided Scheme: Stencil is from $f_i$ to $f_{i+k}$ (or $f_{i-k}$ to $f_i$), where $k$ is some integer  
+    - Forward (Backward)-Biased Scheme: Stencil is from $f_{i-k}$ to $f_{i+l}$, where $l > k$ (or $l < k$)  
+
+---
+
+- *Truncation error*: The portion truncated in a finite difference approximation  
+
+```math
+f'(x_i) \;=\; \frac{f(x_{i+1}) - f(x_i)}{h} + \tfrac{h}{2} f''(x_i) + \cdots
 ```
 
 ---
 
-- Combine these two to eliminate the 2nd-order term
+- *Order of approximation*: The order of the lowest-order term in the truncation error
+"""
+
+
+# ╔═╡ 4007ed66-f841-4c45-9a16-2c9d255529b8
+md"""
+## Requirement for all FDA's
+
+- When the node spacing becomes arbitrarily small, the T.E. $\to 0$, so that the FDA $\to$ actual derivative.  
+
+That is,  
 
 ```math
-\tilde{I}_{12} = \frac{4\tilde{I}_1 - \tilde{I}_2}{3} 
-= I + 4c_2 h^4 + 20c_3 h^6 + \cdots
+\lim_{\Delta x \to 0} \text{T.E.} = 0 \quad \text{(consistency condition)}
+```
+
+Any FDA for which $\lim_{\Delta x \to 0} \text{T.E.} = 0$ is called *consistent*.
+
+---
+
+- Order of approximation
+
+   - The rate at which T.E. $\to 0$ as $\Delta x \downarrow$ is called the *order* of the approximation.  
+
+   - The *leading term* (i.e., the lowest-order term) determines the order of approximation.
+
+"""
+
+
+# ╔═╡ 7243164e-8b07-4a60-aa74-3a0e650f6229
+md"""
+## Summary
+
+- The wider the stencil, the greater the accuracy
+
+    - Generally, for an $n$-th derivative computed with an $N$-point stencil, the order of accuracy is $N-n$.  
+
+    - Sometimes, you get lucky and might gain an extra order with some error cancellation, either inherent to the method (e.g., centered second derivative on a uniform mesh) or due to the *particular function* being differentiated.  
+    - Wider stencils require more computational cost and more bookkeeping.  
+
+---
+
+- Sometimes, for a given stencil, it might be beneficial to sacrifice accuracy for other beneficial properties. One example is to *avoid oscillation*. We will talk about this more later.
+
+"""
+
+
+# ╔═╡ 7c34e980-11cb-4744-98c1-4a01f23a9838
+md"""
+## General Formulation of FDA's (1D)
+
+- All FDA's are of the general form  
+
+```math
+\left.\frac{d^m u}{dx^m}\right|_{x_*} \;\approx\; 
+\gamma_1 u_1 + \gamma_2 u_2 + \cdots + \gamma_p u_p 
+= \sum_{i=1}^p \gamma_i u_i,
+```
+
+where $p$ is the number of node points used.  
+
+---
+
+- Consistency Requirement:
+
+```math
+\sum_{i=1}^p \gamma_i u_i \;\approx\; 
+\left.\frac{d^m u}{dx^m}\right|_{x_*} 
++ O((\Delta x)^r), \quad r > 0
+```
+
+---
+
+- Taylor expansion:
+
+```math
+u_i = u_* + (x_i - x_*) \left.\frac{du}{dx}\right|_{x_*}
++ \frac{(x_i - x_*)^2}{2!} \left.\frac{d^2u}{dx^2}\right|_{x_*}
++ \cdots
 ```
 
 """
 
 
-# ╔═╡ 7cbd12fb-ff2f-497f-9aa1-dca8f9513e7a
+# ╔═╡ c1ed2624-2c4b-436f-b0b9-4089c802fcbb
 md"""
-## Richardson Extrapolation
+## General Formulation of FDA's (1D)
 
-- Consider the trapezoid rule with ``4h`` grid spacing  
+- Substitute Taylor series into linear combination:
 
 ```math
-\tilde{I}_3 = I - 16c_1 h^2 - 256c_2 h^4 + \cdots
+\sum_{i=1}^p \gamma_i u_i
+= F_0 u_* + F_1 \left.\frac{du}{dx}\right|_{x_*}
++ \cdots
++ F_m \left.\frac{d^m u}{dx^m}\right|_{x_*}
++ F_{m+1} \left.\frac{d^{m+1}u}{dx^{m+1}}\right|_{x_*}
++ \cdots
 ```
 
 ---
 
-- Combine ``2h`` and ``4h`` to get another 4th-order estimate
+where:
 
 ```math
-\tilde{I}_{23} = \frac{4\tilde{I}_2 - \tilde{I}_3}{3} 
-= I + 64c_2 h^4 + 1280c_3 h^6 + \cdots
+\begin{aligned}
+F_0 &\equiv \gamma_1 + \gamma_2 + \cdots + \gamma_p \\
+F_1 &\equiv \gamma_1(x_1 - x_*) + \gamma_2(x_2 - x_*) + \cdots + \gamma_p(x_p - x_*) \\
+F_2 &\equiv \frac{\gamma_1(x_1 - x_*)^2}{2} + \frac{\gamma_2(x_2 - x_*)^2}{2} + \cdots + \frac{\gamma_p(x_p - x_*)^2}{2} \\
+&\;\;\vdots \\
+F_m &\equiv \frac{\gamma_1(x_1 - x_*)^m}{m!} + \frac{\gamma_2(x_2 - x_*)^m}{m!} + \cdots + \frac{\gamma_p(x_p - x_*)^m}{m!} \\
+F_{m+1} &\equiv \frac{\gamma_1(x_1 - x_*)^{m+1}}{(m+1)!} + \frac{\gamma_2(x_2 - x_*)^{m+1}}{(m+1)!} + \cdots + \frac{\gamma_p(x_p - x_*)^{m+1}}{(m+1)!} \\
+&\;\;\vdots
+\end{aligned}
+```
+
+---
+"""
+
+
+# ╔═╡ 64687840-fa50-4282-b25c-a223f5ff4cd5
+md"""
+## General Formulation of FDA's (1D)
+
+- From *Consistency Requirement*: $F_m = 1$
+
+```math
+\;\;\;\;\;\; \Rightarrow \text{ each } \gamma_i \sim \frac{1}{(\Delta x)^m}
 ```
 
 ---
 
-- Combine the 4th-order estimates to get a 6th-order estimate
+- If $\gamma_i \sim \tfrac{1}{(\Delta x)^m}$, then  
 
 ```math
-\tilde{I}_{123} = \frac{16\tilde{I}_{12} - \tilde{I}_{23}}{15} 
-= I - 64c_3 h^6 + \cdots
+F_k \sim \frac{(\Delta x)^k}{(\Delta x)^m} = O\!\big((\Delta x)^{k-m}\big).
 ```
 
 ---
 
-- Do you see the pattern here?
+- For consistency, require $F_k$ for $k - m < 0$ to be zero.  
 
-    - The generic process of combining two lower-order estimates at different grid spacings to get a higher-order estimate is called Richardson Extrapolation 
+- Thus,  
 
-    - When applied to the trapezoid rule for integration, the specific algorithm is called Romberg Integration
+```math
+F_0 = F_1 = \cdots = F_{m-1} = 0, \quad F_m = 1
+\;\;\;\;\;\;\; \text{(Required for consistency)}
+```
 
+---
+
+- If $F_{m+1} \neq 0$, FDA is $O(\Delta x)$  
+- If $F_{m+1} = 0$, and $F_{m+2} \neq 0$, FDA is $O(\Delta x^2)$  
+$\cdots$
 
 """
 
 
-# ╔═╡ 5ae36632-fc1b-4089-af63-a9dbc7606695
+# ╔═╡ e923d22e-01dd-4469-bb92-ff0a8721824b
 md"""
-## Improve integration schemes with non-uniform grid spacing
-
-- **Adaptive quadrature**  
-*Idea:* use a finer mesh in regions of rapid functional variation and a coarser mesh where the integrand is varying slowly.
-
----
-
-- **Gauss quadrature**  
-*Idea:* make the choices of $x_i$ and $w_i$ for optimal accuracy.
+- Consistency Requirements:
 
 ```math
-I = \int_a^b f(x)\, dx \;=\; \sum_{i=0}^N w_i f(x_i)
+\begin{bmatrix}
+\frac{1}{(x_1 - x_*)} & \frac{1}{(x_2 - x_*)} & \cdots & \frac{1}{(x_p - x_*)} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{(x_1 - x_*)^{m-1}}{(m-1)!} & \frac{(x_2 - x_*)^{m-1}}{(m-1)!} & \cdots & \frac{(x_p - x_*)^{m-1}}{(m-1)!} \\
+\frac{(x_1 - x_*)^m}{m!} & \frac{(x_2 - x_*)^m}{m!} & \cdots & \frac{(x_p - x_*)^m}{m!}
+\end{bmatrix}
+\begin{bmatrix}
+\gamma_1 \\ \gamma_2 \\ \vdots \\ \gamma_{p-1} \\ \gamma_p
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 0 \\ \vdots \\ 0 \\ 1
+\end{bmatrix}
 ```
 
 ---
 
-- We will not further explore these methods, but you are encouraged to read more.
+* **Case 1:** ``m+1 = p \;\;\Rightarrow \;\; `` square matrix
+  Then, $\det A$ is a *Vandermonde Determinant*, which is guaranteed to be nonzero.
+  That is, `` \det A \neq 0 \;\;\Rightarrow \;\; `` unique solution. 
+
+* **Case 2:** $p < m+1$
+  ``\mathrm{rank}(A;b) \neq \mathrm{rank}(A) \;\;\Rightarrow\;\; `` No solution
+
+* **Case 3:** $p > m+1$
+  ``\mathrm{rank}(A;b) = \mathrm{rank}(A) < p \;\;\Rightarrow\;\; `` Infinite number of solutions
+
+---
+
+**Note:** Review Appendix A of CG
+"""
+
+
+# ╔═╡ 8fe1d36b-ada6-434d-a3d9-5b4ba8bc20e4
+md"""
+✔ **Summary:**
+
+- A consistent FDA for an $m^{th}$-order derivative using $p$ points requires $p \geq m+1$.
+- If ``p = m+1``, approximation is generally ``\mathcal{O}(\Delta x)``.
+- If ``p > m+1``, can obtain higher order approximations by forcing ``F_{m+1} = 0``, ``F_{m+2} = 0``, etc.
+
+---
+
+✔ **Example:**
+
+- Derive an approximation for 
+```math
+\left.\frac{du}{dx}\right|_{x_i}
+```
+
+in terms of the values of $u$ at points $x_{i-1}, x_i, x_{i+1}$.
+
+---
+
+For $m=1, \; p=3 \;\;\Rightarrow\;\; p > m+1 \;\;\Rightarrow\;\;$ we can find a consistent FDA:
+
+```math
+\begin{bmatrix}
+1 & 1 & 1 \\
+-\nabla x_i & 0 & \Delta x_i
+\end{bmatrix}
+\begin{bmatrix}
+\gamma_{i-1} \\ \gamma_i \\ \gamma_{i+1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 1
+\end{bmatrix}
+```
+
+---
+
+**Solution (assuming $\nabla x_i = \Delta x_i$):**
+
+```math
+\gamma_{i-1} = \gamma_{i+1} - \frac{1}{\Delta x}, 
+\quad \gamma_i = \frac{1}{\Delta x} - 2\gamma_{i+1}, 
+\quad \gamma_{i+1} = \text{arbitrary}.
+```
+
+"""
+
+
+# ╔═╡ 4cfb5136-d4a0-463e-9540-4758b3558ddd
+md"""
+Let $\gamma_{i+1} = \dfrac{\alpha}{\Delta x}$ ($\alpha$ is arbitrary). Then
+
+```math
+\left.\dfrac{du}{dx}\right|_{x_i} \;\approx\; 
+\dfrac{(\alpha - 1) u_{i-1} + (1 - 2\alpha) u_i + \alpha u_{i+1}}{\Delta x}
+```
+
+1. ``\alpha = 1, \alpha = 0, \alpha = \tfrac{1}{2} `` correspond to forward, backward, and central differences.
+
+2. Impose ``F_2 = 0 \Rightarrow \mathcal{O}(\Delta x^2) \Rightarrow ``
+
+```math
+\dfrac{\Delta x^2}{2} \cdot \dfrac{\alpha - 1}{\Delta x} + \dfrac{\Delta x^2}{2} \cdot \dfrac{\alpha}{\Delta x} = 0
+```
+Thus, ``\alpha = \tfrac{1}{2} ``
+
 """
 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-LaTeXStrings = "~1.4.0"
 Plots = "~1.40.18"
 PlutoUI = "~0.7.69"
-QuadGK = "~2.11.2"
-SpecialFunctions = "~2.5.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -621,7 +614,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "80e946807be75f64ff3a2b87aceb7255e9592f3a"
+project_hash = "faa599f5bb698da82bfe92051bbc8b7eb0194e34"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -691,10 +684,12 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.11.0"
-weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
     SpecialFunctionsExt = "SpecialFunctions"
+
+    [deps.ColorVectorSpace.weakdeps]
+    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
@@ -1150,12 +1145,6 @@ git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "3.5.2+0"
 
-[[deps.OpenSpecFun_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "1346c9208249809840c91b26703912dff463d335"
-uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
-version = "0.5.6+0"
-
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
@@ -1283,18 +1272,6 @@ git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
 version = "6.8.2+1"
 
-[[deps.QuadGK]]
-deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "9da16da70037ba9d701192e27befedefb91ec284"
-uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.11.2"
-
-    [deps.QuadGK.extensions]
-    QuadGKEnzymeExt = "Enzyme"
-
-    [deps.QuadGK.weakdeps]
-    Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
-
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -1373,18 +1350,6 @@ version = "1.2.2"
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.11.0"
-
-[[deps.SpecialFunctions]]
-deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "41852b8679f78c8d8961eeadc8f62cef861a52e3"
-uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.5.1"
-
-    [deps.SpecialFunctions.extensions]
-    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
-
-    [deps.SpecialFunctions.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 
 [[deps.StableRNGs]]
 deps = ["Random"]
@@ -1771,25 +1736,28 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─d1d973f0-3671-43bb-b461-07b27ca5b5e0
-# ╟─e34e84c4-7eca-11f0-20bb-6ff86d3d3926
-# ╟─dc539d88-d67a-40db-9161-ce1fcd35d3a7
-# ╟─d975c170-126a-456d-8c2d-5ef6a402326f
-# ╟─ef6c56b3-326e-48cb-9cd7-75dde895c84e
-# ╟─8fc99f2e-6062-42eb-a06b-30907fa53526
-# ╟─7f103b7e-0bff-4809-ae3c-4d2e75a0d6f3
-# ╟─efcc88d3-36b1-4f1e-aa07-cc5d9d96ad72
-# ╟─05ec1c9a-8783-49e4-bcbc-038e0c587c73
-# ╟─3a2afc61-680a-4a2e-bc08-1416a98ecf6d
-# ╟─15ee6522-a706-41c4-8f2d-1c77e8e189d8
-# ╟─25742cc1-393b-4584-a1c5-07749a5cd44b
-# ╟─c2502c88-5516-40e2-b94e-f6d710edfaf6
-# ╟─56c8a6e6-7ad0-415b-9de3-ff8033a3ebd0
-# ╟─9513518f-f34b-4f86-850c-067c2db263e9
-# ╟─7dca3842-d78c-4bcb-b73d-997fe6cb5666
-# ╟─7d8ee60e-d348-493c-8682-44743c7d2eab
-# ╟─43c8c08c-8b2a-447e-8fd1-c9632c1209eb
-# ╟─7cbd12fb-ff2f-497f-9aa1-dca8f9513e7a
-# ╟─5ae36632-fc1b-4089-af63-a9dbc7606695
+# ╟─6b928336-5bad-48f7-b480-1bf337e1607f
+# ╟─1816242a-8054-11f0-152a-1d9edcfd46bc
+# ╟─f2cf33d1-948f-4d68-b52b-c9b750accbd7
+# ╟─c1be78ce-9c9a-4f92-b12e-296679f4de8a
+# ╟─cc63f48e-9e72-4b55-b3f2-414ce3bae01e
+# ╟─eb5ffd0f-4f84-4aa4-ad33-de9178c2218b
+# ╟─b5933bf7-3f82-4e5f-95a7-829c0c0715c6
+# ╟─a9ed7ccd-4a73-4d04-8d1c-56c795c59f54
+# ╟─702a4721-c5ee-40ae-bbf6-0eae201e9d61
+# ╟─45fbb6d6-dd13-4e1c-a2c8-702676aa20a5
+# ╟─bd6b2079-37e9-45c2-a451-adc504619922
+# ╟─3c32791a-dee1-4873-bcf4-73abde73c57d
+# ╟─ca7c7180-a026-40f4-b8bb-4bb9a8a3df1d
+# ╟─6bafe47c-316c-4a7a-96de-1842ef0f3a0f
+# ╟─a13d06f1-7383-4630-a4a5-73c9a54f92ed
+# ╟─4007ed66-f841-4c45-9a16-2c9d255529b8
+# ╟─7243164e-8b07-4a60-aa74-3a0e650f6229
+# ╟─7c34e980-11cb-4744-98c1-4a01f23a9838
+# ╟─c1ed2624-2c4b-436f-b0b9-4089c802fcbb
+# ╟─64687840-fa50-4282-b25c-a223f5ff4cd5
+# ╟─e923d22e-01dd-4469-bb92-ff0a8721824b
+# ╟─8fe1d36b-ada6-434d-a3d9-5b4ba8bc20e4
+# ╠═4cfb5136-d4a0-463e-9540-4758b3558ddd
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
