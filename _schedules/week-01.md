@@ -7,6 +7,6 @@ Aug 26
   : [Lecture note #01](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
 
 Aug 28
-: [Introduction to Julia & Interpolation](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Interpolation](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #02](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
 : **Release**{: .label .label-green} **HW #1** ([Notebook](../homework/hw1.html), [PDF](../homework/hw1.pdf))

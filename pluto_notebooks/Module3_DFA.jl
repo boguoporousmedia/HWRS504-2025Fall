@@ -9,7 +9,7 @@ using PlutoUI, Plots, LaTeXStrings, LinearAlgebra
 
 # ╔═╡ 1816242a-8054-11f0-152a-1d9edcfd46bc
 md"""
-# Module 3: Finite Difference Approximation
+# Module 3: Finite Difference Approximation in Space
 """
 
 # ╔═╡ 02a95c05-026a-47fb-a325-f00eff3e0dd6
@@ -884,7 +884,7 @@ local img = LocalResource("./figs/mod3_n_node_dm.png", :width => "400px")
 
 # ╔═╡ a9c3ec07-92b4-4f12-bf4e-155ae5f9ad28
 md"""
-### Try central difference first:
+### Central difference scheme for the first-order derivative
 
 ```math
 \left.\frac{du}{dx}\right|_{x_i} = \frac{u_{i+1} - u_{i-1}}{2 \Delta x}
@@ -936,6 +936,18 @@ local img = LocalResource("./figs/mod3_centralFD_oscillation.png", :width => "50
 
 # ╔═╡ e5c1f03b-b604-478b-a771-8828b1f4e6d4
 md"""
+### Central difference scheme for the first-order derivative
+
+```math
+\left.\frac{du}{dx}\right|_{x_i} = \frac{u_{i} - u_{i-1}}{\Delta x}
+```
+
+```math
+\left.\frac{d^2 u}{dx^2}\right|_{x_i} = \frac{u_{i-1} - 2u_i + u_{i+1}}{(\Delta x)^2}
+```
+
+---
+
 ### Write algebraic equations
 
 ```math
@@ -963,7 +975,7 @@ local img = LocalResource("./figs/mod3_forwardFD_no_oscillation.png", :width => 
 
 # ╔═╡ a3d0fb8d-61a5-492b-ad90-7223ceb73466
 md"""
-- System of algebraic equations for ``N`` points
+System of algebraic equations for ``N`` points
 
 ```math
 \begin{bmatrix}
@@ -1099,6 +1111,588 @@ begin
 	
 	plt
 end
+
+
+# ╔═╡ 0a29e6dd-7de8-4cf5-b555-5c12bad2debb
+md"""
+## Modified Equation Analysis
+
+- How do the different discretization schemes change the behavior of the equation fundamentally?
+
+    - Numerical scheme should not overly distort the critical physics that we are trying to model.
+
+- How to analyze? ⇒ **Modified Equation Analysis**
+
+- *Idea*: Using Taylor expansion to find another differential equation that is better approximated by our discretization scheme.
+
+- We’ll discuss more about this when we look at transient problems.
+
+"""
+
+# ╔═╡ 83aa0392-70db-434c-acd3-28738e3217dd
+md"""
+### Upstream-weighted (or Upwind) Approximation
+
+--- 
+
+Taylor expansions:
+
+```math
+u_{i+1} = u_i 
++ \left.\frac{du}{dx}\right|_{x_i} \Delta x 
++ \frac{1}{2}\left.\frac{d^2 u}{dx^2}\right|_{x_i}\Delta x^2 
++ \frac{1}{6}\left.\frac{d^3 u}{dx^3}\right|_{x_i}\Delta x^3 
++ \frac{1}{24}\left.\frac{d^4 u}{dx^4}\right|_{x_i}\Delta x^4 + \cdots
+```
+
+```math
+u_{i-1} = u_i 
+- \left.\frac{du}{dx}\right|_{x_i} \Delta x 
++ \frac{1}{2}\left.\frac{d^2 u}{dx^2}\right|_{x_i}\Delta x^2 
+- \frac{1}{6}\left.\frac{d^3 u}{dx^3}\right|_{x_i}\Delta x^3 
++ \frac{1}{24}\left.\frac{d^4 u}{dx^4}\right|_{x_i}\Delta x^4 - \cdots
+```
+
+---
+
+```math
+\frac{u_i - u_{i-1}}{\Delta x} 
+= \left.\frac{du}{dx}\right|_{x_i} 
+- \frac{\Delta x}{2} \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ O(\Delta x^2)
+```
+
+```math
+\frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ \frac{1}{12}\left.\frac{d^4 u}{dx^4}\right|_{x_i}\Delta x^2 + \cdots
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} + O(\Delta x^2)
+```
+
+---
+
+```math
+\Rightarrow 
+V \frac{u_i - u_{i-1}}{\Delta x} 
+- D \frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+= V \left.\frac{du}{dx}\right|_{x_i} 
+- \frac{V \Delta x}{2} \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
+- D \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ O(\Delta x^2)
+```
+
+- Upstream-weighted approximation modifies the original equation with an additional *diffusion* term 
+
+```math
+- \frac{V \Delta x}{2} \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
+```
+
+This additional term is caused by the numerical error (scales with $\Delta x$) and is often referred to as **numerical diffusion**. 
+
+"""
+
+# ╔═╡ 3b3f1e9d-ebba-4d69-9f83-c6500708c71c
+md"""
+### Central Difference Approximation
+
+```math
+\frac{u_{i+1} - u_{i-1}}{2 \Delta x} 
+= \left.\frac{du}{dx}\right|_{x_i} 
++ \frac{1}{6}\left.\frac{d^3 u}{dx^3}\right|_{x_i} \Delta x^2 
++ O(\Delta x^4)
+```
+
+```math
+\frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ \frac{1}{12}\left.\frac{d^4 u}{dx^4}\right|_{x_i} \Delta x^2 
++ \frac{1}{360}\left.\frac{d^6 u}{dx^6}\right|_{x_i} \Delta x^4 
++ \cdots
+```
+
+```math
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ \frac{1}{12}\left.\frac{d^4 u}{dx^4}\right|_{x_i} \Delta x^2 
++ O(\Delta x^4)
+```
+
+---
+
+```math
+\Rightarrow \;
+V \frac{u_{i} - u_{i-1}}{\Delta x} 
+- D \frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+```
+
+```math
+= V \left[ \left.\frac{du}{dx}\right|_{x_i} 
++ \frac{1}{6}\left.\frac{d^3 u}{dx^3}\right|_{x_i} \Delta x^2 \right] 
+```
+
+```math
+- D \left[ \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ \frac{1}{12}\left.\frac{d^4 u}{dx^4}\right|_{x_i} \Delta x^2 \right] 
++ O(\Delta x^3)
+```
+
+Central-difference approximation modifies the original equation with two additional terms
+
+```math
+\frac{1}{6}\left.\frac{d^3 u}{dx^3}\right|_{x_i} \Delta x^2  - \frac{1}{12}\left.\frac{d^4 u}{dx^4}\right|_{x_i} \Delta x^2
+```
+
+- The first third-order term shifts the phase speed of different Fourier modes. As a result, high-frequency (short-wavelength) waves travel at the wrong speed and introduces *oscillation*. Often referred to as **numerical dispersion**.
+
+- The second fourth-order term damps out high-frequency oscillations more strongly than low-frequency ones (**numerical diffusion**). As a result, the scheme artificially smooths sharp gradients and oscillations, but less aggressively than the numerical diffusion term in an upstream-weighted scheme.
+
+- The third-order term is more dominant than the fourth-order term, which leads to an overall oscillatory behavior (**numerical dispersion**).
+
+**NOTE**: The concept of *numerical dispersion* here is different from the *macroscale dispersion* in groundwater solute transport.
+
+"""
+
+
+
+# ╔═╡ 6c004a80-5ada-45e9-8618-9995032244e5
+md"""
+### Downstream-weighted (or Downwind) Approximation
+
+```math
+\frac{u_{i+1} - u_i}{\Delta x} 
+= \left.\frac{du}{dx}\right|_{x_i} 
++ \frac{\Delta x}{2} \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ O(\Delta x^2)
+```
+
+```math
+\frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ \frac{1}{24}\left.\frac{d^4 u}{dx^4}\right|_{x_i}\Delta x^2 
++ \cdots
+= \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ O(\Delta x^2)
+```
+
+---
+
+```math
+\Rightarrow \;
+V \frac{u_{i+1} - u_i}{\Delta x} 
+- D \frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} 
+```
+
+```math
+= V \left.\frac{du}{dx}\right|_{x_i} 
++ \frac{V \Delta x}{2} \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
+- D \left.\frac{d^2 u}{dx^2}\right|_{x_i} 
++ O(\Delta x^2)
+```
+
+- The term ``\frac{V \Delta x}{2} \frac{d^2 u}{dx^2}`` acts like negative diffusion (anti-diffusion).
+
+- If the effective diffusion coefficient ``(D - \frac{V \Delta x}{2})`` becomes negative, the scheme is **unstable** (solution blows up).
+
+"""
+
+
+# ╔═╡ dc3ad891-1e72-4ac7-9bc9-d7fe9c483d7b
+md"""
+## Boundary Conditions
+"""
+
+# ╔═╡ d5ac488d-247a-47aa-9600-6d11aa645ae9
+md"""
+### Dirichlet boundary condition
+"""
+
+# ╔═╡ 50b18840-ffcc-4132-9f22-a59d1d5d7425
+local img = LocalResource("./figs/mod3_dirichlet_BC.png", :width => "400px")
+
+# ╔═╡ 1dd43ab7-05c8-4773-91c2-14cea1fe133b
+md"""
+### Neumann boundary contion
+"""
+
+# ╔═╡ 6037e76b-bd82-4e18-825d-0a197d723a74
+local img = LocalResource("./figs/mod3_neumann_BC.png", :width => "400px")
+
+# ╔═╡ 85eaf88c-cfbc-4408-9c9c-0758790bc76d
+md"""
+
+```math
+\left.\frac{du}{dx}\right|_{x_1} = C_1
+```
+
+- ``u_{-1}`` is a ghost node.
+- ``u_1`` is unknown, we need to solve for it.
+
+---
+
+**Finite difference approximations at $x_1$:**
+
+* Forward difference:
+
+```math
+\left.\frac{du}{dx}\right|_{x_1} = \frac{u_2 - u_1}{\Delta x}
+```
+
+* Backward difference:
+
+```math
+\left.\frac{du}{dx}\right|_{x_1} = \frac{u_1 - u_{-1}}{\Delta x}
+```
+
+* Central difference:
+
+```math
+\left.\frac{du}{dx}\right|_{x_1} = \frac{u_2 - u_{-1}}{2 \Delta x}
+```
+
+---
+
+Often, we employ the following assumption
+
+```math
+u_1 = \frac{u_0 + u_2}{2}
+```
+
+"""
+
+
+# ╔═╡ 5aaa13ab-e38c-4d3d-9699-c87fee236b07
+md"""
+## Multiple Dimensions
+"""
+
+# ╔═╡ f096d749-5ffe-4daa-b763-c6f99a8d73bf
+md"""
+- Rectangular grid
+"""
+
+# ╔═╡ 90f92c1e-746e-44d6-9298-a027ff95a1d8
+local img = LocalResource("./figs/mod3_rectangle_grid.png", :width => "400px")
+
+# ╔═╡ b786c0f4-65b1-4e1d-ad68-a6fa5adc2b3f
+md"""
+**One-dimensional Derivatives**
+
+- Nothing new; add the index of the other direction.  
+- Example (Second-order central difference):
+
+```math
+\frac{\partial u_{i,j}}{\partial x} 
+= \frac{u_{i+1,j} - u_{i-1,j}}{2 \Delta x} 
+- \frac{\Delta x^2}{6} \frac{\partial^3 u_{i,j}}{\partial x^3} 
++ \cdots
+```
+
+"""
+
+# ╔═╡ b1e27e5d-c876-43ca-8288-5b5b309221c8
+md"""
+**Mixed derivatives**
+
+- Use 1D derivative approximations in succession  
+- Example:
+```math
+\frac{\partial^2 u}{\partial x \partial y}
+```
+
+* Note that
+
+```math
+\frac{\partial^2 u}{\partial x \partial y}
+= \frac{\partial}{\partial x} \left( \frac{\partial u}{\partial y} \right)
+= \frac{\partial}{\partial y} \left( \frac{\partial u}{\partial x} \right)
+```
+
+---
+
+Let ``f = \frac{\partial u}{\partial y}``, then ``\frac{\partial^2 u}{\partial x \partial y} = \frac{\partial f}{\partial x}``
+
+Using central difference for $f$:
+
+```math
+\frac{\partial f}{\partial x} = \frac{f_{i+1} - f_{i-1}}{2\Delta x}
+- \frac{1}{6} f_{xxx}|_i \, \Delta x^2 + O(\Delta x^4)
+```
+
+where
+
+```math
+f_{i+1} = \left.\frac{\partial u}{\partial y}\right|_{i+1}
+= \frac{u_{i+1,j+1} - u_{i+1,j-1}}{2\Delta y}
+- \frac{1}{6} u_{xyyy}|_{i+1}\, \Delta y^2 + O(\Delta y^4)
+```
+
+and
+
+```math
+f_{i-1} = \left.\frac{\partial u}{\partial y}\right|_{i-1}
+= \frac{u_{i-1,j+1} - u_{i-1,j-1}}{2\Delta y}
+- \frac{1}{6} u_{xyyy}|_{i-1}\, \Delta y^2 + O(\Delta y^4)
+```
+
+---
+
+Final approximation:
+
+```math
+\frac{\partial^2 u}{\partial x \partial y}
+= \frac{u_{i+1,j+1} - u_{i+1,j-1} - u_{i-1,j+1} + u_{i-1,j-1}}{4 \Delta x \Delta y}
+```
+
+```math
+- \frac{\Delta x^2}{6} u^{xxxy}_{i,j}
+- \frac{\Delta y^2}{6} u^{xyyy}_{i,j}
++ O(\Delta x^4, \Delta y^4)
+```
+
+*(second-order accurate)*
+
+"""
+
+# ╔═╡ df3e1dfe-3347-46b6-9a62-f850ab0f5c68
+local img = LocalResource("./figs/mod3_poisson_domain.png", :width => "400px")
+
+# ╔═╡ 74627804-0ea5-44f6-8919-8992d41ca6a1
+md"""
+### Example: Poisson Equation
+
+We want to solve:
+```math
+\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = f(x,u)
+```
+
+---
+
+Approximations:
+
+```math
+\left.\frac{\partial^2 u}{\partial x^2}\right|_{x_i,y_i}
+\approx \frac{u_{i+1,j} - 2u_{i,j} + u_{i-1,j}}{\Delta x^2}
+```
+
+```math
+\left.\frac{\partial^2 u}{\partial y^2}\right|_{x_i,y_i}
+\approx \frac{u_{i,j+1} - 2u_{i,j} + u_{i,j-1}}{\Delta y^2}
+```
+
+---
+
+Combining:
+
+```math
+\left[
+\frac{\partial^2 u}{\partial x^2}
++ \frac{\partial^2 u}{\partial y^2}
+- f(x,y)
+\right]_{x_i,y_i}
+\approx
+\frac{1}{\Delta x^2} u_{i+1,j}
++ \frac{1}{\Delta x^2} u_{i-1,j}
++ \frac{1}{\Delta y^2} u_{i,j+1}
+```
+
+```math
++ \frac{1}{\Delta y^2} u_{i,j-1}
+- \left( \frac{2}{\Delta x^2} + \frac{2}{\Delta y^2} \right) u_{i,j}
+- f|_{x_i,y_i}
+```
+
+---
+
+**Procedure:**
+
+1. Number all the nodes.
+2. Write the algebraic equation for each node.
+3. Put together the linear matrix system.
+
+**Notes:**
+
+* The matrix is *5-diagonal*.
+* Need to take care of *boundary conditions (BCs)*.
+
+"""
+
+# ╔═╡ 95ef9435-2502-41df-b14d-0cde79f1dee5
+md"""
+### Variable coefficients in the differential equation
+
+- Constant coefficients:
+
+```math
+V \frac{du}{dx} - D \frac{d^2 u}{dx^2} = 0
+```
+
+- Variable coefficients:
+
+```math
+\frac{d(Vu)}{dx} - \frac{d}{dx} \left( D \frac{du}{dx} \right) = 0
+```
+
+---
+
+- Advection term:
+
+```math
+\left. \frac{d(Vu)}{dx} \right|_i
+= \frac{(Vu)_i - (Vu)_{i-1}}{\Delta x}
+\quad \text{(upstream-weighted)}
+```
+
+```math
+\left. \frac{d(Vu)}{dx} \right|_i
+= \frac{(Vu)_{i+1} - (Vu)_{i-1}}{2\Delta x}
+\quad \text{(central)}
+```
+
+- Diffusion term:
+
+```math
+\frac{d}{dx} \left( D \frac{du}{dx} \right)
+= \frac{ \left(D \frac{du}{dx}\right)_{i+1/2}
+- \left(D \frac{du}{dx}\right)_{i-1/2} }{\Delta x}
+```
+
+Expanding:
+
+```math
+= \frac{ D_{i+1/2} \frac{u_{i+1}-u_i}{\Delta x}
+- D_{i-1/2} \frac{u_i-u_{i-1}}{\Delta x} }{\Delta x}
+```
+
+- Harmonic average:
+
+```math
+D_{i+1/2} = \frac{2}{ \tfrac{1}{D_i} + \tfrac{1}{D_{i+1}} }
+```
+
+- Final discretized form:
+
+```math
+\frac{ D_{i+1/2} u_{i+1} - (D_{i+1/2} + D_{i-1/2}) u_i + D_{i-1/2} u_{i-1} }{\Delta x^2}
+```
+
+"""
+
+
+# ╔═╡ 345d7010-562f-4e42-a683-010ba03e74c5
+md"""
+## Point-wise grids vs. cell-centered grids for FDA
+"""
+
+# ╔═╡ 792a676e-a76e-4a69-8ae8-93f9119a3e51
+md"""
+**Point-wise grids**
+"""
+
+# ╔═╡ 8213a50b-ca98-456a-bd0a-cf592fd59d1e
+local img = LocalResource("./figs/mod3_pointwise_1d.png", :width => "400px")
+
+# ╔═╡ 35c8ab9e-43de-4e4d-94e8-9cd64ba3bce2
+md"""
+**Cell-centered grids**
+"""
+
+# ╔═╡ 2f025d7e-7598-4caa-8e0a-d265cadebdeb
+local img = LocalResource("./figs/mod3_cell_centered_1d.png", :width => "400px")
+
+# ╔═╡ ec58ba5d-76fd-4122-bbd8-32d054f6a808
+md"""
+
+* Each control volume corresponds to a **grid cell**
+* Flux in at left face, flux out at right face
+
+---
+
+**Advection term:**
+
+```math
+\left. \frac{d(Vu)}{dx} \right|_i
+= \frac{(Vu)_{i+1/2} - (Vu)_{i-1/2}}{\Delta x}
+```
+
+Approximation (central difference):
+
+```math
+\frac{(Vu)_i + (Vu)_{i+1}}{2\Delta x}
+- \frac{(Vu)_{i-1} + (Vu)_i}{2\Delta x}
+= \frac{(Vu)_{i+1} - (Vu)_{i-1}}{2\Delta x}
+```
+
+Approximation (upstream-weighted):
+
+```math
+\left. \frac{d(Vu)}{dx} \right|_i
+= \frac{(Vu)_{i+1/2} - (Vu)_{i-1/2}}{\Delta x}
+\approx \frac{(Vu)_i - (Vu)_{i-1}}{\Delta x}
+```
+
+---
+
+**Notes:**
+
+* Central difference: higher accuracy but can introduce oscillations.
+* Upstream-weighted: adds numerical diffusion, more stable.
+
+"""
+
+
+# ╔═╡ 3448eb07-97b0-48e5-ba5a-5c819e32c1b8
+local img = LocalResource("./figs/mod3_cell_centered_1d_ghostcell.png", :width => "400px")
+
+# ╔═╡ 7d0fcb65-fb46-4881-9b58-ba3992382745
+md"""
+
+**Boundary Conditions (BCs):**
+
+- Dirichlet:
+```math
+\frac{u_1 + u_{-1}}{2} = u \bigg|_{x=0}
+```
+
+- Neumann:
+
+```math
+\frac{u_1 - u_{-1}}{2} = \left.\frac{du}{dx}\right|_{x=0}
+```
+
+"""
+
+# ╔═╡ b683a35a-55de-4223-8741-1895facae7fe
+md"""
+
+**Diffusion term:**
+
+```math
+\left. \frac{d}{dx} \left( D \frac{du}{dx} \right) \right|_i
+= \frac{ \left( D \frac{du}{dx} \right)_{i+1/2}
+- \left( D \frac{du}{dx} \right)_{i-1/2} }{\Delta x}
+```
+
+Expanding:
+
+```math
+= \frac{ D_{i+1/2} \frac{u_{i+1} - u_i}{\Delta x}
+- D_{i-1/2} \frac{u_i - u_{i-1}}{\Delta x} }{\Delta x}
+```
+
+Final form:
+
+```math
+= \frac{ D_{i+1/2} u_{i+1}
+- (D_{i+1/2} + D_{i-1/2}) u_i
++ D_{i-1/2} u_{i-1} }{\Delta x^2}
+```
+
+* Here $D_{i+1/2}$ and $D_{i-1/2}$ are evaluated using the *harmonic mean*:
+
+```math
+D_{i+1/2} = \frac{2}{ \tfrac{1}{D_i} + \tfrac{1}{D_{i+1}} }
+```
+
+"""
 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2243,7 +2837,7 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═6b928336-5bad-48f7-b480-1bf337e1607f
+# ╟─6b928336-5bad-48f7-b480-1bf337e1607f
 # ╟─1816242a-8054-11f0-152a-1d9edcfd46bc
 # ╟─02a95c05-026a-47fb-a325-f00eff3e0dd6
 # ╟─f2cf33d1-948f-4d68-b52b-c9b750accbd7
@@ -2287,5 +2881,32 @@ version = "1.9.2+0"
 # ╟─a3d0fb8d-61a5-492b-ad90-7223ceb73466
 # ╟─a5e60b99-e675-402c-95a3-087e46a1611c
 # ╟─a8a76810-57c6-4fdc-a006-cae756dd7888
+# ╟─0a29e6dd-7de8-4cf5-b555-5c12bad2debb
+# ╟─83aa0392-70db-434c-acd3-28738e3217dd
+# ╟─3b3f1e9d-ebba-4d69-9f83-c6500708c71c
+# ╟─6c004a80-5ada-45e9-8618-9995032244e5
+# ╟─dc3ad891-1e72-4ac7-9bc9-d7fe9c483d7b
+# ╟─d5ac488d-247a-47aa-9600-6d11aa645ae9
+# ╠═50b18840-ffcc-4132-9f22-a59d1d5d7425
+# ╟─1dd43ab7-05c8-4773-91c2-14cea1fe133b
+# ╟─6037e76b-bd82-4e18-825d-0a197d723a74
+# ╟─85eaf88c-cfbc-4408-9c9c-0758790bc76d
+# ╟─5aaa13ab-e38c-4d3d-9699-c87fee236b07
+# ╟─f096d749-5ffe-4daa-b763-c6f99a8d73bf
+# ╟─90f92c1e-746e-44d6-9298-a027ff95a1d8
+# ╟─b786c0f4-65b1-4e1d-ad68-a6fa5adc2b3f
+# ╟─b1e27e5d-c876-43ca-8288-5b5b309221c8
+# ╠═df3e1dfe-3347-46b6-9a62-f850ab0f5c68
+# ╟─74627804-0ea5-44f6-8919-8992d41ca6a1
+# ╟─95ef9435-2502-41df-b14d-0cde79f1dee5
+# ╟─345d7010-562f-4e42-a683-010ba03e74c5
+# ╟─792a676e-a76e-4a69-8ae8-93f9119a3e51
+# ╟─8213a50b-ca98-456a-bd0a-cf592fd59d1e
+# ╟─35c8ab9e-43de-4e4d-94e8-9cd64ba3bce2
+# ╟─2f025d7e-7598-4caa-8e0a-d265cadebdeb
+# ╟─ec58ba5d-76fd-4122-bbd8-32d054f6a808
+# ╟─3448eb07-97b0-48e5-ba5a-5c819e32c1b8
+# ╟─7d0fcb65-fb46-4881-9b58-ba3992382745
+# ╟─b683a35a-55de-4223-8741-1895facae7fe
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
