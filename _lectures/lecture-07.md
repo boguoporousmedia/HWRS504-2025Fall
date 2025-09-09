@@ -1,5 +1,5 @@
 ---
-title: "Lecture #07: FDA in Space (continued)"
+title: "Lecture #07: Finite Difference Approximation in Space"
 ---
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Sep 16, 3:30 pm – 4:45 pm (Bo Guo)

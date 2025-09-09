@@ -24,7 +24,7 @@ md"""
 - Rectangle rule (local: 3rd-order, global: 2nd-order)  
 - Trapezoid rule (local: 3rd-order, global: 2nd-order)  
 - Simpson’s rule (local: 5th-order, global: 4th-order)  
-- Richardson extrapolation & Romberg integration (The idea of *error cancelation*)  
+- Richardson extrapolation & Romberg integration (The idea of *"error cancelation"*)  
 - Improve numerical integration with non-uniform grid spacing  
     - Adaptive quadrature  
     - Gauss quadrature  
@@ -49,7 +49,7 @@ md"""
 
 # ╔═╡ cc63f48e-9e72-4b55-b3f2-414ce3bae01e
 begin
-	local img = LocalResource("./figs/mod3_FD.png")
+	local img = LocalResource("./figs/mod3_FD.png",:width => "400px")
 end
 
 # ╔═╡ eb5ffd0f-4f84-4aa4-ad33-de9178c2218b
@@ -661,7 +661,7 @@ md"""
 ```
 
 ```math
-\frac{-u_{i+2} + 8u_{i+1} - 8u_{i-1} + u_{i-2}}{12(\Delta x)} \quad O((\Delta x)^4)
+\frac{-u_{i+2} + 8u_{i+1} - 8u_{i-1} + u_{i-2}}{12 \Delta x} \quad O((\Delta x)^4)
 ```
 
 ---
@@ -753,6 +753,8 @@ So at **Node #2**:
 ```math
 u_1 - \left(2 + \frac{k \Delta x^2}{D}\right) u_2 + u_3 = 0
 ```
+
+Note that the coefficients are now *dimensionless* after the rearrangement.
 
 ---
 
@@ -889,6 +891,7 @@ md"""
 ```math
 \left.\frac{du}{dx}\right|_{x_i} = \frac{u_{i+1} - u_{i-1}}{2 \Delta x}
 ```
+Only one option for the second derivative using a three-point stencil.
 
 ```math
 \left.\frac{d^2 u}{dx^2}\right|_{x_i} = \frac{u_{i-1} - 2u_i + u_{i+1}}{(\Delta x)^2}
@@ -901,34 +904,41 @@ md"""
 ### Write algebraic equations
 
 ```math
-v \frac{u_{i+1} - u_{i-1}}{2 \Delta x}
+V \frac{u_{i+1} - u_{i-1}}{2 \Delta x}
 - D \frac{u_{i-1} - 2u_i + u_{i+1}}{(\Delta x)^2} = 0
 ```
 
 Rearrange:
 
 ```math
-\left(-\frac{v \Delta x}{2D} - 1\right) u_{i-1}
+\left(-\frac{V \Delta x}{2D} - 1\right) u_{i-1}
 + 2u_i
-+ \left(\frac{v \Delta x}{2D} - 1\right) u_{i+1} = 0
++ \left(\frac{V \Delta x}{2D} - 1\right) u_{i+1} = 0
 ```
+
+Note that the coefficients are *dimensionless* after the rearrangement.
 
 ---
 
-Grid Peclet number:
+Define grid Peclet number (*dimensionless*):
 
 ```math
-\frac{v \Delta x}{D}
+\frac{V \Delta x}{D}
 ```
 
 **Q:** Does Grid Peclet number matter for the solutions?
 
 ---
 
-* **(1) If** ``\frac{v \Delta x}{D} > 2`` → Oscillation!!!
-* **(2) If** ``\frac{v \Delta x}{D} = 2`` → Marginal stability
-* **(3) If** ``\frac{v \Delta x}{D} < 2`` → Stable solution
+- If ``\frac{V \Delta x}{D} > 2`` → Oscillation!!!
+- If ``\frac{V \Delta x}{D} = 2`` → Marginal stability
+- If ``\frac{V \Delta x}{D} < 2`` → Stable solution
 
+"""
+
+# ╔═╡ 476097f8-3792-4d4a-8b23-571ad139b4e0
+md"""
+Let's illustrate the dependance of the solution behavior on the grid Peclet number assuming we have 3 nodes (``x_1=0``, ``x_2=L/2``, ``x_3=L``) for the entire domain.
 """
 
 # ╔═╡ 73d4b8b5-db48-4e70-8a04-2b9da72f3215
@@ -936,12 +946,13 @@ local img = LocalResource("./figs/mod3_centralFD_oscillation.png", :width => "50
 
 # ╔═╡ e5c1f03b-b604-478b-a771-8828b1f4e6d4
 md"""
-### Central difference scheme for the first-order derivative
+### Upstream-weighted difference scheme for the first-order derivative
 
 ```math
 \left.\frac{du}{dx}\right|_{x_i} = \frac{u_{i} - u_{i-1}}{\Delta x}
 ```
 
+Only one option for the second derivative using a three-point stencil.
 ```math
 \left.\frac{d^2 u}{dx^2}\right|_{x_i} = \frac{u_{i-1} - 2u_i + u_{i+1}}{(\Delta x)^2}
 ```
@@ -951,24 +962,29 @@ md"""
 ### Write algebraic equations
 
 ```math
-v \frac{u_i - u_{i-1}}{\Delta x}
+V \frac{u_i - u_{i-1}}{\Delta x}
 - D \frac{u_{i-1} - 2u_i + u_{i+1}}{(\Delta x)^2} = 0
 ```
 
 Rearrange:
 
 ```math
-\left(-\frac{v \Delta x}{D} - 1\right) u_{i-1}
-+ \left(\frac{v \Delta x}{D} + 2\right) u_i
+\left(-\frac{V \Delta x}{D} - 1\right) u_{i-1}
++ \left(\frac{V \Delta x}{D} + 2\right) u_i
 - u_{i+1} = 0
 ```
 
 ---
 
-**No oscillation for any** ``\frac{v \Delta x}{D}``!!!
+**No oscillation for any** ``\frac{V \Delta x}{D}``!!!
 
 """
 
+
+# ╔═╡ 4e3aa823-eabb-4a5d-be89-39d4269d1a4b
+md"""
+We can again illustrate the dependance of the solution behavior on the grid Peclet number assuming we have 3 nodes (``x_1=0``, ``x_2=L/2``, ``x_3=L``) for the entire domain.
+"""
 
 # ╔═╡ 22216780-22eb-4a92-b06d-0878d280a9d5
 local img = LocalResource("./figs/mod3_forwardFD_no_oscillation.png", :width => "200px")
@@ -980,9 +996,9 @@ System of algebraic equations for ``N`` points
 ```math
 \begin{bmatrix}
 1 & 0 & 0 & \cdots & 0 \\
--\tfrac{v \Delta x}{D} - 1 & \tfrac{v \Delta x}{D} + 2 & -1 & \cdots & 0 \\
+-\tfrac{V \Delta x}{D} - 1 & \tfrac{V \Delta x}{D} + 2 & -1 & \cdots & 0 \\
 0 & \ddots & \ddots & \ddots & 0 \\
-0 & \cdots & -\tfrac{v \Delta x}{D} - 1 & \tfrac{v \Delta x}{D} + 2 & -1 \\
+0 & \cdots & -\tfrac{V \Delta x}{D} - 1 & \tfrac{V \Delta x}{D} + 2 & -1 \\
 0 & \cdots & 0 & 0 & 1
 \end{bmatrix}
 \begin{bmatrix}
@@ -1036,13 +1052,25 @@ where ``\alpha`` is an arbitrary parameter.
 \frac{d^2 u}{dx^2} = \frac{V}{D} \frac{d^3 u}{dx^3}
 ```
 
+Keep taking the derivatives and you will quickly see that ``\left.\frac{d^m u}{dx^m}\right|_{x_i} = \left(\frac{V}{D}\right)^{m-1} \left.\frac{du}{dx}\right|_{x_i} ``.
+
+Then, apply Taylor expansion to the FDA and solve for ``\alpha`` by taking advantage of the above identity.
+
+
 """
 
 
+# ╔═╡ e8662f52-67bf-455e-9c8d-ef026f349595
+md"""
+### Evaluate solution behaviors (central vs. upstream-weighted)
+
+Now, we evaluate the solutions using central difference vs. upstream-weighted difference for the advection term for different grid Peclet numbers. 
+
+Set ``v=100, D=1, L=1``. Then, adjust ``\Delta x`` to achieve different grid Peclet numbers (``v \Delta x / D``).
+"""
+
 # ╔═╡ a8a76810-57c6-4fdc-a006-cae756dd7888
 begin
-	gr()
-
     # --------- problem setup ----------
     local V  = 100.0          # advection speed
     local D  = 1.0            # diffusivity
@@ -1353,7 +1381,7 @@ md"""
 Often, we employ the following assumption
 
 ```math
-u_1 = \frac{u_0 + u_2}{2}
+u_1 = \frac{u_{-1} + u_2}{2}
 ```
 
 """
@@ -1370,7 +1398,7 @@ md"""
 """
 
 # ╔═╡ 90f92c1e-746e-44d6-9298-a027ff95a1d8
-local img = LocalResource("./figs/mod3_rectangle_grid.png", :width => "400px")
+local img = LocalResource("./figs/mod3_rectangle_grid.png", :width => "300px")
 
 # ╔═╡ b786c0f4-65b1-4e1d-ad68-a6fa5adc2b3f
 md"""
@@ -1422,7 +1450,7 @@ where
 ```math
 f_{i+1} = \left.\frac{\partial u}{\partial y}\right|_{i+1}
 = \frac{u_{i+1,j+1} - u_{i+1,j-1}}{2\Delta y}
-- \frac{1}{6} u_{xyyy}|_{i+1}\, \Delta y^2 + O(\Delta y^4)
+- \frac{1}{6} u_{yyy}|_{i+1}\, \Delta y^2 + O(\Delta y^4)
 ```
 
 and
@@ -1430,7 +1458,7 @@ and
 ```math
 f_{i-1} = \left.\frac{\partial u}{\partial y}\right|_{i-1}
 = \frac{u_{i-1,j+1} - u_{i-1,j-1}}{2\Delta y}
-- \frac{1}{6} u_{xyyy}|_{i-1}\, \Delta y^2 + O(\Delta y^4)
+- \frac{1}{6} u_{yyy}|_{i-1}\, \Delta y^2 + O(\Delta y^4)
 ```
 
 ---
@@ -2875,11 +2903,14 @@ version = "1.9.2+0"
 # ╟─ca1a0c3a-c666-4534-abd2-6e578d4e660e
 # ╟─a9c3ec07-92b4-4f12-bf4e-155ae5f9ad28
 # ╟─e6cb7e94-6f0b-480c-a44a-2fedc062289c
+# ╟─476097f8-3792-4d4a-8b23-571ad139b4e0
 # ╟─73d4b8b5-db48-4e70-8a04-2b9da72f3215
 # ╟─e5c1f03b-b604-478b-a771-8828b1f4e6d4
+# ╟─4e3aa823-eabb-4a5d-be89-39d4269d1a4b
 # ╟─22216780-22eb-4a92-b06d-0878d280a9d5
 # ╟─a3d0fb8d-61a5-492b-ad90-7223ceb73466
 # ╟─a5e60b99-e675-402c-95a3-087e46a1611c
+# ╟─e8662f52-67bf-455e-9c8d-ef026f349595
 # ╟─a8a76810-57c6-4fdc-a006-cae756dd7888
 # ╟─0a29e6dd-7de8-4cf5-b555-5c12bad2debb
 # ╟─83aa0392-70db-434c-acd3-28738e3217dd
@@ -2887,7 +2918,7 @@ version = "1.9.2+0"
 # ╟─6c004a80-5ada-45e9-8618-9995032244e5
 # ╟─dc3ad891-1e72-4ac7-9bc9-d7fe9c483d7b
 # ╟─d5ac488d-247a-47aa-9600-6d11aa645ae9
-# ╠═50b18840-ffcc-4132-9f22-a59d1d5d7425
+# ╟─50b18840-ffcc-4132-9f22-a59d1d5d7425
 # ╟─1dd43ab7-05c8-4773-91c2-14cea1fe133b
 # ╟─6037e76b-bd82-4e18-825d-0a197d723a74
 # ╟─85eaf88c-cfbc-4408-9c9c-0758790bc76d
@@ -2896,7 +2927,7 @@ version = "1.9.2+0"
 # ╟─90f92c1e-746e-44d6-9298-a027ff95a1d8
 # ╟─b786c0f4-65b1-4e1d-ad68-a6fa5adc2b3f
 # ╟─b1e27e5d-c876-43ca-8288-5b5b309221c8
-# ╠═df3e1dfe-3347-46b6-9a62-f850ab0f5c68
+# ╟─df3e1dfe-3347-46b6-9a62-f850ab0f5c68
 # ╟─74627804-0ea5-44f6-8919-8992d41ca6a1
 # ╟─95ef9435-2502-41df-b14d-0cde79f1dee5
 # ╟─345d7010-562f-4e42-a683-010ba03e74c5

@@ -1,5 +1,5 @@
 ---
-title: "Lecture #18: Richards Equation (continued)"
+title: "Lecture #18: Richards Equation"
 ---
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 23, 3:30 pm – 4:45 pm (Bo Guo)
