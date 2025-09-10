@@ -816,7 +816,7 @@ md"""
 ``𝐷=0.01, 𝑘=0.1, 𝐶_1=1, Δ𝑥=1/3 \Rightarrow U_2=0.094, 𝑈_3=0.291``
 
 ```math
-u=(0, 0.094, 0.291, 1)
+\hat u=(0, 0.094, 0.291, 1)
 ```
 
 ```math
@@ -854,7 +854,7 @@ begin
 			   	guidefontsize = 16,   # axis labels
         	   	tickfontsize = 12,
 			  	size = (400,300), )
-	plot!(x, u; lw=1.5, label=L"u")
+	plot!(x, u; lw=1.5, label=L"\hat u")
 	
 	plt
 end
@@ -1066,7 +1066,7 @@ md"""
 
 Now, we evaluate the solutions using central difference vs. upstream-weighted difference for the advection term for different grid Peclet numbers. 
 
-Set ``v=100, D=1, L=1``. Then, adjust ``\Delta x`` to achieve different grid Peclet numbers (``v \Delta x / D``).
+Set ``V=100, D=1, L=1``. Then, adjust ``\Delta x`` to achieve different grid Peclet numbers (``V \Delta x / D``).
 """
 
 # ╔═╡ a8a76810-57c6-4fdc-a006-cae756dd7888
@@ -2909,7 +2909,7 @@ version = "1.9.2+0"
 # ╟─4e3aa823-eabb-4a5d-be89-39d4269d1a4b
 # ╟─22216780-22eb-4a92-b06d-0878d280a9d5
 # ╟─a3d0fb8d-61a5-492b-ad90-7223ceb73466
-# ╟─a5e60b99-e675-402c-95a3-087e46a1611c
+# ╠═a5e60b99-e675-402c-95a3-087e46a1611c
 # ╟─e8662f52-67bf-455e-9c8d-ef026f349595
 # ╟─a8a76810-57c6-4fdc-a006-cae756dd7888
 # ╟─0a29e6dd-7de8-4cf5-b555-5c12bad2debb
