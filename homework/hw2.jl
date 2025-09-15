@@ -87,7 +87,7 @@ using these three points.
 
 # ╔═╡ 749c0c23-0dae-4462-b370-9a9a092b79e1
 md"""
-### Problem 5 (35 points) – Advection-Diffusion Transport Equation
+### Problem 4 (35 points) – Advection-Diffusion Transport Equation
 
 The one-dimensional, steady-state advection–diffusion transport equation may be written as:
 

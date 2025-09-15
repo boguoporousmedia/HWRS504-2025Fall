@@ -9,7 +9,7 @@ using PlutoUI, Plots, LaTeXStrings, LinearAlgebra
 
 # ╔═╡ 1816242a-8054-11f0-152a-1d9edcfd46bc
 md"""
-# Module 3: Finite Difference Approximation in Space
+# Module 3: Finite Difference Approximation in Space (Boundary Value Problem)
 """
 
 # ╔═╡ 02a95c05-026a-47fb-a325-f00eff3e0dd6
@@ -48,9 +48,7 @@ md"""
 
 
 # ╔═╡ cc63f48e-9e72-4b55-b3f2-414ce3bae01e
-begin
-	local img = LocalResource("./figs/mod3_FD.png",:width => "400px")
-end
+local img = LocalResource("./figs/mod3_FD.png",:width => "400px")
 
 # ╔═╡ eb5ffd0f-4f84-4aa4-ad33-de9178c2218b
 md"""
@@ -1318,7 +1316,7 @@ V \frac{u_{i+1} - u_i}{\Delta x}
 
 - The term ``\frac{V \Delta x}{2} \frac{d^2 u}{dx^2}`` acts like negative diffusion (anti-diffusion).
 
-- If the effective diffusion coefficient ``(D - \frac{V \Delta x}{2})`` becomes negative, the scheme is **unstable** (solution blows up).
+- If the effective diffusion coefficient ``(D - \frac{V \Delta x}{2})`` becomes negative, the solution has strong oscillations.
 
 """
 
@@ -1662,7 +1660,7 @@ Approximation (upstream-weighted):
 **Notes:**
 
 * Central difference: higher accuracy but can introduce oscillations.
-* Upstream-weighted: adds numerical diffusion, more stable.
+* Upstream-weighted: adds numerical diffusion, but no oscillations.
 
 """
 
@@ -2909,7 +2907,7 @@ version = "1.9.2+0"
 # ╟─4e3aa823-eabb-4a5d-be89-39d4269d1a4b
 # ╟─22216780-22eb-4a92-b06d-0878d280a9d5
 # ╟─a3d0fb8d-61a5-492b-ad90-7223ceb73466
-# ╠═a5e60b99-e675-402c-95a3-087e46a1611c
+# ╟─a5e60b99-e675-402c-95a3-087e46a1611c
 # ╟─e8662f52-67bf-455e-9c8d-ef026f349595
 # ╟─a8a76810-57c6-4fdc-a006-cae756dd7888
 # ╟─0a29e6dd-7de8-4cf5-b555-5c12bad2debb
