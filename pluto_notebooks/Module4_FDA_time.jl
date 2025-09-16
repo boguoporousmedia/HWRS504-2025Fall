@@ -14,7 +14,7 @@ md"""
 
 # ╔═╡ af2b6a81-6ca0-4b7e-ac1f-be71e0171c8b
 md"""
-- Consider a general first-order ordinary differential equation (ODE) in time
+Consider a general first-order ordinary differential equation (ODE) in time
 
 ```math
 \frac{du}{dt} = f(u,t), \quad t > t_0
@@ -26,9 +26,7 @@ with initial condition
 u(t_0) = u_0
 ```
 
----
-
-- How should we solve for `u(t)`?
+How should we solve for `u(t)`?
 
 """
 
@@ -40,7 +38,7 @@ local img = LocalResource("./figs/mod4_1d_domain_time.png",:width => "400px")
 # ╔═╡ c2cbaff0-04c3-49e2-9c43-3047dc73e8e1
 md"""
 
-- Approximate ``\frac{du}{dt}`` and ``f(u,t)`` using only nodal values of ``u``:
+Approximate ``\frac{du}{dt}`` and ``f(u,t)`` using only nodal values of ``u``:
 
 ```math
 \left.\frac{du}{dt}\right|_{t_{n+1}}
@@ -83,7 +81,7 @@ md"""
 U_{n+1} = U_n + f(U_n, t_n)\,\Delta t
 ```
 
-- Assuming uniform grid spacing in time)}
+- Assuming uniform grid spacing in time
 - RHS depends only on information at time step ``n``
 - Accuracy -- local: ``O(\Delta t^2)``, global: ``O(\Delta t)``
 
@@ -154,15 +152,15 @@ O\big((1 - 2\theta)\Delta t, \; \Delta t^2\big)
 Special cases:
 
 ```math
-\theta = 0 \quad\Rightarrow\quad \text{Forward Euler (Explicit)}
+\theta = 0 \quad\Rightarrow\quad \text{Forward Euler (Explicit)}, O\big(\Delta t\big)
 ```
 
 ```math
-\theta = 1 \quad\Rightarrow\quad \text{Backward Euler (Implicit)}
+\theta = 1 \quad\Rightarrow\quad \text{Backward Euler (Implicit)}, O\big(\Delta t\big)
 ```
 
 ```math
-\theta = \frac{1}{2} \quad\Rightarrow\quad \text{Crank–Nicolson (Implicit)}
+\theta = \frac{1}{2} \quad\Rightarrow\quad \text{Crank–Nicolson (Implicit)}, O\big(\Delta t^2\big)
 ```
 
 """
@@ -193,7 +191,7 @@ u(t) = \alpha e^{-t}
 
 
 # ╔═╡ 7f5b83db-1d51-4c89-9839-02c3e6a9c0b4
-local img = LocalResource("./figs/mod4_exp_decline_analytical_soln.png", :width => "300px")
+local img = LocalResource("./figs/mod4_exp_decline_analytical_soln.png", :width => "200px")
 
 # ╔═╡ 91a0e16e-b6a2-4c29-9b0c-88a01663f313
 md"""
@@ -222,8 +220,6 @@ In general:
 U_{n+1} = (1 - \Delta t)^{n+1} \alpha
 ```
 
----
-
 Limit as ``n \to \infty``:
 
 ```math
@@ -239,8 +235,8 @@ Limit as ``n \to \infty``:
 ---
 
 Notes:
-1. FDA is unstable, though it is consistent.
-2. Consistency does not guarantee acceptable solution.
+- Forward Euler can be unstable, though it is consistent.
+- Consistency does not guarantee acceptable solution.
 
 """
 
@@ -260,9 +256,7 @@ u_2 = u_1 - u_2 \Delta t
    = \frac{u_0}{(1 + \Delta t)^2}
 ```
 
-``
-\vdots
-``
+In general:
 
 ```math
 u_{n+1}
@@ -292,7 +286,7 @@ Generally
 
 # ╔═╡ 9a11c9e9-748b-4878-97d8-4157ccf5a07a
 md"""
-#### Euler methods
+#### More general Euler methods
 
 - Involve $t_n \to t_{n+1}$ (1-step method)
 - Involve 1 calculation (1-stage method)
@@ -674,7 +668,8 @@ md"""
 u' = \frac{du}{dt} = \lambda u, \quad u(0) = u_0
 ```
 
-> Q: Why not $\dfrac{du}{dt} = f(u,t)$? (Read Moin Ch.4)
+> Q: Why not $\dfrac{du}{dt} = f(u,t)$? 
+> It can be shown by Taylor expansion that the equation can be approximated by the above model linear problem (Read Moin Ch.4).
 
 - Exact solution:
 
@@ -685,18 +680,16 @@ u(t) = u_0 e^{\lambda t}
 - If $\lambda$ is negative, $u$ is bounded as $t \to \infty$.
 - If $\lambda$ is positive, $u$ is unbounded as $t \to \infty$.
 - Stable method: Produces bounded solution for non-positive $\lambda$.
-- Conditionally stable method: Produces bounded solution for non-positive $\lambda$ only for a limited range of $\Delta t
+- Conditionally stable method: Produces bounded solution for non-positive $\lambda$ only for a limited range of $\Delta t$
 """
 
 # ╔═╡ 7611c907-9545-48b3-8883-4155ac1c41b2
 md"""
-### Consider the model linear problem
+**What if $\lambda$ is complex?** 
 
 ```math
-u' = \frac{du}{dt} = \lambda u
+\lambda = \lambda_R + i \lambda_I
 ```
-
-- What if $\lambda$ is complex? $\lambda = \lambda_R + i \lambda_I$
 
 Exact solution:
 
@@ -751,6 +744,249 @@ Stability condition:
 
 """
 
+# ╔═╡ fbf558b7-7b5e-416b-b632-9bfbe97b2a74
+md"""
+#### Stability diagram
+
+- For purely real, negative $\lambda$: 
+```math
+  \Delta t_{\max}=\frac{2}{|\lambda|}\quad\text{so}\quad
+  \big|\lambda_R\,\Delta t_{\max}\big|=2.
+```
+- Explicit Euler is always unstable for purely imaginary $\lambda$ (except at the origin).
+
+"""
+
+
+# ╔═╡ 0febdad0-21c1-48a5-9cbe-b503d872f031
+begin
+    default(legend=false, framestyle=:box, background=:white, dpi=150)
+
+    # Axes limits and labels
+    local xlim = (-3.0, 3.0)
+    local ylim = (-3.0, 3.0)
+
+    # Explicit Euler stability region: |1 + z| ≤ 1, where z = λΔt
+    # This is a circle centered at (-1, 0) with radius 1
+    center = (-1.0, 0.0)
+    radius = 1.0
+
+    local θ = range(0, 2π; length=600)
+    local cx = center[1] .+ radius .* cos.(θ)
+    local cy = center[2] .+ radius .* sin.(θ)
+
+    # Start figure
+    local p = plot(; xlim = xlim, ylim = ylim,
+        aspect_ratio = 1,
+        xlabel = L"\lambda_R \,\Delta t",
+        ylabel = L"\lambda_I \,\Delta t",
+        xticks = -3:1:3,
+        yticks = -3:1:3,
+        title = "Stability diagram")
+
+    # Fill the stable region (inside circle)
+    plot!(cx, cy, seriestype = :shape, fillalpha = 0.25, linecolor = :blue)
+
+    # Circle boundary
+    plot!(cx, cy, lw = 2, color = :blue)
+
+    # Coordinate axes
+    hline!([0], color = :black, lw = 2)
+    vline!([0], color = :black, lw = 2)
+
+    p
+end
+
+
+# ╔═╡ fa9f59b6-310f-46e8-9f93-15b0a5ca7d32
+md"""
+Example: ``\dfrac{du}{dt}=-5u;\ \ u_0=1``
+"""
+
+# ╔═╡ c864ed06-792e-45a8-a083-78d59e6e2a47
+begin
+    default(
+        legend = :topright, legendfontsize = 9,
+        framestyle = :box, background = :white, dpi = 150,
+        fontfamily = "Helvetica", titlefont = font(11), guidefont = font(10), tickfont = font(9),
+        grid = true, gridalpha = 0.25
+    )
+
+    # Colors (Okabe–Ito palette)
+    const COLOR_EXACT = "#0072B2"   # blue
+    const COLOR_FE    = "#D55E00"   # vermillion
+
+    local λ  = -5.0
+    local u0 = 1.0
+
+    # Exact and Forward–Euler solutions
+    forward_euler(λ, u0, Δt, T) = begin
+        n = Int(floor(T/Δt))
+        t = collect(0:Δt:Δt*n)
+        u = similar(t)
+        u[1] = u0
+        for k in 1:n
+            u[k+1] = u[k] + Δt*λ*u[k]            # u_{n+1} = (1 + λΔt)u_n
+        end
+        t, u
+    end
+
+    exact(λ, u0, T; m = 1000) = begin
+        tt = range(0, T; length = m)
+        uu = u0 .* exp.(λ .* tt)
+        tt, uu
+    end
+
+    # One subplot
+    function panel(Δt, T; ylims = (-2, 2), ttl = "")
+        te, ue = exact(λ, u0, T)
+        tf, uf = forward_euler(λ, u0, Δt, T)
+
+        p = plot(te, ue; lw = 2.5, label = "Exact", color = COLOR_EXACT)
+        plot!(p, tf, uf; lw = 2.5, label = "Forward Euler", color = COLOR_FE)
+        plot!(p; xlabel = "time t", ylabel = "Solution", ylims = ylims, title = ttl)
+        p
+    end
+
+    local absλ   = abs(λ)
+    local dts    = [0.5, 1.5, 2.0, 2.1, 10.0] ./ absλ
+    titles = [
+        "Δt = 0.5/|λ|; Stable; Non-oscillatory",
+        "Δt = 1.5/|λ|; Stable; Oscillatory",
+        "Δt = 2/|λ|; At stability limit",
+        "Δt = 2.1/|λ|; Unstable",
+        "Δt = 10/|λ|; Very unstable"
+    ]
+
+    local p1 = panel(dts[1], 3; ylims = (0, 1.0),     ttl = titles[1])
+    local p2 = panel(dts[2], 3; ylims = (-0.5, 1.0),  ttl = titles[2])
+    local p3 = panel(dts[3], 3; ylims = (-1.0, 1.0),  ttl = titles[3])
+    local p4 = panel(dts[4], 3; ylims = (-1.8, 1.8),  ttl = titles[4])
+    local p5 = panel(dts[5], 8; ylims = (-1000, 7000), ttl = titles[5])
+
+    layout = @layout([a b; c d; e e])
+    plot(p1, p2, p3, p4, p5; layout = layout, size = (800, 600))
+end
+
+
+# ╔═╡ 6cc4e651-8d4a-4c45-bb2e-0fff123f7ee2
+md"""
+Example: ``\frac{du}{dt}=iu; u_0=1``
+"""
+
+# ╔═╡ f2ffa23f-33c2-402f-bd05-6b85ca76f410
+begin
+    default(
+        legend = :topright, legendfontsize = 10,
+        framestyle = :box, background = :white, dpi = 150,
+        fontfamily = "Helvetica", titlefont = font(12), guidefont = font(11), tickfont = font(10),
+        grid = true, gridalpha = 0.25
+    )
+
+    # --- all variables local
+    local COLOR_EXACT = "#009E73"      # Okabe–Ito green
+    local COLOR_FE    = "#0072B2"      # Okabe–Ito blue
+
+    local λ   = im
+    local u0  = 1.0 + 0im
+    local Δt  = 0.1
+    local T   = 100.0
+    local n   = Int(round(T/Δt))
+    local t_n = collect(0:Δt:Δt*n)
+
+    # Forward Euler
+    local u_fe = similar(t_n, ComplexF64)
+    u_fe[1] = u0
+    for k in 1:n
+        u_fe[k+1] = u_fe[k] + Δt * λ * u_fe[k]
+    end
+
+    # Exact solution (dense sampling)
+    local t_exact = range(0, T; length = 3000)
+    local u_exact = @. exp(λ * t_exact)
+
+    # --- plot (real parts)
+    local p = plot(t_n, real.(u_fe);
+        lw = 1.8, color = COLOR_FE, label = "Δt = 0.1")
+    plot!(p, t_exact, real.(u_exact);
+        lw = 1.8, color = COLOR_EXACT, label = "Exact Solution")
+
+    plot!(p;
+        xlabel = "t", ylabel = "u",
+        xlims = (0, T), ylims = (-150, 150))
+
+    p
+end
+
+
+# ╔═╡ 59551c9c-b97f-43c3-af75-eb38715c67b3
+md"""
+#### Stability diagram for RK methods.
+
+From outside to inside: RK4, RK3, RK2, and RK1 (Forward Euler)
+
+- For purely imaginary ``\lambda`` (oscillatory problems), only RK3 and RK4 have a narrow vertical strip where the solution is stable. RK1 and RK2 lose stability almost immediately on the imaginary axis.
+- Because the stability regions are bounded, explicit RK methods are conditionally stable: there is always a maximum step size proportional to ``1/|\lambda|``.
+"""
+
+# ╔═╡ c90f2d50-f000-4d06-b447-5a052ce5ca0e
+begin
+    default(
+        legend = :outertopright, legendfontsize = 12,
+        framestyle = :box, background = :white, dpi = 150,
+        grid = false, linewidth = 2
+    )
+
+    # --- Domain & grid
+    local xlim = (-3.0, 3.0)
+    local ylim = (-3.0, 3.0)
+    local nx, ny = 600, 600
+    local xs = range(xlim[1], xlim[2], length = nx)
+    local ys = range(ylim[1], ylim[2], length = ny)
+    local Z  = [complex(x, y) for y in ys, x in xs]
+
+    # --- Stability function
+    local function Rrk(z, p::Int)
+        local r = one(z)
+        for k in 1:p
+            r += z^k / factorial(k)
+        end
+        return r
+    end
+
+    local A1 = abs.(Rrk.(Z, Ref(1)))
+    local A2 = abs.(Rrk.(Z, Ref(2)))
+    local A3 = abs.(Rrk.(Z, Ref(3)))
+    local A4 = abs.(Rrk.(Z, Ref(4)))
+
+    # Colors
+    local col_FE  = "#0072B2"
+    local col_RK2 = "#009E73"
+    local col_RK3 = "#D55E00"
+    local col_RK4 = "#CC79A7"
+
+    # --- Base plot
+    local p = plot(; xlim=xlim, ylim=ylim, aspect_ratio=1,
+        xlabel=L"\lambda_R \,\Delta t", ylabel=L"\lambda_I \,\Delta t",
+        xticks=-3:1:3, yticks=-3:1:3, title="Stability diagram for RK methods")
+
+    hline!([0], c=:black, lw=1, lab="")
+    vline!([0], c=:black, lw=1, lab="")
+
+    # Only isolines, no background, no colorbar
+    contour!(xs, ys, A1; levels=[1.0], c=col_FE,  lw=2,
+             colorbar=false, lab=L"\text{Forward Euler (RK1)}")
+    contour!(xs, ys, A2; levels=[1.0], c=col_RK2, lw=2,
+             colorbar=false, lab=L"\text{RK2}")
+    contour!(xs, ys, A3; levels=[1.0], c=col_RK3, lw=2,
+             colorbar=false, lab=L"\text{RK3}")
+    contour!(xs, ys, A4; levels=[1.0], c=col_RK4, lw=2,
+             colorbar=false, lab=L"\text{RK4}")
+
+    p
+end
+
+
 # ╔═╡ 8cd76c16-435b-43a6-87f0-aaa3136b9527
 md"""
 ### Stability Analysis: Implicit Euler Method
@@ -801,47 +1037,42 @@ Stability condition:
 
 # ╔═╡ 8ca5834f-705b-4583-82a7-623d63249fc0
 md"""
-### Stability Analysis: Implicit Euler Method — Diagram
+#### Stability Diagram
 
-- Stability region for Backward (Implicit) Euler is given by 
-
-```math
-|1 - z| \ge 1, \qquad z = \lambda\,\Delta t = (\lambda_R + i\lambda_I)\,\Delta t
-```
-
-- This is the exterior of the unit circle centered at $(1,0)$ in the complex $z$–plane. It contains the entire left half‑plane $\{\operatorname{Re}(z) \le 0\}$, so the method is **unconditionally stable** for all $\lambda$ with non‑positive real part.
+- The exterior of the unit circle centered at $(1,0)$ in the complex $z$–plane. It contains the entire left half‑plane $\{\operatorname{Re}(z) \le 0\}$, so the method is **unconditionally stable** for all $\lambda$ with non‑positive real part.
 
 """
 
 # ╔═╡ 832f7ad0-d0c3-4381-8cc7-093e6f4667cd
 begin
-    default(legend = false, framestyle = :box, background = :white, dpi = 150)
+	default(legend = false, framestyle = :box, background = :white, dpi = 150)
 
     # Axes limits and labels
-    xlim = (-3.0, 3.0)
-    ylim = (-3.0, 3.0)
+    local xlim = (-3.0, 3.0)
+    local ylim = (-3.0, 3.0)
 
     # Start figure — note xlim= and ylim= (keywords!)
-    p = plot(; xlim = xlim, ylim = ylim,
+    local p = plot(; xlim = xlim, ylim = ylim,
               aspect_ratio = 1,
               xlabel = L" \lambda_R \Delta t ",
               ylabel = L" \lambda_I \Delta t ",
               xticks = -3:1:3,
               yticks = -3:1:3)
 
-    # Hatch the stable region (diagonal lines)
-    for c in -6.0:0.15:6.0
-        xs = collect(xlim)
-        ys = xs .+ c
-        plot!(p, xs, ys; lw = 1, color = :dodgerblue, alpha = 0.35)
-    end
+    # --- Color the OUTSIDE region -----------------------------------------
+    # 1) Paint the plotting rectangle
+    plot!(p,
+        Shape([xlim[1], xlim[2], xlim[2], xlim[1]],
+              [ylim[1], ylim[1], ylim[2], ylim[2]]);
+        fillcolor = :dodgerblue, alpha = 0.28, linecolor = :transparent)
 
-    # Unstable white disk |1 - z| < 1 centered at (1,0)
-    θ  = range(0, 2π; length = 600)
-    xc = 1 .+ cos.(θ)
-    yc = 0 .+ sin.(θ)
-    plot!(p, Shape(xc, yc); fillcolor = :white, linecolor = :white)  # mask hatch
+    # 2) Mask the unstable white disk |1 - z| < 1 centered at (1,0)
+    local θ  = range(0, 2π; length = 600)
+    local xc = 1 .+ cos.(θ)
+    local yc = 0 .+ sin.(θ)
+    plot!(p, Shape(xc, yc); fillcolor = :white, linecolor = :white)  # mask
     plot!(p, xc, yc; lw = 2, color = :blue)                          # boundary
+    # ----------------------------------------------------------------------
 
     # Axes through the origin
     plot!(p, [xlim[1], xlim[2]], [0, 0]; color = :black, lw = 1)
@@ -849,6 +1080,357 @@ begin
 
     p
 end
+
+
+# ╔═╡ 9778fc89-9a6b-4778-8586-b092e6d04117
+md"""
+Example: ``\frac{du}{dt}=-u; u_0=1``
+"""
+
+# ╔═╡ 1993b194-d7c3-4d0f-9897-a37dad83384a
+begin
+    default(legend = :topright, framestyle = :box, background = :white, dpi = 150)
+
+    # Problem setup
+    local u0   = 1.0
+    local tmax = 10.0
+
+    # Exact solution
+    local t_exact = range(0.0, tmax; length = 800)
+    local u_exact = @. u0 * exp(-t_exact)
+
+    # Backward Euler stepper (all locals inside)
+    function backward_euler_path(dt; u0 = 1.0, tmax = 10.0)
+        local nsteps = ceil(Int, tmax/dt)
+        local tn     = collect(0:dt:(nsteps*dt))
+        local un     = similar(tn, Float64)
+        un[1] = u0
+        for k in 1:nsteps
+            un[k+1] = un[k] / (1 + dt)
+        end
+        local cutoff = findlast(t -> t ≤ tmax, tn)
+        return tn[1:cutoff], un[1:cutoff]
+    end
+
+    # Compute curves
+    local t1, u1 = backward_euler_path(0.5; u0 = u0, tmax = tmax)   # blue
+    local t2, u2 = backward_euler_path(2.0; u0 = u0, tmax = tmax)   # green
+    local t3, u3 = backward_euler_path(2.5; u0 = u0, tmax = tmax)   # red
+
+    # Plot
+    local p = plot(t_exact, u_exact; lw = 2, label = "Exact Solution")
+    plot!(p, t1, u1; lw = 2, label = L"\Delta t = 0.5")
+    plot!(p, t2, u2; lw = 2, label = L"\Delta t = 2.0")
+    plot!(p, t3, u3; lw = 2, label = L"\Delta t = 2.5")
+
+    xlabel!(p, L"t")
+    ylabel!(p, L"u")
+    xlims!(p, 0, tmax)
+    ylims!(p, 0, 1.0)
+
+    p
+end
+
+
+# ╔═╡ 68478978-d53f-438a-b9c3-d846fa9923e8
+md"""
+Example: ``\frac{du}{dt}=iu; u_0=1``
+
+- Analytical ``|\sigma| = 1``
+
+- Approximated ``|\sigma| < 1``
+
+```math
+|\sigma| = \left| \frac{1}{1 - i \Delta t} \right|
+```
+
+```math
+= \frac{1}{\sqrt{1 + \Delta t^2}} < 1
+```
+"""
+
+# ╔═╡ 671bbedc-8b03-4a74-b9ef-a344156f8eaa
+begin
+    default(legend = :topright, framestyle = :box, background = :white, dpi = 150)
+
+    # Problem and plotting setup
+    local u0    = 1.0                  # initial condition (real)
+    local dt    = 0.1                  # time step for Backward Euler
+    local tmax  = 100.0                # final time
+    local xmin, xmax = 0.0, tmax
+    local ymin, ymax = -1.0, 1.0
+
+    # Exact solution: u(t) = exp(i t); we plot the real part (cos t)
+    local t_exact = range(0.0, tmax; length = 4000)
+    local u_exact = cos.(t_exact)
+
+    # Backward (Implicit) Euler for u' = i u:
+    # u_{n+1} = u_n / (1 - i Δt)  => amplification σ = 1 / (1 - i Δt)
+    local σ   = 1 / (1 - im*dt)
+    local tn  = collect(0.0:dt:tmax)
+    local un  = Vector{ComplexF64}(undef, length(tn))
+    un[1] = u0 + 0im
+    for k in 1:length(tn)-1
+        un[k+1] = σ * un[k]
+    end
+
+    # Plot
+    local p = plot(t_exact, u_exact;
+                   lw = 2, color = :green, label = "Exact Solution")
+    plot!(p, tn, real.(un);
+          lw = 2, color = :blue, label = L"\Delta t = 0.1")
+
+    xlabel!(p, L"t")
+    ylabel!(p, L"u")
+    xlims!(p, xmin, xmax)
+    ylims!(p, ymin, ymax)
+
+    p
+end
+
+
+# ╔═╡ 33d5c758-2537-46e6-8d44-ba7ca0c12d42
+md"""
+### Semi-Discrete Systems
+
+Consider the transport equation
+
+```math
+\frac{\partial u}{\partial t}
++ V \frac{\partial u}{\partial x}
+- D \frac{\partial^2 u}{\partial x^2}
++ K u
+= f(x,t),
+\qquad 0 < x < L,\; t > 0
+```
+
+Boundary & Initial Conditions
+
+```math
+u(0) = u_\text{left}
+```
+
+```math
+\text{BC: } \frac{\partial u}{\partial x}(L) = 0
+\qquad
+\text{IC: } u(x,0) = 0
+```
+
+"""
+
+
+# ╔═╡ 7d1bda33-7ac4-428d-976f-cfcc4d16a3bc
+local img = LocalResource("./figs/mod4_semi-discrete_1d.png", :width => "400px")
+
+# ╔═╡ 2a6ac552-8517-4170-ba92-c75e3de42d39
+md"""
+### Spatial FDA’s
+
+```math
+V \frac{\partial u}{\partial x}\Big|_{x_i}
+\sim
+\begin{cases}
+\dfrac{U_{i+1} - U_{i-1}}{2\Delta x}, \\[1.5ex]
+\alpha \dfrac{U_i - U_{i-1}}{\Delta x}
+  + (1 - \alpha)
+    \dfrac{U_{i+1} - U_{i-1}}{2\Delta x}
+\end{cases}
+```
+
+```math
+K u\Big|_{x_i} \sim K U_i
+```
+
+```math
+D \frac{\partial^2 u}{\partial x^2}\Big|_{x_i}
+\sim
+\dfrac{U_{i+1} - 2U_i + U_{i-1}}{\Delta x^2}
+```
+
+```math
+\frac{\partial u}{\partial t}\Big|_{x_i}
+\sim
+\frac{dU_i}{dt}
+```
+
+---
+
+From the transport equation:
+
+```math
+\frac{dU_i}{dt}
++ V \frac{U_{i+1} - U_{i-1}}{2\Delta x}
+- D \frac{U_{i+1} - 2U_i + U_{i-1}}{\Delta x^2}
++ K U_i
+= f(x_i, t)
+```
+
+Rearranging:
+
+```math
+\frac{dU_i}{dt}
++ \left(
+      -\frac{V}{2\Delta x}
+      - \frac{D}{\Delta x^2}
+  \right) U_{i-1}
++ \left(
+      \frac{2D}{\Delta x^2} + K
+  \right) U_i
++ \left(
+      \frac{V}{2\Delta x}
+      - \frac{D}{\Delta x^2}
+  \right) U_{i+1}
+= f_i
+```
+
+Compact form:
+
+```math
+\frac{dU_i}{dt}
+ + a_i U_{i-1}
+ + b_i U_i
+ + c_i U_{i+1}
+ = f_i,
+ \qquad i = 2, \ldots, N
+```
+
+"""
+
+
+# ╔═╡ 714cb508-22ce-45cb-af89-ba80d63235f1
+md"""
+Matrix form of the semi-discrete equations:
+```math
+\frac{d}{dt} \begin{bmatrix}
+U_2\\ U_3\\ \vdots\\ U_N
+\end{bmatrix}
++
+\begin{bmatrix}
+b_2 & c_2 & 0 & \cdots & 0\\[1ex]
+a_3 & b_3 & c_3 & \ddots & \vdots\\[1ex]
+0 & a_4 & b_4 & \ddots & 0\\[1ex]
+\vdots & \ddots & a_{N-1} & b_{N-1} & c_{N-1}\\[1ex]
+0 & \cdots & \cdots & a_N & b_N
+\end{bmatrix}
+\!
+\begin{bmatrix}
+U_2\\ U_3\\ \vdots\\ U_N
+\end{bmatrix}
+=
+\begin{bmatrix}
+f_2 - a_2 U_\text{left}\\[1ex]
+f_3\\
+\vdots\\
+f_N
+\end{bmatrix}
+```
+
+---
+Equation $i = 2$:
+
+```math
+\frac{dU_2}{dt}
+  + a_2 U_1
+  + b_2 U_2
+  + c_2 U_3
+  = f_2
+```
+
+Equation $i = N$:
+
+```math
+\frac{dU_N}{dt}
+  + a_N U_{N-1}
+  + b_N U_N
+  + c_N U_{N+1}
+  = f_N
+```
+
+---
+
+**Ghost point for Neumann BC**
+
+From the boundary condition:
+
+```math
+\frac{\partial u}{\partial x}(x_N) = 0
+\qquad\Rightarrow\qquad
+\frac{U_{N+1}-U_{N-1}}{2\Delta x} = 0
+\qquad\Rightarrow\qquad
+U_{N+1} = U_N
+```
+
+> The extra node $U_{N+1}$ is a **ghost point** used to impose the derivative boundary.
+> """
+
+
+
+# ╔═╡ 49198732-bb4b-448f-8b61-aa03d43e5b9f
+md"""
+#### Time Integration
+
+From the semi-discrete system:
+```math
+\frac{d \mathbf{U}}{dt} + \mathbf{A} \cdot \mathbf{U} = \mathbf{F}
+```
+
+A set of ODE’s in time (“Semi-discrete” system)
+
+---
+
+Solve using time-stepping: variably-weighted Euler
+
+Approximation of time derivative:
+
+```math
+\frac{d\mathbf{U}}{dt}\Big|_{t^{n+\theta}}
+  \approx
+  \frac{\mathbf{U}^{n+1} - \mathbf{U}^n}{\Delta t}
+```
+
+Source term:
+
+```math
+\mathbf{F}\Big|_{t^{n+\theta}} \approx \mathbf{F}^{n+\theta}
+```
+
+Operator term:
+
+```math
+\mathbf{A} \cdot \mathbf{U}\Big|_{t^{n+\theta}}
+   \approx
+   \theta \mathbf{A} \cdot \mathbf{U}^{n+1}
+     + (1 - \theta) \mathbf{A} \cdot \mathbf{U}^n
+```
+
+---
+
+Resulting scheme
+
+```math
+\left(\mathbf{I} + \theta \mathbf{A} \Delta t\right) \mathbf{U}^{n+1}
+   =
+   \left[\mathbf{I} - (1 - \theta) \mathbf{A} \Delta t\right] \mathbf{U}^n
+   + \Delta t \, \mathbf{F}^{n+\theta}
+```
+
+---
+
+Choices of $\theta$
+
+``\theta = 0``. No matrix solution (“Explicit” calculations), $O(\Delta t)$
+
+``\theta = 1``. Solve matrix solution (“Implicit” calculations), $O(\Delta t)$
+
+``\theta = \frac{1}{2}``. Also implicit (Crank–Nicolson method), $O(\Delta t^2)$
+
+---
+
+The explicit Euler (``\theta = 0``) is conditionally stable
+
+If ``\frac{V \Delta x}{D} < 2``, require ``\frac{D \Delta t}{\Delta x^2} \le \frac{1}{2}`` (assuming $K = 0$)
+
+"""
 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2020,8 +2602,25 @@ version = "1.9.2+0"
 # ╟─92339d32-7521-4a74-b29a-61db517f12c2
 # ╟─7611c907-9545-48b3-8883-4155ac1c41b2
 # ╟─5b889ba5-4cc1-4b1d-a725-c8b942ddf3c0
+# ╟─fbf558b7-7b5e-416b-b632-9bfbe97b2a74
+# ╟─0febdad0-21c1-48a5-9cbe-b503d872f031
+# ╟─fa9f59b6-310f-46e8-9f93-15b0a5ca7d32
+# ╟─c864ed06-792e-45a8-a083-78d59e6e2a47
+# ╟─6cc4e651-8d4a-4c45-bb2e-0fff123f7ee2
+# ╟─f2ffa23f-33c2-402f-bd05-6b85ca76f410
+# ╟─59551c9c-b97f-43c3-af75-eb38715c67b3
+# ╟─c90f2d50-f000-4d06-b447-5a052ce5ca0e
 # ╟─8cd76c16-435b-43a6-87f0-aaa3136b9527
 # ╟─8ca5834f-705b-4583-82a7-623d63249fc0
 # ╟─832f7ad0-d0c3-4381-8cc7-093e6f4667cd
+# ╟─9778fc89-9a6b-4778-8586-b092e6d04117
+# ╟─1993b194-d7c3-4d0f-9897-a37dad83384a
+# ╟─68478978-d53f-438a-b9c3-d846fa9923e8
+# ╟─671bbedc-8b03-4a74-b9ef-a344156f8eaa
+# ╟─33d5c758-2537-46e6-8d44-ba7ca0c12d42
+# ╟─7d1bda33-7ac4-428d-976f-cfcc4d16a3bc
+# ╟─2a6ac552-8517-4170-ba92-c75e3de42d39
+# ╟─714cb508-22ce-45cb-af89-ba80d63235f1
+# ╟─49198732-bb4b-448f-8b61-aa03d43e5b9f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
