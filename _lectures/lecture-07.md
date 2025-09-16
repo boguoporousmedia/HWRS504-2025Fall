@@ -1,5 +1,5 @@
 ---
-title: "Lecture #07: Finite Difference Approximation in Space"
+title: "Lecture #07: FDA for Initial Value Problems"
 ---
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Sep 16, 3:30 pm – 4:45 pm (Bo Guo)
