@@ -235,7 +235,7 @@ Limit as ``n \to \infty``:
 ---
 
 Notes:
-- Forward Euler can be unstable, though it is consistent.
+- Though forward Euler is consistent, it can be unstable.
 - Consistency does not guarantee acceptable solution.
 
 """
@@ -286,7 +286,7 @@ Generally
 
 # ╔═╡ 9a11c9e9-748b-4878-97d8-4157ccf5a07a
 md"""
-#### More general Euler methods
+### Multi-step or multi-stage methods
 
 - Involve $t_n \to t_{n+1}$ (1-step method)
 - Involve 1 calculation (1-stage method)
@@ -405,7 +405,7 @@ For general $(p+1)$-step method:
 
 # ╔═╡ 482fc4ad-bb44-4b38-85c4-c6b62a980131
 md"""
-### Common Examples
+#### Common Examples
 
 - **Adams Open Formulas (Explicit):**
 
@@ -453,7 +453,7 @@ Often use Open and Closed Adams as Predictor-Corrector.
 
 # ╔═╡ 1ffcd99c-daed-48e9-a4ac-59311b5f7065
 md"""
-### Fourth-order Adams Predictor-Corrector
+#### Fourth-order Adams Predictor-Corrector
 
 ```math
 U_* = U_n + \frac{\Delta t}{24} \big[55 f_n - 59 f_{n-1} + 37 f_{n-2} - 9 f_{n-3}\big] \qquad O(\Delta t^4)
@@ -500,7 +500,7 @@ u_1(t_0) = u_{10}, \quad u_2(t_0) = u_{20}, \; \ldots, \; u_m(t_0) = u_{m0}
 Or, in vector notation:
 
 ```math
-\frac{d\mathbf{u}}{dt} = f(\mathbf{u}, t), \quad t \ge t_0
+\frac{d\mathbf{u}}{dt} = \mathbf{f}(\mathbf{u}, t), \quad t \ge t_0
 ```
 
 ```math
@@ -519,22 +519,22 @@ Or, in vector notation:
 
 # ╔═╡ d80a656d-8f0a-400a-a530-95ea76336129
 md"""
-### All FDA’s for IVPs apply directly to this system
+#### All FDA’s for IVPs apply directly to this system
 
 - **Forward Euler:**
 
 ```math
-\mathbf{U}_{n+1} = \mathbf{U}_n + \Delta t\, f(\mathbf{U}_n, t_n)
+\mathbf{U}_{n+1} = \mathbf{U}_n + \Delta t\, \mathbf{f}(\mathbf{U}_n, t_n)
 ```
 
 - **Corrected Euler:**
 
 ```math
-\mathbf{U}_* = \mathbf{U}_n + \Delta t f_n
+\mathbf{U}_* = \mathbf{U}_n + \Delta t \mathbf{f}_n
 ```
 
 ```math
-\mathbf{U}_{n+1} = \mathbf{U}_n + \frac{\Delta t}{2} [f_n + f_*], \qquad f_* \equiv f(\mathbf{U}_*, t_n + \Delta t)
+\mathbf{U}_{n+1} = \mathbf{U}_n + \frac{\Delta t}{2} [\mathbf{f}_n + \mathbf{f}_*], \qquad \mathbf{f}_* \equiv \mathbf{f}(\mathbf{U}_*, t_n + \Delta t)
 ```
 
 """
@@ -542,7 +542,7 @@ md"""
 # ╔═╡ 27c884cc-e4db-429e-aadc-6817fe705b50
 md"""
 
-**When $f$ is linear in $\mathbf{u}(t)$**
+**When $\mathbf{f}$ is linear in $\mathbf{u}(t)$**
 
 That is, each $f_i$ is of the form:
 
@@ -578,7 +578,7 @@ where
 
 # ╔═╡ 0b8f2270-049a-4f68-b60f-2f7a8e00aa37
 md"""
-### Example
+#### Example
 
 Consider:
 
@@ -641,7 +641,7 @@ z_1' = i \omega z_1, \qquad z_2' = -i \omega z_2
 
 # ╔═╡ 58b88d09-5abb-437d-8b3c-43d6b7cb60eb
 md"""
-### Accuracy vs. Stability
+#### Accuracy vs. Stability
 
 - Accuracy only tells us how the error decreases as we reduce the step size.
 
@@ -658,7 +658,7 @@ md"""
 
 # ╔═╡ 92339d32-7521-4a74-b29a-61db517f12c2
 md"""
-### Stability Analysis
+#### Stability Analysis
 
 - **Main goal:** Investigate whether the numerical solution produced by a time-marching method exhibits the same critical behaviors as the physical solution.
 
@@ -704,7 +704,7 @@ u(t) = u_0 e^{(\lambda_R + i \lambda_I) t}
 
 # ╔═╡ 5b889ba5-4cc1-4b1d-a725-c8b942ddf3c0
 md"""
-### Stability Analysis: Explicit Euler Method
+#### Stability Analysis: Explicit Euler Method
 
 Consider the model problem:
 
@@ -1255,7 +1255,7 @@ D \frac{\partial^2 u}{\partial x^2}\Big|_{x_i}
 
 ---
 
-From the transport equation:
+Try the central-scheme for the advection term first. From the transport equation:
 
 ```math
 \frac{dU_i}{dt}
@@ -1302,23 +1302,25 @@ md"""
 Matrix form of the semi-discrete equations:
 ```math
 \frac{d}{dt} \begin{bmatrix}
-U_2\\ U_3\\ \vdots\\ U_N
+U_1 \\ U_2\\ U_3\\ \vdots\\ U_N
 \end{bmatrix}
 +
 \begin{bmatrix}
-b_2 & c_2 & 0 & \cdots & 0\\[1ex]
-a_3 & b_3 & c_3 & \ddots & \vdots\\[1ex]
-0 & a_4 & b_4 & \ddots & 0\\[1ex]
-\vdots & \ddots & a_{N-1} & b_{N-1} & c_{N-1}\\[1ex]
-0 & \cdots & \cdots & a_N & b_N
+1 & 0 & 0 & 0 & \cdots & 0\\[1ex]
+a_2 & b_2 & c_2 & 0 & \cdots & 0\\[1ex]
+0 & a_3 & b_3 & c_3 & \ddots & \vdots\\[1ex]
+0 & 0 & a_4 & b_4 & \ddots & 0\\[1ex]
+\vdots & \ddots & 0 & a_{N-1} & b_{N-1} & c_{N-1}\\[1ex]
+0 & \cdots & \cdots & 0 & a_N + c_N & b_N
 \end{bmatrix}
 \!
 \begin{bmatrix}
-U_2\\ U_3\\ \vdots\\ U_N
+U_1 \\ U_2\\ U_3\\ \vdots\\ U_N
 \end{bmatrix}
 =
 \begin{bmatrix}
-f_2 - a_2 U_\text{left}\\[1ex]
+U_\text{left} \\[1ex]
+f_2\\
 f_3\\
 \vdots\\
 f_N
@@ -1326,7 +1328,7 @@ f_N
 ```
 
 ---
-Equation $i = 2$:
+- Equation $i = 2$:
 
 ```math
 \frac{dU_2}{dt}
@@ -1335,8 +1337,9 @@ Equation $i = 2$:
   + c_2 U_3
   = f_2
 ```
+We can choose to eliminate the first row of the matrix system by substituting $U_1 = U_\text{left}$ into the second row.
 
-Equation $i = N$:
+- Equation $i = N$:
 
 ```math
 \frac{dU_N}{dt}
@@ -1346,10 +1349,6 @@ Equation $i = N$:
   = f_N
 ```
 
----
-
-**Ghost point for Neumann BC**
-
 From the boundary condition:
 
 ```math
@@ -1357,8 +1356,10 @@ From the boundary condition:
 \qquad\Rightarrow\qquad
 \frac{U_{N+1}-U_{N-1}}{2\Delta x} = 0
 \qquad\Rightarrow\qquad
-U_{N+1} = U_N
+U_{N+1} = U_{N-1}
 ```
+
+This is why the coefficient for $U_{N-1}$ is $a_N + c_N$ for the last row of the matrix system.
 
 > The extra node $U_{N+1}$ is a **ghost point** used to impose the derivative boundary.
 > """
@@ -1424,14 +1425,250 @@ Choices of $\theta$
 
 ``\theta = \frac{1}{2}``. Also implicit (Crank–Nicolson method), $O(\Delta t^2)$
 
----
-
-The explicit Euler (``\theta = 0``) is conditionally stable
-
-If ``\frac{V \Delta x}{D} < 2``, require ``\frac{D \Delta t}{\Delta x^2} \le \frac{1}{2}`` (assuming $K = 0$)
 
 """
 
+
+# ╔═╡ bd3d5901-226d-4b01-8b61-9af6ac0db4f3
+md"""
+### Stability analysis for the semi-discrete system
+
+Let's neglect ``\mathbf{F}`` for now and consider 
+```math
+\frac{d \mathbf{U}}{dt} = \mathbf{A} \cdot \mathbf{U}
+```
+
+---
+
+#### Diagonalisation
+
+```math
+\mathbf{A} = \mathbf{S} \mathbf{\Lambda} \mathbf{S}^{-1}, \qquad \mathbf{z} = \mathbf{S}^{-1} \mathbf{U}
+```
+
+Hence
+
+```math
+\frac{d \mathbf{z}}{dt} = \mathbf{\Lambda} \mathbf{z}
+\quad\Longrightarrow\quad
+\frac{d\mathbf{z}_i}{dt} = \mathbf{\lambda}_i \mathbf{z}_i
+\qquad (i = 1,2,\dots,n)
+```
+
+---
+
+#### Explicit Euler stability
+
+```math
+\Delta t \le \frac{2}{\lvert \lambda\rvert_{\max}}
+```
+
+---
+
+#### For the Tridiagonal matrix in our problem (not considering the boundary conditions)
+
+```math
+A =
+\begin{bmatrix}
+a & c &   &        &   \\
+b & a & c &        &   \\
+  & b & a & \ddots &   \\
+  &   & \ddots & \ddots & c\\[0.5ex]
+  &   &        & b & a
+\end{bmatrix}
+```
+
+Its eigenvalues are
+
+```math
+\lambda_k = a + 2\sqrt{bc}\,
+\cos \left( \frac{k\pi}{n+1} \right),
+\qquad k=1,2,\dots,n
+```
+
+---
+
+#### Coefficients (assuming $K = 0$)
+
+```math
+a = -\frac{2D}{\Delta x^2}, \qquad
+b = \frac{V}{2\Delta x} + \frac{D}{\Delta x^2}, \qquad
+c = -\frac{V}{2\Delta x} + \frac{D}{\Delta x^2}
+```
+
+Therefore
+
+```math
+\lambda_k
+   = -\frac{2D}{\Delta x^2}
+     + 2 \sqrt{
+        \left( \frac{D}{\Delta x^2} \right)^2
+        - \left( \frac{V}{2\Delta x} \right)^2 }
+     \cos\left( \frac{k\pi}{n+1} \right)
+```
+
+---
+
+#### Largest eigenvalue
+
+If we consider only cases for which the eigenvalue is real
+
+```math
+\mathrm{Pe}_G
+   = \frac{V \,\Delta x}{D}
+   < 2
+```
+
+```math
+\lvert \lambda \rvert_{\max}
+   \approx \frac{2D}{\Delta x^2}
+     + 2 \sqrt{
+        \left( \frac{D}{\Delta x^2} \right)^2
+        - \left( \frac{V}{2\Delta x} \right)^2 }
+```
+
+"""
+
+# ╔═╡ 20ddd288-527d-41a2-bb0f-b1074154c0ab
+md"""
+#### Consider only dispersion ($V=0$)
+
+Eigenvalues become
+
+```math
+\lambda_k
+   = -\frac{2D}{\Delta x^2}
+     + 2\frac{D}{\Delta x^2}
+       \cos\!\left( \frac{k\pi}{n+1} \right),
+\qquad k=1,2,\dots,n
+```
+
+---
+
+#### Stability for explicit Euler
+
+Largest eigenvalue:
+
+```math
+|\lambda|_{\max} \approx \frac{4D}{\Delta x^2}
+```
+
+Hence
+
+```math
+\Delta t
+   \le \frac{2}{|\lambda|_{\max}}
+   = \frac{\Delta x^2}{2D}
+```
+
+or, in dimensionless form,
+
+```math
+\frac{D\,\Delta t}{\Delta x^2}
+    \le \frac12
+\qquad\Rightarrow\qquad
+\Delta t \sim \Delta x^2
+```
+
+---
+
+#### Smallest eigenvalue
+
+```math
+|\lambda|_{\min}
+   = \frac{2D}{\Delta x^2}
+     \Big|
+        \cos\!\left( \frac{k\pi}{n+1} \right) - 1
+     \Big|
+   = \frac{2D}{\Delta x^2}
+       2\sin^2\!\left( \frac{\pi}{2(n+1)} \right)
+```
+
+```math
+   \approx
+     \frac{4D}{\Delta x^2}
+       \left( \frac{\pi}{2(n+1)} \right)^2
+   \sim \frac{1}{(n+1)^2}
+```
+
+---
+
+#### Condition number
+
+```math
+\frac{|\lambda|_{\max}}
+     {|\lambda|_{\min}}
+   \sim (n+1)^2
+   \sim \frac{1}{\Delta x^2}
+```
+
+=> Using **explicit Euler** for the diffusion/dispersion equation is *“not a good idea”* (very small time step required). Additionally, the matrix may become ill-conditioned as you refine the grid.
+
+"""
+
+# ╔═╡ 88f52b05-5777-46d2-86b8-69e79b80a9cb
+md"""
+#### Consider only advection
+
+For the central‐difference discretisation:
+
+```math
+a = 0, \qquad
+b = -\dfrac{V}{2 \Delta x}, \qquad
+c = \dfrac{V}{2 \Delta x}
+```
+
+The eigenvalues are
+
+```math
+\lambda_k
+    = 0
+    + 2 \sqrt{ -\left( \dfrac{V}{2\Delta x} \right)^2 }
+      \cos\left( \dfrac{k}{n+1}\pi \right)
+```
+
+Because $\lambda_k$ is purely imaginary
+$\Rightarrow$ **unconditionally unstable**
+(Central difference for advection)
+
+---
+
+#### Upstream–weighted scheme
+
+```math
+a = -\dfrac{V}{\Delta x}, \qquad
+b = \dfrac{V}{\Delta x}, \qquad
+c = 0
+```
+
+Eigenvalues:
+
+```math
+\lambda_k = -\dfrac{V}{\Delta x}
+```
+
+Maximum magnitude:
+
+```math
+|\lambda_k|_{\max} = \dfrac{V}{\Delta x}
+```
+
+Stability condition:
+
+```math
+\Delta t
+    \le
+    \dfrac{2}{|\lambda_k|_{\max}}
+    = \dfrac{2 \Delta x}{V}
+    \quad\Longrightarrow\quad
+    \dfrac{V \Delta t}{\Delta x} < 2
+```
+
+We will show later with von Neumann stability analysis (often also referred to as Fourier stability analysis) that this stability condition is not sufficient. The matrix is a bidiagonal, non-normal matrix (``A A^\intercal \neq A^\intercal A``). All eigenvalues of the matrix are ``-V/\Delta x`` and the matrix is nondiagonalizable. The eigenvectors are not orthogonal (can almost be parallel). Therefore, the numerical scheme does not simply “multiply each eigenmode”. The difference modes interact; some combinations can grow even though all eigenvalues suggest decay.
+
+From von Neumann stability analysis, we can obtain the stability criterion of ``\dfrac{V \Delta t}{\Delta x} \leq 1``. ``\dfrac{V \Delta t}{\Delta x}`` is dimensionless and is often referred to as the Courant–Friedrichs–Lewy (CFL) number.
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2622,5 +2859,8 @@ version = "1.9.2+0"
 # ╟─2a6ac552-8517-4170-ba92-c75e3de42d39
 # ╟─714cb508-22ce-45cb-af89-ba80d63235f1
 # ╟─49198732-bb4b-448f-8b61-aa03d43e5b9f
+# ╟─bd3d5901-226d-4b01-8b61-9af6ac0db4f3
+# ╟─20ddd288-527d-41a2-bb0f-b1074154c0ab
+# ╟─88f52b05-5777-46d2-86b8-69e79b80a9cb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
