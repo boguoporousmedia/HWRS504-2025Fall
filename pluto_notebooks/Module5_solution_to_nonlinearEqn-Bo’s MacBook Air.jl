@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.17
 
 using Markdown
 using InteractiveUtils
@@ -132,7 +132,7 @@ begin
     local ys  = F.(xs)
 
     local p = plot(xs, ys, xlabel="x", ylabel="F(x)", 
-				   legend=false,  size = (400, 300),
+				   legend=false,  size = (500, 400),
 				   linecolor=:lightblue, linewidth = 2,
 				   xticks = 0:0.5:4)
     hline!(p, [0], linecolor = :black, linestyle = :dash)           
@@ -363,43 +363,6 @@ let
 	standard_Newton(f, n2, -4:0.01:10, x02, -50, 100)
 end
 
-# ╔═╡ 660d86a6-58a0-4dbe-aba3-5c4cf4ff63c5
-md"""
-#### A Variant of N–R: Secant Method
-
-✓ Instead of evaluating ``\tfrac{dF}{dx}\big|_{x^n}``, estimate this by FDA:
-
-```math
-\frac{F(x_n) - F(x_{n-1})}{x_n - x_{n-1}}
-```
-
-```math
-\Rightarrow \; x_{n+1} = x_n -
-\frac{F(x_n)}{\dfrac{F(x_n) - F(x_{n-1})}{x_n - x_{n-1}}}
-```
-
-```math
-\Rightarrow \; x_{n+1} = x_n -
-\frac{F(x_n)(x_n - x_{n-1})}{F(x_n) - F(x_{n-1})}
-```
-
-"""
-
-# ╔═╡ cd478de1-afac-4f4d-a599-0928f08b6da1
-md"""
-**Advantages**:
-- No derivative required
-- Requires two starting guesses and more memory-efficient
-
-**Disadvantages**:
-- Slower convergence rate (superlinear convergence, ``r≈1.618``)
-- Requires two starting guesses
-
-**Rule of thumb**
-- Use Newton–Raphson if derivatives are available and inexpensive to compute (e.g., closed-form or automatic differentiation). 
-- Use Secant if derivatives are hard or costly to evaluate
-"""
-
 # ╔═╡ 8f5ecd2b-d3d7-47a4-87ef-c1efdf1bd148
 md"""
 ### Fixed-point Iteration
@@ -441,7 +404,7 @@ Then:
    x_{n+1} = g(x_n), \quad n \ge 0,
    ```
 
-   converges to the unique fixed point of ``g(x)`` in ``[a,b]``.
+   converges to the unique fixed point of ``g`` in ``[a,b]``.
 
 ---
 
@@ -545,263 +508,6 @@ g(x) = x - \frac{x^3 - 25}{3x^2}
 ```
 
 """
-
-
-# ╔═╡ 4ff137c5-6db6-4ae4-9941-34b6a63e2257
-md"""
-#### Local error analysis
-
-Suppose ``x^*`` is the fixed point ``(g(x^*) = x^*``).  
-Define the error:
-
-```math
-e_n = x_n - x^*.
-```
-
-Then:
-
-```math
-e_{n+1} = g(x_n) - g(x^*).
-```
-
-By Taylor expansion:
-
-```math
-e_{n+1} \approx g'(x^*) \, e_n,
-```
-
-when $e_n$ is small.
-
-So the error shrinks if:
-
-```math
-|g'(x^*)| < 1.
-```
-
-That’s the **convergence condition**.
-
----
-
-**Intuition**
-
-* If $|g'(x^*)| < 1$:
-  The function squashes differences — each step pulls you closer.
-  Example: $g(x) = \cos(x)$. The derivative at the fixed point ($\approx 0.74$) is about $-0.67$, so it converges.
-
-* If $|g'(x^*)| > 1$:
-  Errors grow — the iteration diverges.
-  Example: $g(x) = 2x$. The only fixed point is $0$, but unless you start exactly there, you blow up.
-
-* If $|g'(x^*)| = 1$:
-  Borderline case. Convergence may fail (e.g., oscillations).
-
----
-
-**Insights**
-
-* Fixed-point iteration is *easy to implement* but *delicate*.
-* The convergence speed depends on $|g'(x^*)|$:
-
-  * If it’s close to ``0`` → fast convergence (super stable).
-  * If it’s close to ``1`` → very slow convergence.
-
-That’s why, for solving $f(x)=0$, we often **rearrange the equation into a good $g(x)$** so that $|g'(x^*)|<1$.
-
-"""
-
-# ╔═╡ dba6ecbc-f70f-49e0-b08d-2a7a458a649f
-md"""
-## Systems of Nonlinear Equations
-
-✓ Consider the general system of nonlinear equations:
-
-```math
-F_1(x_1, x_2, \ldots, x_N) = 0
-```
-
-```math
-F_2(x_1, x_2, \ldots, x_N) = 0
-```
-
-...
-
-```math
-F_N(x_1, x_2, \ldots, x_N) = 0
-```
-
----
-
-**How to solve?**
-
-✓ Graphical method is now impossible.
-
-✓ Interval halving is a possibility but is no longer rigorous
-(unless all ``0`` points are used, which in ``N`` dimensions may be excessive).
-
-"""
-
-
-# ╔═╡ e87709ae-0eaf-4cc9-80ae-0631b92bcee6
-md"""
-### Newton–Raphson
-
-* Now we need a multidimensional Taylor series  
-* Choose point ``x^0 = (x_1^0, x_2^0, \ldots, x_N^0)``
-
-```math
-F_1(x_1, x_2, \ldots, x_N) = F_1(x)
-```
-
-```math
-= F_1(x^0) 
-+ (x_1 - x_1^0)\,\frac{\partial F_1}{\partial x_1}\Big|_{x^0}
-+ (x_2 - x_2^0)\,\frac{\partial F_1}{\partial x_2}\Big|_{x^0}
-```
-
-```math
-+ \cdots
-+ (x_N - x_N^0)\,\frac{\partial F_1}{\partial x_N}\Big|_{x^0}
-+ O(\Delta x^2)
-```
-
-Similarly,
-
-```math
-F_2(x) = F_2(x^0)
-+ (x_1 - x_1^0)\,\frac{\partial F_2}{\partial x_1}\Big|_{x^0}
-+ (x_2 - x_2^0)\,\frac{\partial F_2}{\partial x_2}\Big|_{x^0}
-```
-```math
-+ \cdots
-+ (x_N - x_N^0)\,\frac{\partial F_2}{\partial x_N}\Big|_{x^0}
-+ O(\Delta x^2)
-```
-
-```math
-...
-```
-
-```math
-F_i(x) = F_i(x^0)
-+ \sum_{j=1}^N (x_j - x_j^0)\,\frac{\partial F_i}{\partial x_j}\Big|_{x^0}
-+ O(\Delta x^2)
-```
-
-"""
-
-
-
-# ╔═╡ 13c7fc9b-4c3a-4ec5-9208-718afe6e6f37
-md"""
-* Now we have a set of algebraic equations:
-
-```math
-(x_1 - x_1^0)\,\frac{\partial F_1}{\partial x_1}\Big|_{x^0}
-+ (x_2 - x_2^0)\,\frac{\partial F_1}{\partial x_2}\Big|_{x^0}
-```
-
-```math
-+ \cdots
-+ (x_N - x_N^0)\,\frac{\partial F_1}{\partial x_N}\Big|_{x^0}
-+ O(\Delta x^2)
-= F_1(x) - F_1(x^0)
-= 0 - F_1(x^0)
-= -F_1(x^0)
-```
-
-```math
-...
-```
-
-```math
-(x_1 - x_1^0)\,\frac{\partial F_i}{\partial x_1}\Big|_{x^0}
-+ (x_2 - x_2^0)\,\frac{\partial F_i}{\partial x_2}\Big|_{x^0}
-```
-
-```math
-+ \cdots
-+ (x_N - x_N^0)\,\frac{\partial F_i}{\partial x_N}\Big|_{x^0}
-+ O(\Delta x^2)
-= -F_i(x^0)
-```
-
-If we neglect the $O(\Delta x^2)$ terms and replace $\mathbf{x}$ on the LHS by approximating value $\mathbf{x}^1$,
-then this is a system of linear algebraic equations for the variables $(x_j^1 - x_j^0), \; j=1,2,\ldots,N$.
-That is,
-"""
-
-
-# ╔═╡ 8c835d26-c129-4c36-95d5-091f772545a0
-md"""
-```math
-\begin{bmatrix}
-\frac{\partial F_1}{\partial x_1}\Big|_{x^0} & \frac{\partial F_1}{\partial x_2}\Big|_{x^0} & \cdots & \frac{\partial F_1}{\partial x_N}\Big|_{x^0} \\
-\frac{\partial F_2}{\partial x_1}\Big|_{x^0} & \frac{\partial F_2}{\partial x_2}\Big|_{x^0} & \cdots & \frac{\partial F_2}{\partial x_N}\Big|_{x^0} \\
-\vdots & \vdots & \ddots & \vdots \\
-\frac{\partial F_N}{\partial x_1}\Big|_{x^0} & \frac{\partial F_N}{\partial x_2}\Big|_{x^0} & \cdots & \frac{\partial F_N}{\partial x_N}\Big|_{x^0}
-\end{bmatrix}
-\begin{bmatrix}
-x_1^1 - x_1^0 \\
-x_2^1 - x_2^0 \\
-\vdots \\
-x_N^1 - x_N^0
-\end{bmatrix}
-=
-\begin{bmatrix}
-- F_1(x^0) \\
-- F_2(x^0) \\
-\vdots \\
-- F_N(x^0)
-\end{bmatrix}
-```
-"""
-
-# ╔═╡ 91baf162-ad07-4c0d-babe-790e4fee4270
-md"""
-```math
-\mathbf{J}^0 \cdot \delta \mathbf{x}^1 = -\mathbf{F}^0
-```
-
-The matrix ``\mathbf{J}`` is often referred to as the **Jacobian matrix**.
-"""
-
-
-# ╔═╡ 37bc9322-ef4d-49e7-ae54-0c59a2f3a55e
-md"""
-* The general iteration is then of the form:
-
-```math
-\mathbf{J}^n \cdot \delta \mathbf{x}^{n+1} = -\mathbf{F}^n
-```
-
-* This is of the form:
-
-```math
-\mathbf{J}^n \cdot (\mathbf{x}^{n+1} - x^n) = -\mathbf{F}^n
-```
-
-```math
-\mathbf{x}^{n+1} = \mathbf{x}^n - (\mathbf{J}^n)^{-1} \cdot \mathbf{F}^n
-```
-
----
-
-* Can also define “quasi-Newton” methods (such as the secant method) by approximating the derivatives in ``\mathbf{J}`` using FDA
-
-* We can again notice that Newton–Raphson leads to an iterative method of the form
-
-```math
-\mathbf{x}^{n+1} = g(\mathbf{x}^n).
-```
-
-This is an example of the general fixed-point problem which arises from rewriting equations
-
-```math
-\mathbf{F}(\mathbf{x}) = 0 \quad \Longleftrightarrow \quad \mathbf{x} = \mathbf{g}(\mathbf{x})
-```
-
-* Fixed-point theorems are analogous to their 1D counterparts.
-  """
 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2577,20 +2283,11 @@ version = "1.9.2+0"
 # ╟─3bb2eb98-c07c-48e6-b702-be1af5451506
 # ╠═1501ff77-4b00-4f8a-96a5-05b4612a682b
 # ╠═eddced41-b3af-48a2-a999-202bbecb95b9
-# ╟─660d86a6-58a0-4dbe-aba3-5c4cf4ff63c5
-# ╟─cd478de1-afac-4f4d-a599-0928f08b6da1
 # ╟─8f5ecd2b-d3d7-47a4-87ef-c1efdf1bd148
 # ╟─550bc4e0-b611-4634-b35a-3892eceee757
 # ╟─434c4576-0523-4a92-9d4f-c03d3f9f62f2
 # ╟─79b52611-73e0-4089-ab5b-e378c273a06a
 # ╟─2a8486a4-070c-4c52-8cf2-38061da43561
 # ╟─07311b14-bed5-4906-8390-3756524c8f21
-# ╟─4ff137c5-6db6-4ae4-9941-34b6a63e2257
-# ╟─dba6ecbc-f70f-49e0-b08d-2a7a458a649f
-# ╟─e87709ae-0eaf-4cc9-80ae-0631b92bcee6
-# ╟─13c7fc9b-4c3a-4ec5-9208-718afe6e6f37
-# ╟─8c835d26-c129-4c36-95d5-091f772545a0
-# ╟─91baf162-ad07-4c0d-babe-790e4fee4270
-# ╟─37bc9322-ef4d-49e7-ae54-0c59a2f3a55e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
