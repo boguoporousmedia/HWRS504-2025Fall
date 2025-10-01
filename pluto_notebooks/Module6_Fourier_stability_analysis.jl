@@ -1,530 +1,902 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v0.20.13
 
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    #! format: off
-    return quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-    #! format: on
-end
+# ╔═╡ 4560e049-d77a-48a1-bfb8-b1522606b8e3
+using Plots, LaTeXStrings 
 
-# ╔═╡ 6a7e2c37-c021-45d0-8d68-ce6fdfffd44c
+# ╔═╡ 54ada3f0-9db6-11f0-1cda-4d9664634884
+md"""
+# Module 6: Fourier Stability Analysis
+"""
+
+# ╔═╡ 5009af20-deef-4ce2-8766-7a5ba77ceec0
+md"""
+### Fourier Series
+
+- Consider a function ``f(x)`` defined on ``-π < x < π``.
+
+- Next consider the “Fourier Series” representation of this function by the sum
+
+```math
+S_N(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
+= \sum_{n=0}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
+```
+
+* Let ``I ≡ ∫_{-π}^{π} [ f(x) - S_N(x) ]^2 dx``.
+  Minimization of ``I`` with respect to coefficients ``a_0, a_n, b_n`` leads to
+
+```math
+a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
+```
+
+```math
+a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
+```
+
+```math
+b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
+```
+
+- An excellent explanation of Fourier series on [YouTube] (https://www.youtube.com/watch?v=r6sGWTCMz2k)
+
+"""
+
+
+# ╔═╡ f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
+md"""
+- We then have the following **Theorem**
+
+For every ``f(x) \in C^0[-\pi, \pi]``, the Fourier Series given above converge uniformly to ``f(x)``, such that 
+
+```math
+f(x) = \lim_{N \to \infty} S_N(x)
+```
+
+or
+
+```math
+f(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big)
+```
+
+with coefficients
+
+```math
+a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
+```
+
+```math
+a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
+```
+
+```math
+b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
+```
+
+---
+
+✓ **Notes:**
+
+* We can change intervals in ``x`` by simple linear coordinate transformation.
+* We can use complex exponential notation representation (Euler's formula):
+
+```math
+e^{i\theta} \equiv \cos\theta + i\sin\theta, \qquad i \equiv \sqrt{-1}
+```
+
+From this,
+
+```math
+\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}, 
+\qquad 
+\sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}
+```
+
+"""
+
+
+# ╔═╡ 53689987-f6a6-4d29-9bb1-e77f8c4f6c27
+md"""
+
+``\cos(nx), \cos(mx), \sin(nx), \sin(mx)`` are linearly independent.
+
+Define an inner product by  
+``\langle g(x), h(x) \rangle = \int_{-\pi}^{\pi} g(x)h(x)\, dx``, then
+
+- ``\langle \cos(nx), \sin(mx) \rangle = 0, \ \forall n, m``
+- ``\langle \cos(nx), \cos(mx) \rangle = 0, \ \text{if } n \neq m``
+- ``\langle \cos(nx), \cos(mx) \rangle = \pi, \ \text{if } n = m``
+- ``\langle \sin(nx), \sin(mx) \rangle = 0, \ \text{if } n \neq m``
+- ``\langle \sin(nx), \sin(mx) \rangle = \pi, \ \text{if } n = m``
+
+
+Using the prior property we can compute ``a_n`` and ``b_n`` by
+
+```math
+\langle f(x), \cos(nx) \rangle 
+= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \cos(nx) \Big\rangle
+```
+
+```math
+= \langle a_n \cos(nx), \cos(nx) \rangle = \pi a_n
+```
+
+
+```math
+\langle f(x), \sin(nx) \rangle 
+= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \sin(nx) \Big\rangle
+```
+
+```math
+= \langle b_n \sin(nx), \sin(nx) \rangle = \pi b_n
+```
+
+**Note:** ``a_n`` and ``b_n`` are constant here.
+"""
+
+
+# ╔═╡ 65debf88-458d-4452-be5b-f218e3117bd7
+md"""
+Therefore:
+
+```math
+f(x) = \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left( a_n \frac{e^{inx} + e^{-inx}}{2} + b_n \frac{e^{inx} - e^{-inx}}{2i} \right)
+```
+
+```math
+= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} + \frac{b_n}{2i}\right)e^{inx} + \left(\frac{a_n}{2} - \frac{b_n}{2i}\right)e^{-inx} \right]
+```
+
+```math
+= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} - i\frac{b_n}{2}\right)e^{inx} + \left(\frac{a_n}{2} + i\frac{b_n}{2}\right)e^{-inx} \right]
+```
+
+```math
+= \frac{a_0}{2} + \sum_{n=1}^{+\infty} c_n e^{inx} + \sum_{n=-\infty}^{-1} c_n e^{inx}
+```
+
+```math
+= \sum_{n=-\infty}^{+\infty} c_n e^{inx}
+```
+
+```math
+\Rightarrow \quad f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{inx}, 
+\qquad c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi} f(x) e^{-inx}\, dx
+```
+
+**Note:**
+
+* ``e^{inx}`` and ``e^{imx}`` are linearly independent for ``n \neq m``.
+* ``c_n`` are also constant and can be computed in a similar way as ``a_n`` and ``b_n``.
+  """
+
+
+
+# ╔═╡ 2507bcf3-b0f4-4b31-881c-077b4711c261
+md"""
+- If instead, we have interval ``[-l, l]``
+
+```math
+f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{i\sigma_n x}
+```
+
+```math
+\sigma_n = \frac{n\pi}{l} = \frac{2\pi}{L_n}
+```
+
+where ``\sigma_n`` is the wave number and ``L_n`` is the wave length. 
+
+* We can also use normalized functions ``\tfrac{\cos(nx)}{\sqrt{\pi}}, \tfrac{\sin(nx)}{\sqrt{\pi}}``, and observe that these form **orthonormal bases**.
+
+```math
+a_n \cos(nx) 
+= \left[ \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx \right] \cos(nx)
+```
+
+```math
+= \frac{\cos(nx)}{\sqrt{\pi}} 
+   \left[ \int_{-\pi}^{\pi} \frac{f(x)\cos(nx)}{\sqrt{\pi}}\, dx \right]
+```
+
+Similarly for ``\sin(nx)``.
+"""
+
+
+# ╔═╡ eef9bcab-9e8d-4af5-8029-daa9a8a8e747
+md"""
+### Stability for space-time problems
+
+✓ **Example:**
+
+```math
+\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
+```
+
+Finite difference approximation (assuming equal grid spacing):
+
+```math
+\frac{dU_i}{dt} - D \frac{U_{i-1} - 2U_i + U_{i+1}}{\Delta x^2} = 0
+```
+
+Proceed with FDA and discretize in time with forward Euler:
+
+```math
+\frac{U_i^{n+1} - U_i^n}{\Delta t} 
+- D \frac{U_{i-1}^n - 2U_i^n + U_{i+1}^n}{\Delta x^2} = 0
+```
+
+"""
+
+
+# ╔═╡ d64c6bb0-c387-494a-a0c6-6dbf385f43f0
+md"""
+```math
+U_i^{n+1} = U_i^n + \frac{D \Delta t}{\Delta x^2} \left( U_{i-1}^n - 2U_i^n + U_{i+1}^n \right)
+```
+
+**Fourier Stability Analysis**
+
+* Recall Fourier Series:
+
+```math
+f(x) = \sum_{k=-\infty}^{+\infty} c_k e^{i\sigma_k x},
+\qquad
+c_k = \frac{1}{2l} \int_{-l}^{l} f(x) e^{-i\sigma_k x}\, dx
+```
+
+"""
+
+
+# ╔═╡ 5fa6c7e4-8be0-4c78-8084-6a4ab81af890
+md"""
+Represent initial condition (I.C.) by
+
+```math
+U^0 \sim \sum_k C_k e^{i\sigma_k x}
+```
+
+I.C. is propagated by the FDA.
+The FDA is the same for each time step.
+The solution at any time ``t^n`` can be expanded using Fourier series.
+For linear operators, each component of the Fourier series is propagated independently.
+
+At ``t^0`` (initial condition):
+
+```math
+U^0 \sim \sum_k C_k^0 e^{i\sigma_k x}
+```
+
+At ``t^1 = t^0 + \Delta t``:
+
+```math
+U^1 \sim \sum_k C_k^1 e^{i\sigma_k x} 
+= \sum_k \frac{C_k^1}{C_k^0} C_k^0 e^{i\sigma_k x} 
+= \sum_k \lambda_k C_k^0 e^{i\sigma_k x}
+```
+
+At ``t^n``:
+
+```math
+U^n \sim \sum_k (\lambda_k)^n C_k^0 e^{i\sigma_k x}
+```
+
+For stability analysis, require ``|\lambda_k| \leq 1 \ \forall k``.
+
+```math
+\lambda_k \equiv \text{Amplification Factor}
+```
+
+"""
+
+
+# ╔═╡ 502b8378-6c74-410a-bf53-b5baa30c174c
+md"""
+### Example (FDA forward Euler, “classic explicit”)
+
+```math
+U_j^{n+1} = U_j^n + \frac{D \Delta t}{\Delta x^2} \big( U_{j-1}^n - 2U_j^n + U_{j+1}^n \big)
+```
+
+Let ``\mathcal{D} = \frac{D \Delta t}{\Delta x^2}`` is dimensionless diffusion coefficient.
+
+```math
+U_j^{n+1} = \mathcal{D} U_{j-1}^n + (1 - 2\mathcal{D}) U_j^n + \mathcal{D} U_{j+1}^n 
+\tag{1}
+```
+
+Substitute ``U_j^n = \sum_k (\lambda_k)^n C_k e^{i\sigma_k x_j} = \sum_k (\lambda_k)^n C_k e^{i\sigma_k j \Delta x}`` into (1):
+
+```math
+\Rightarrow (\lambda_k)^{n+1} C_k e^{i\sigma_k j \Delta x}
+= \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j-1)\Delta x}
+```
+
+```math
++ (1 - 2\mathcal{D})(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}
++ \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j+1)\Delta x}
+\tag{2}
+```
+
+Divide (2) by ``(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}``:
+
+```math
+\Rightarrow \lambda_k 
+= \mathcal{D} e^{-i\sigma_k \Delta x} + (1 - 2 \mathcal{D}) + \mathcal{D} e^{i\sigma_k \Delta x}
+= \mathcal{D} \big( e^{-i\sigma_k \Delta x} + e^{i\sigma_k \Delta x} \big) + (1 - 2 \mathcal{D})
+```
+
+```math
+\Rightarrow \lambda_k = 2\mathcal{D} \cos(\sigma_k \Delta x) + (1 - 2\mathcal{D})
+```
+
+"""
+
+
+# ╔═╡ 781b8096-c19b-4257-af21-cba6248b0b5e
+md"""
+```math
+\lambda_k = 1 - 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) 
+= 1 - 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
+```
+
+**Stability requirement:** ``|\lambda_k| \leq 1 \ \Rightarrow\ -1 \leq \lambda_k \leq 1``
+(The right inequality is OK for any ``k``.)
+
+```math
+\Rightarrow \ 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right) \leq 2
+```
+
+```math
+\Rightarrow \ \mathcal{D} \leq \frac{1}{2 \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)}
+\qquad \text{(consider the most restrictive case).}
+```
+
+```math
+\Rightarrow \ \mathcal{D} \leq \frac{1}{2} \quad \text{(stability limit).}
+```
+
+```math
+\Rightarrow \ \mathcal{D} = \frac{D \Delta t}{\Delta x^2} \leq \frac{1}{2}
+```
+
+"""
+
+
+
+# ╔═╡ 78f02703-f3a3-43cc-a7d7-b573f6391506
+md"""
+### Other examples:
+
+- FDA backward Euler (“classic implicit”)
+
+- Perform stability analysis for variably weighted Euler:
+
+```math
+\frac{U_j^{n+1} - U_j^n}{\Delta t}
+- D \left[ 
+\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
++ (1 - \theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
+\right] = 0
+```
+
+* Richardson’s method:
+
+```math
+\frac{U_j^{n+1} - U_j^{n-1}}{2 \Delta t}
+- \frac{D}{\Delta x^2} \left( U_{j+1}^n - 2U_j^n + U_{j-1}^n \right) = 0
+```
+
+"""
+
+
+# ╔═╡ 8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
+md"""
+✓ **FDA backward Euler (“classic implicit”)**
+
+```math
+\frac{U_j^{n+1} - U_j^n}{\Delta t}
+= D \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
+```
+
+where ``\mathcal{D} = \tfrac{D \Delta t}{\Delta x^2}``.
+
+Using Fourier series representation:
+
+```math
+U_j^n \sim (\lambda_k)^n e^{i\sigma_k j \Delta x}
+```
+
+Substitute into scheme:
+
+```math
+\lambda_k \left[ -\mathcal{D} e^{i\sigma_k \Delta x} + (1+2\mathcal{D}) - \mathcal{D} e^{-i\sigma_k \Delta x} \right] = 1
+```
+
+```math
+\lambda_k \left[ 1 + 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) \right] = 1
+```
+
+```math
+\lambda_k \left[ 1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \right] = 1
+```
+
+Thus,
+
+```math
+\lambda_k = \frac{1}{1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)}
+```
+
+Since ``|\lambda_k| \leq 1 \quad \forall k``, the scheme is **unconditionally stable**.
+"""
+
+
+
+# ╔═╡ 0423f4ff-6ab9-4014-9a67-c818c0564e7a
+md"""
+✓ **Variably weighted Euler**
+
+```math
+\frac{U_j^{n+1} - U_j^n}{\Delta t}
+- D \left[
+\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
++ (1-\theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
+\right] = 0
+```
+
+Substitute Fourier series representation, then divide by ``U_j^n``:
+
+```math
+\lambda_k = \frac{\tfrac{1}{\Delta t} + \tfrac{2\mathcal{D}}{\Delta x^2}(1-\theta)\big[\cos(\sigma_k \Delta x)-1\big]}
+{\tfrac{1}{\Delta t} - \tfrac{2\mathcal{D}}{\Delta x^2}\theta \big[\cos(\sigma_k \Delta x)-1\big]}
+= \frac{1 - 2\mathcal{D}(1-\theta)\big[1-\cos(\sigma_k \Delta x)\big]}
+{1 + 2\mathcal{D}\theta \big[1-\cos(\sigma_k \Delta x)\big]}
+```
+
+---
+
+Stability condition: ``|\lambda_k| \leq 1``
+
+This leads to
+
+```math
+2\mathcal{D}(1-2\theta) \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 1
+```
+
+Hence the **stability limit** (most restrictive condition):
+
+```math
+\mathcal{D}(1-2\theta) \leq \tfrac{1}{2}
+```
+
+"""
+
+# ╔═╡ 193d7395-f86a-4604-9d3c-a2f302a9185f
+md"""
+- **Richardson’s method**
+
+```math
+\frac{U_j^{n+1} - U_j^{n-1}}{2\Delta t}
+- \frac{D}{\Delta x^2}\left(U_{j+1}^n - 2U_j^n + U_{j-1}^n\right) = 0
+```
+
+Rearranging:
+
+```math
+U_j^{n+1} = 2\mathcal{D}\big(U_{j+1}^n - 2U_j^n + U_{j-1}^n\big) + U_j^{n-1}
+```
+
+Substituting Fourier series representation gives
+
+```math
+\lambda_k^2 = 2\mathcal{D} \lambda_k \left[2\cos(\sigma_k \Delta x) - 2\right] + 1
+```
+
+which leads to
+
+```math
+\lambda_k = -4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)
+\;\; \pm \;\;
+\sqrt{\,16\mathcal{D}^2 \sin^4\!\left(\tfrac{\sigma_k \Delta x}{2}\right) + 1}
+```
+
+Since for most ``k`` values the condition ``|\lambda_k| \leq 1`` fails (except in the trivial case ``\sin(\tfrac{\sigma_k \Delta x}{2})=0``),
+Richardson’s method is **unconditionally unstable.**
+
+"""
+
+
+# ╔═╡ 8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
+md"""
+### Why does each component of the Fourier series propagate independently?
+
+- ``C_k`` only depends on time (not space ``x``), we can let  
+
+```math
+u(t,x) = \sum_k C_k(t) e^{i\sigma_k x}.
+```
+
+Then,
+
+```math
+0 = \frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} 
+= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
+  - D \sum_k C_k(t) \frac{\partial^2}{\partial x^2} \big( e^{i\sigma_k x} \big)
+```
+
+```math
+= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
+  - D \sum_k C_k(t) (i\sigma_k)^2 e^{i\sigma_k x}
+```
+
+```math
+= \sum_k \left[ \frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 \right] e^{i\sigma_k x}
+```
+
+* ``e^{i\sigma_n x}`` and ``e^{i\sigma_m x}`` are linearly independent for ``n \neq m``.
+
+Thus,
+
+```math
+\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0
+\quad 
+\tag{1}
+```
+
+Observe that Equation (1) is an ordinary differential equation (ODE) for $C_k(t)$.
+
+* Let ``g(t,x) = C_k(t)e^{i\sigma_k x}``, which is the ``k^{\text{th}}`` component of the Fourier series.
+  Then (1) is equivalent to
+
+```math
+\frac{\partial g}{\partial t} - D \frac{\partial^2 g}{\partial x^2} = 0
+```
+
+*Insights*:
+- Each Fourier component ``C_k(t)e^{i\sigma_k x}`` evolves according to the same PDE structure but independently.
+- There is no coupling between different Fourier components, because the exponential basis functions are independent.
+
+"""
+
+
+# ╔═╡ d79ea06f-b582-4c1b-9e05-4ee273e6ec10
+md"""
+### Why is ``\lambda_k`` constant?
+
+- We can obtain the following equation for ``C_k(t)``,  
+
+```math
+\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0 
+   \;\;\;\;\;\; \Rightarrow \;\;\;\;\;\; 
+   \frac{\partial C_k}{\partial t} = -D \sigma_k^2 C_k
+```
+
+```math
+\Rightarrow \; C_k = A e^{-D\sigma_k^2 t} \quad \text{where A is a constant}
+```
+
+```math
+\Rightarrow \; \lambda_k = \frac{C_k(t+\Delta t)}{C_k(t)} 
+= \frac{A e^{-D\sigma_k^2 (t+\Delta t)}}{A e^{-D\sigma_k^2 t}} 
+= e^{-D\sigma_k^2 \Delta t}
+```
+
+"""
+
+# ╔═╡ 12934380-24d0-45f5-9ca3-1823cef69f23
+md"""
+### Summary of Fourier stability analysis
+
+- Represent the initial condition 
+
+- Marching in time, the amplification factor ``\lambda_k`` is constant  
+
+- Require ``|\lambda_k| \leq 1`` for stability  
+
+- Applies to PDEs with linear coefficients and periodic boundary conditions; equal grid spacing.  
+
+- Comment on Fourier stability analysis vs. matrix stability analysis: Matrix stability analysis applies to essentially any complications including different boundary conditions, unequal grid spacing, non-constant coefficients. However, one has to compute eigenvalues of the matrix, which can be a nontrivial task. Furthermore, the matrix has to be a normal matrix (i.e., eigenvectors are orthogonal). Fourier stability analysis applies to linear equation with periodic boundary conditions.
+
+"""
+
+# ╔═╡ 3aa09a14-a115-4a8d-8b9a-36c682639652
+md"""
+### Accuracy: “overstability”
+
+✓ Analytical behavior of solution  
+
+Let
+
+```math
+u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
+```
+
+Substitute into the PDE:
+
+```math
+\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
+\;\;\;\Rightarrow\;\;\;
+\sum_k \left( \frac{d\Lambda_k}{dt} - D\Lambda_k(-\sigma_k^2) \right) e^{i\sigma_k x} = 0
+```
+
+Because ``e^{i\sigma_k x}`` are linearly independent,
+
+```math
+\frac{d\Lambda_k}{dt} + D\sigma_k^2 \Lambda_k = 0
+```
+
+Solution for coefficients:
+
+```math
+\Lambda_k = C_k e^{-D\sigma_k^2 t}, 
+\qquad \text{where $C_k$ is set by the initial condition.}
+```
+
+Thus,
+
+```math
+u(x,t) = \sum_k C_k e^{-D\sigma_k^2 t} e^{i\sigma_k x}
+```
+
+Over one time step ``\Delta t``:
+
+```math
+\frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
+= \frac{C_k e^{-D\sigma_k^2 (t+\Delta t)}}{C_k e^{-D\sigma_k^2 t}}
+= e^{-D\sigma_k^2 \Delta t}
+\equiv \lambda_k^A
+```
+
+Here, ``\lambda_k^A`` is the **analytical amplification factor**.
+"""
+
+
+# ╔═╡ 0b27e42d-6505-4afc-979d-9d73685af241
+md"""
+✓ Amplitude Ratio  
+
+```math
+R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
+```
+
+where ``\lambda_k^N`` is the **numerical amplitude factor**.
+
+* For stability, require ``|\lambda_k^N| \leq 1``
+* For accuracy, require ``\lambda_k^N \approx \lambda_k^A \;\;\Rightarrow\;\; R_k \approx 1``
+
+
+**Quick example: Forward Euler**
+
+```math
+\lambda^N = 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
+```
+
+```math
+= 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\pi}{L_k / \Delta x}\right)
+```
+
+while the analytical amplification factor is
+
+```math
+\lambda^A = e^{-D \sigma_k^2 \Delta t}
+= e^{-\mathcal{D} \Delta x^2 \left(\frac{2\pi}{L_k}\right)^2}
+= e^{-\mathcal{D} \frac{4\pi^2}{(L_k / \Delta x)^2}}
+```
+
+Parameters:
+
+```math
+\sigma_k = \frac{2\pi}{L_k}, \qquad \mathcal{D} = \frac{D \Delta t}{\Delta x^2}
+```
+
+The plot below illustrates
+
+```math
+R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
+```
+
+as a function of the wavelength ratio ``L_k / \Delta x``.
+
+Takeway: The Forward Euler scheme may damp too aggressively for high-frequency Fourier components.
+
+```math
+u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty}
+\left[
+\left(a_k e^{-D\sigma_k^2 t}\right)\cos(\sigma_k x)
++ \left(b_k e^{-D\sigma_k^2 t}\right)\sin(\sigma_k x)
+\right]
+```
+
+"""
+
+
+# ╔═╡ f4d2afbe-3346-4760-86eb-98692a8e76e0
 begin
-	using Symbolics, ForwardDiff, Plots, PlutoUI, LaTeXStrings
-	using ForwardDiff: jacobian
-end
+    # Assumptions:
+    #  - q = L_k/Δx is an integer (# grid points per wavelength), q ∈ {2, …, N-1}
+    #  - 𝒟 = DΔt/Δx^2 (diffusion Courant number for Forward Euler), must satisfy 𝒟 ≤ 1/2 for stability
+    N  = 20                # number of grid points (sets the right end of the q-axis)
+    𝒟  = 0.3                # choose any value ≤ 0.5; adjust to see the behavior
 
-# ╔═╡ 3c4e850c-9829-11f0-208a-4f76fa503c4c
-md"""
-# Module 5: Solution to Nonlinear Equations
-"""
+    q  = 2:N-1              # q = L_k/Δx
+    λN = 1 .- 4*𝒟 .* sin.(π ./ q).^2
+    λA = exp.(-4π^2*𝒟 ./ q.^2)
 
-# ╔═╡ d1f98b86-fbd0-4f26-bb57-11c1c6160b73
-md"""
-### Examples
+    R  = abs.(λN) ./ abs.(λA)
 
-1. Nonlinear IVP’s for which implicit formulas are used as approximations
-
-```math
-\frac{du}{dt} = f(u,t), \quad f(u,t) = au - bu^{1.7}
-```
-
-```math
-U^{n+1} = U^n + \Delta t F^{n+1}, \quad F^{n+1} = aU^{n+1} - b(U^{n+1})^{1.7}
-```
-
-```math
-U^{n+1} = U^n + \Delta t \big[ aU^{n+1} - b(U^{n+1})^{1.7} \big]
-```
-
-```math
-\Rightarrow \; b(U^{n+1})^{1.7} + (1 - a\Delta t)U^{n+1} - U^n = 0
-```
-
-- Need to solve this nonlinear equation for $U^{n+1}$, given $a, b, \Delta t, U^n$, at every time step.
-
-2. The function
-
-```math
-f(x) = \ln(x^2 + 1) - e^{0.4x}\cos(\pi x)
-```
-
-has an infinite number of zeros, but only **one negative root**. Find it.
-
-3. Determine
-
-```math
-\sqrt[3]{25}
-```
-
-"""
-
-# ╔═╡ 9c805802-51ae-4737-8aa7-1a2f9e6e90cd
-md"""
-### Example: Determine ``\sqrt[3]{25}``
-
-- First write the problem in a more easily-evaluated form:
-
-If ``x = \sqrt[3]{25}``, then ``x^3 = 25``, or
-
-```math
-F(x) = x^3 - 25
-```
-
-In general, we wish to find roots, or zeros, of the nonlinear equation
-
-```math
-F(x) = 0 \quad (\text{find } x)
-```
-
-For our example,
-
-```math
-F(x) = x^3 - 25
-```
-
-"""
-
-
-# ╔═╡ 40c276ea-5e24-4ff7-b587-4ab35cb1579b
-md"""
-#### Possible approaches:
-
-**1. Graphical methods**
-
-* Choose specific values of $x$ (usually at fixed intervals)
-* Calculate $F(x)$ for each $x$
-* Graph the results (or just look at them) to find the region within which at least one zero lies.
-
-```math
-\begin{array}{c|c}
-x & F(x) \\
-\hline
-0   & -25 \\
-0.5 & -24.9 \\
-1   & -24 \\
-1.5 & -21.9 \\
-2   & -17 \\
-2.5 & -9.4 \\
-3   & 2 \\
-3.5 & 17.9 \\
-4   & 39 \\
-4.5 & 66.1 \\
-5   & 100
-\end{array}
-```
-
-"""
-
-
-# ╔═╡ 3863bff0-6c9f-47bc-b91f-f931634092bd
-begin
-    F(x) = x^3 - 25
-    local xs  = range(0, 4, length=200)
-    local ys  = F.(xs)
-
-    local p = plot(xs, ys, xlabel="x", ylabel="F(x)", 
-				   legend=false,  size = (500, 400),
-				   linecolor=:lightblue, linewidth = 2,
-				   xticks = 0:0.5:4)
-    hline!(p, [0], linecolor = :black, linestyle = :dash)           
-    scatter!(p, [cbrt(25)], [F(cbrt(25))], 
-			 markershape=:+, markersize=8,
-			 markercolor=:darkred, markerstrokewidth = 2)  
+    p = plot(q, R,
+             xlabel=L"L_k/Δx",
+             ylabel=L"R_k = |λ^N| / |λ^A|",
+             legend=false,
+			 linewidth=2)
+    hline!(p, [1.0], linestyle=:dash,linewidth=2)  # reference line at 1
+    xlims!(2, N-1)
     p
 end
 
-# ╔═╡ 89527fbb-bc0e-4851-90f4-c0bf7ee3dc4b
+# ╔═╡ d369d7ca-e282-4199-9da8-b557533a03e0
 md"""
-
-From the sign change between ``x=2.5`` and ``x=3``, we bracket a root and can guess
-``\sqrt[3]{25} \approx 2.8`` (actual solution ``\approx 2.9240``).
-
-The key observation for existence of a root between successive values is a **change of sign** of ``F``.
-"""
-
-# ╔═╡ fcdb1eb5-024f-46bc-9516-c976283b6d5b
-md"""
-**2. The Bisection Method**
-
-*Idea*: Move down the evaluation list above until an interval with a sign change is found.  
-Then refine that interval by:
-
-- Evaluate ``F(x)`` at the midpoint of the interval.  
-- Choose the half-interval that has a sign change.  
-- The root must lie in that interval.  
-- Replace the interval by this new half and repeat the process…
-
-*Theory:* Given an interval ``[a,b]`` with a sign change, the interval length containing the root after ``k`` steps is
+✓ Consider another example: **pure advection**
 
 ```math
-\frac{b-a}{2^k}.
+\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
 ```
 
-To estimate the root within an error tolerance of ``tol``, use an algorithm in the following pseudocode:
+FDA: Forward-in-time, Backward-in-space (FTBS)
 
-*Pseudocode*
+```math
+\frac{U_j^{n+1} - U_j^n}{\Delta t} 
++ V \frac{U_j^n - U_{j-1}^n}{\Delta x} = 0
+```
 
-```text
-while (b - a) > tol do
-    m = a + (b - a)/2
-    if sign(f(a)) = sign(f(m)) then
-        a = m
-    else
-        b = m
-    end
-end
+which gives
+
+```math
+U_j^{n+1} = U_j^n - \frac{V \Delta t}{\Delta x}(U_j^n - U_{j-1}^n)
+= (1-\nu) U_j^n + \nu U_{j-1}^n
+```
+
+where the **Courant number** is defined as
+
+```math
+\nu = \frac{V \Delta t}{\Delta x}.
+```
+
+Fourier series representation:
+
+Let
+
+```math
+U_j^n \sim \lambda_k^n e^{i \sigma_k j \Delta x}.
+```
+
+Substitute into the scheme:
+
+```math
+\lambda_k e^{i \sigma_k j \Delta x}
+= (1-\nu)\lambda_k^n e^{i\sigma_k j \Delta x}
++ \nu \lambda_k^n e^{i \sigma_k (j-1)\Delta x}.
 ```
 
 ---
 
+**Dimensionless groups:**
+
+- Peclet number: ``Pe^G = \dfrac{V \Delta t}{D}``
+- Diffusion number: ``\mathcal{D} = \dfrac{D \Delta t}{\Delta x^2}``
+- Courant number: ``\nu = \dfrac{V \Delta t}{\Delta x}``
+
 """
 
 
-# ╔═╡ 225cb203-0009-467e-8753-6742e1abcb62
+
+# ╔═╡ f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
 md"""
-**3. Newton-Raphson method**
-
-A more systematic and very popular method based on truncated Taylor series.
-
-Assume ``F(x) \in C^2[a,b]``, and let the problem be given by ``F(x) = 0``.  
-Let ``x_0 \in [a,b]``.
-
-Then:
-
 ```math
-F(x) = F(x_0) + (x - x_0)\frac{dF}{dx}\Big|_{x_0} 
-       + \frac{(x - x_0)^2}{2} \frac{d^2F}{dx^2}\Big|_{\xi} + \cdots = 0,
-       \quad \xi \in [x, x_0]
+\lambda_k^N = 1 - \nu + \nu e^{-i\sigma_k \Delta x}
+             = (1 - \nu + \nu \cos\sigma_k \Delta x) - i \nu \sin\sigma_k \Delta x
 ```
 
-If the last term $O((\Delta x)^2)$ is neglected, then:
+For stability, we require:
 
 ```math
-F(x_0) + (x - x_0)\frac{dF}{dx}\Big|_{x_0} \approx 0
+|\lambda_k^N| \leq 1
+\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
+(1 - \nu + \nu \cos\sigma_k \Delta x)^2 + \nu^2 \sin^2\sigma_k \Delta x \leq 1
 ```
 
-If this is set **equal** to zero, then an approximation to the true solution $x$ may be solved for.
-Denote it by $x_1$, and set:
+Expanding:
 
 ```math
-F(x_0) + (x_1 - x_0)\frac{dF}{dx}\Big|_{x_0} \approx 0
-\;\;\;\;\;\;\;\;\;\;\;\;
-\Rightarrow \;\; x_1 = x_0 - \frac{F(x_0)}{\tfrac{dF}{dx}\big|_{x_0}}
+(1 - 2\nu) + \nu^2 + 2\nu(1 - \nu)\cos\sigma_k \Delta x + \nu^2 \leq 1
 ```
 
-This gives a better (updated) estimate of the root.
-
-Then expand about $x_1$ to obtain:
+Simplify:
 
 ```math
-x_2 = x_1 - \frac{F(x_1)}{\tfrac{dF}{dx}\big|_{x_1}}
+-2\nu(1 - \nu)\, 2\sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 0
 ```
 
-In general:
+Thus:
 
 ```math
-x_{n+1} = x_n - \frac{F(x_n)}{\tfrac{dF}{dx}\big|_{x_n}}
+1 - \nu \geq 0 
+\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
+\nu \leq 1
+\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
+\frac{V \Delta t}{\Delta x} \leq 1 \quad \text{(stability limit).}
 ```
 
 """
 
-
-# ╔═╡ b681bfe2-1fc1-4a50-b678-55fbddf2daf8
+# ╔═╡ cbe3b676-d2e0-445d-9f31-998d87456407
 md"""
-Criteria for stepping the iteration
+#### Exact amplification factor for advection
 
-(a) $|x_{n+1} - x_n| < \varepsilon$
-
-(b) $\left| \frac{x_{n+1} - x_n}{x_{n+1}} \right| < \varepsilon \quad (x_{n+1} \neq 0)$
-
-(c) $|F(x_{n+1})| < \varepsilon$
-
----
-
-**Convergence**
-
-For general iterative methods, define error at iteration $k$:
+We expand the solution as a Fourier series:
 
 ```math
-e_k = x_k - x^*
+u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
 ```
 
-where $x_k$ is the approximate solution and $x^*$ is the true solution.
-
-* For methods that maintain an interval known to contain solution (instead of a specific approximate value), the error is the **interval length**.
-
-* A sequence converges with **rate $r$** if
+From the advection equation:
 
 ```math
-\lim_{k \to \infty} \frac{\lVert e_{k+1} \rVert}{\lVert e_k \rVert^r} = C
+\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
 ```
 
-for some finite nonzero constant $C$.
+we obtain:
 
----
+```math
+\left(\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k\right) e^{i\sigma_k x} = 0
+```
 
-Some particular cases of interest
+Thus:
 
-``r = 1``: *linear* ``\;\; (C < 1)``
+```math
+\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k = 0
+\;\;\;\;\Rightarrow\;\;\;\;
+\Lambda_k = C_k e^{-iV\sigma_k t}
+```
 
-``r > 1``: *superlinear*
+Therefore, the exact amplification factor is:
 
-``r = 2``: *quadratic*
+```math
+\lambda_k^A = \frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
+             = e^{-iV\sigma_k \Delta t}
+```
 
-| Convergence rate | Digits gained per iteration |
-| ---------------- | --------------------------- |
-| Linear           | Constant                    |
-| Superlinear      | Increasing                  |
-| Quadratic        | Double                      |
-|                  |                             |
+and:
+
+```math
+|\lambda_k^A| = 1
+```
+
+So the solution is a **pure translation** of the initial wave without decay:
+
+```math
+u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty} 
+         \left[a_k \cos\!\big(\sigma_k(x - V t)\big) + 
+               b_k \sin\!\big(\sigma_k(x - V t)\big)\right]
+```
+
+**Interpretation:**
+The solution preserves its magnitude; it simply shifts in space with speed ``V``.
+
+
 
 """
-
-
-
-# ╔═╡ 7c706bf6-27ae-452b-a225-39bf98be9cf3
-md"""
-#### Example: ``F(x)=x^3-25`` 
-
-We solve ``F(x)=0`` with Newton updates
-```math
-x_{n+1} = x_n - \frac{F(x_n)}{F'(x_n)}, \qquad
-F(x)=x^3-25,\; F'(x)=3x^2.
-```
-
-Starting from $x_0$, the method rapidly converges to $\sqrt[3]{25}\approx 2.9240$.
-Use the sliders to choose the **initial guess** and the **iteration count** and see the sequence and the tangent line at the current iterate.
-"""
-
-# ╔═╡ ce365c9f-5011-4464-b51c-5f7b852d19bb
-md"""
-n = $(@bind n2 Slider(0:10, show_value=true, default=0))
-"""
-
-# ╔═╡ 3eb63ddd-a92e-4533-b91a-1550ea8aa61a
-md"""
-x₀ = $(@bind x02 Slider(-1:5, show_value=true, default=2))
-"""
-
-# ╔═╡ 3bb2eb98-c07c-48e6-b702-be1af5451506
-md"""
-**NOTE**: Initial guess must be a “good” one. When using the N-R method to solve PDEs, there is a natural “good” initial guess—solution from the previous time step.
-"""
-
-# ╔═╡ 1501ff77-4b00-4f8a-96a5-05b4612a682b
-straight(x0, y0, x, m) = y0 + m * (x - x0)
-
-# ╔═╡ eddced41-b3af-48a2-a999-202bbecb95b9
-function standard_Newton(f, n, x_range, x0, ymin=-10, ymax=10)
-    
-    f′ = x -> ForwardDiff.derivative(f, x)
-
-
-	p = plot(f, x_range, lw=3, ylim=(ymin, ymax), legend=:false, size=(400, 300))
-
-	hline!([0.0], c="magenta", lw=3, ls=:dash)
-	scatter!([x0], [0], c="green", ann=(x0, -5, L"x_0", 10))
-
-	for i in 1:n
-
-		plot!([x0, x0], [0, f(x0)], c=:gray, alpha=0.5)
-		scatter!([x0], [f(x0)], c=:red)
-		m = f′(x0)
-
-		plot!(x_range, [straight(x0, f(x0), x, m) for x in x_range], 
-			  c=:blue, alpha=0.5, ls=:dash, lw=2)
-
-		x1 = x0 - f(x0) / m
-
-		scatter!([x1], [0], c="green", ann=(x1, -5, L"x_%$i", 10))
-		
-		x0 = x1
-
-	end
-
-	p |> as_svg
-
-
-end
-
-# ╔═╡ b337a9cc-5613-4b0b-a336-ec9b202fea85
-let
-	f(x) = x^3 - 25
-
-	standard_Newton(f, n2, -4:0.01:10, x02, -50, 100)
-end
-
-# ╔═╡ 8f5ecd2b-d3d7-47a4-87ef-c1efdf1bd148
-md"""
-### Fixed-point Iteration
-
-✓ *Idea:* write nonlinear equation in the form
-
-```math
-x = g(x)
-```
-
-Then solve via iteration using the algorithm
-
-```math
-x^{n+1} = g(x^n)
-```
-
----
-
-* A solution to an equation of the form $x = g(x)$ is said to be a **fixed point** of the function $g(x)$.
-* A variety of theorems exist for equations written in this form.
-
----
-
-#### Example: Theorem
-
-Let $g \in C^1[a,b]$ and suppose that $g(x) \in [a,b]$ for all $x \in [a,b]$.
-Further, suppose that
-
-```math
-\left|\frac{dg}{dx}(x)\right| \le k < 1 \quad \forall x \in [a,b].
-```
-
-Then:
-
-1. ``g(x)`` has a unique fixed point in ``[a,b]``.
-2. For any ``x_0 \in [a,b]``, the sequence defined by
-
-   ```math
-   x_{n+1} = g(x_n), \quad n \ge 0,
-   ```
-
-   converges to the unique fixed point of ``g`` in ``[a,b]``.
-
----
-
-**Note:** This theorem is restricted to cases for which ``g(x) \in [a,b]`` for all ``x \in [a,b]``.
-"""
-
-
-
-# ╔═╡ 550bc4e0-b611-4634-b35a-3892eceee757
-md"""
-#### Example: ``F(x) = x^3 - 25``
-
-Recall Newton–Raphson approximation:
-
-```math
-x_{n+1} = x_n - \frac{F(x_n)}{\tfrac{dF}{dx}\big|_{x_n}} = g(x_n)
-```
-
-This is a fixed-point iteration with
-
-```math
-g(x) = x - \frac{x^3 - 25}{3x^2}
-```
-
----
-
-Other possibilities for $F(x) = x^3 - 25$:
-
-* `` x = \frac{25}{x^2} = g_1(x) ``
-* `` x^2 = \frac{25}{x} \;\;\Rightarrow\;\; x = \frac{5}{\sqrt{x}} = g_2(x) ``
-* `` x^3 - 25 + \alpha x = \alpha x \;\;\Rightarrow\;\; x = x - \frac{x^3 - 25}{\alpha} = g_3(x) ``
-* ...
-
----
-
-**Note:** Some of these fixed-point iterations converge, while others do not.
-"""
-
-
-# ╔═╡ 434c4576-0523-4a92-9d4f-c03d3f9f62f2
-md"""
-#### Geometry of fixed-point Iteration
-
-1. `` 0 < \left.\frac{dg}{dx}\right|_{\text{root}} < 1 ``
-2. `` -1 < \left.\frac{dg}{dx}\right|_{\text{root}} < 0 ``
-3. `` \left.\frac{dg}{dx}\right|_{\text{root}} > 1 ``
-4. `` \left.\frac{dg}{dx}\right|_{\text{root}} < -1 ``
-5. `` \left.\frac{dg}{dx}\right|_{\text{root}} = -1 ``
-6. `` \left.\frac{dg}{dx}\right|_{\text{root}} = 1 ``
-7. `` \left.\frac{dg}{dx}\right|_{\text{root}} = 0 ``
-"""
-
-
-# ╔═╡ 79b52611-73e0-4089-ab5b-e378c273a06a
-local img = LocalResource("./figs/mod5_fixed_pt_1.png", :width => "800px")
-
-# ╔═╡ 2a8486a4-070c-4c52-8cf2-38061da43561
-local img = LocalResource("./figs/mod5_fixed_pt_2.png", :width => "800px")
-
-# ╔═╡ 07311b14-bed5-4906-8390-3756524c8f21
-md"""
-We see that the smaller ``\left|\tfrac{dg}{dx}\right|`` is, the better the convergence behavior should be.
-
----
-
-**Example**:
-
-```math
-g(x) = x - \frac{x^3 - 25}{\alpha}
-```
-
-```math
-\frac{dg}{dx} = 1 - \frac{3}{\alpha}x^2
-```
-
-```math
-\left.\frac{dg}{dx}\right|_{\text{root}}
-  = 1 - \frac{25.65}{\alpha}
-```
-
-```math
-\Rightarrow \;\; \alpha = 25 \;\; \text{turns out to be an excellent choice.}
-```
-
----
-
-**Newton–Raphson**:
-
-```math
-g(x) = x - \frac{x^3 - 25}{3x^2}
-```
-
-```math
-\left.\frac{dg}{dx}\right|_{\text{root}}
-  = \left[1 - 1 + \frac{2(x^3 - 25)}{3x^2}\right]_{\text{root}}
-  = 0
-```
-
-```math
-  \Rightarrow \;\; \text{Excellent behavior.}
-```
-
-"""
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
-ForwardDiff = "~1.0.1"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.18"
-PlutoUI = "~0.7.69"
-Symbolics = "~6.51.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -533,68 +905,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.7"
 manifest_format = "2.0"
-project_hash = "5d28f1447894d80023a55eaf2d7e8511aebd190d"
-
-[[deps.ADTypes]]
-git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
-uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "1.17.0"
-
-    [deps.ADTypes.extensions]
-    ADTypesChainRulesCoreExt = "ChainRulesCore"
-    ADTypesConstructionBaseExt = "ConstructionBase"
-    ADTypesEnzymeCoreExt = "EnzymeCore"
-
-    [deps.ADTypes.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-    EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
-
-[[deps.AbstractPlutoDingetjes]]
-deps = ["Pkg"]
-git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
-uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.3.2"
-
-[[deps.AbstractTrees]]
-git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
-uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
-version = "0.4.5"
-
-[[deps.Accessors]]
-deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "MacroTools"]
-git-tree-sha1 = "3b86719127f50670efe356bc11073d84b4ed7a5d"
-uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-version = "0.1.42"
-
-    [deps.Accessors.extensions]
-    AxisKeysExt = "AxisKeys"
-    IntervalSetsExt = "IntervalSets"
-    LinearAlgebraExt = "LinearAlgebra"
-    StaticArraysExt = "StaticArrays"
-    StructArraysExt = "StructArrays"
-    TestExt = "Test"
-    UnitfulExt = "Unitful"
-
-    [deps.Accessors.weakdeps]
-    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-    Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
-
-[[deps.Adapt]]
-deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "f7817e2e585aa6d924fd714df1e2a84be7896c60"
-uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "4.3.0"
-weakdeps = ["SparseArrays", "StaticArrays"]
-
-    [deps.Adapt.extensions]
-    AdaptSparseArraysExt = "SparseArrays"
-    AdaptStaticArraysExt = "StaticArrays"
+project_hash = "6c209625acfdc4e99e08ffba0cd87ed5e4e26f74"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -606,38 +917,6 @@ version = "1.1.3"
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.2"
 
-[[deps.ArrayInterface]]
-deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "9606d7832795cbef89e06a550475be300364a8aa"
-uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.19.0"
-
-    [deps.ArrayInterface.extensions]
-    ArrayInterfaceBandedMatricesExt = "BandedMatrices"
-    ArrayInterfaceBlockBandedMatricesExt = "BlockBandedMatrices"
-    ArrayInterfaceCUDAExt = "CUDA"
-    ArrayInterfaceCUDSSExt = "CUDSS"
-    ArrayInterfaceChainRulesCoreExt = "ChainRulesCore"
-    ArrayInterfaceChainRulesExt = "ChainRules"
-    ArrayInterfaceGPUArraysCoreExt = "GPUArraysCore"
-    ArrayInterfaceReverseDiffExt = "ReverseDiff"
-    ArrayInterfaceSparseArraysExt = "SparseArrays"
-    ArrayInterfaceStaticArraysCoreExt = "StaticArraysCore"
-    ArrayInterfaceTrackerExt = "Tracker"
-
-    [deps.ArrayInterface.weakdeps]
-    BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-    BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
-    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-    CUDSS = "45b445bb-4962-46a0-9369-b4df9d0f772e"
-    ChainRules = "082447d4-558c-5d27-93f4-14fc19e9eca2"
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
-
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 version = "1.11.0"
@@ -645,11 +924,6 @@ version = "1.11.0"
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 version = "1.11.0"
-
-[[deps.Bijections]]
-git-tree-sha1 = "a2d308fcd4c2fb90e943cf9cd2fbfa9c32b69733"
-uuid = "e2ed5e7c-b2de-5872-ae92-c73ca462fb04"
-version = "0.2.2"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -667,16 +941,6 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.5+0"
-
-[[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "e4c6a16e77171a5f5e25e9646617ab1c276c5607"
-uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.26.0"
-weakdeps = ["SparseArrays"]
-
-    [deps.ChainRulesCore.extensions]
-    ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -705,10 +969,12 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.11.0"
-weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
     SpecialFunctionsExt = "SpecialFunctions"
+
+    [deps.ColorVectorSpace.weakdeps]
+    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
@@ -716,72 +982,16 @@ git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
 
-[[deps.Combinatorics]]
-git-tree-sha1 = "8010b6bb3388abe68d95743dcbea77650bb2eddf"
-uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
-version = "1.0.3"
-
-[[deps.CommonSolve]]
-git-tree-sha1 = "0eee5eb66b1cf62cd6ad1b460238e60e4b09400c"
-uuid = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
-version = "0.2.4"
-
-[[deps.CommonSubexpressions]]
-deps = ["MacroTools"]
-git-tree-sha1 = "cda2cfaebb4be89c9084adaca7dd7333369715c5"
-uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
-version = "0.3.1"
-
-[[deps.CommonWorldInvalidations]]
-git-tree-sha1 = "ae52d1c52048455e85a387fbee9be553ec2b68d0"
-uuid = "f70d9fcc-98c5-4d4a-abd7-e4cdeebd8ca8"
-version = "1.0.0"
-
-[[deps.Compat]]
-deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
-uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.18.0"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
-
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "1.1.1+0"
-
-[[deps.CompositeTypes]]
-git-tree-sha1 = "bce26c3dab336582805503bed209faab1c279768"
-uuid = "b152e2b5-7a66-4b01-a709-34e65c35f657"
-version = "0.1.4"
-
-[[deps.CompositionsBase]]
-git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
-uuid = "a33af91c-f02d-484b-be07-31d278c5ca2b"
-version = "0.1.2"
-weakdeps = ["InverseFunctions"]
-
-    [deps.CompositionsBase.extensions]
-    CompositionsBaseInverseFunctionsExt = "InverseFunctions"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "d9d26935a0bcffc87d2613ce14c527c99fc543fd"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
-
-[[deps.ConstructionBase]]
-git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
-uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.6.0"
-weakdeps = ["IntervalSets", "LinearAlgebra", "StaticArrays"]
-
-    [deps.ConstructionBase.extensions]
-    ConstructionBaseIntervalSetsExt = "IntervalSets"
-    ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
-    ConstructionBaseStaticArraysExt = "StaticArrays"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -816,73 +1026,15 @@ git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
 
-[[deps.DiffResults]]
-deps = ["StaticArraysCore"]
-git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
-uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
-version = "1.1.0"
-
-[[deps.DiffRules]]
-deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
-git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
-uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
-version = "1.15.1"
-
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-version = "1.11.0"
-
-[[deps.Distributions]]
-deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "3e6d038b77f22791b8e3472b7c633acea1ecac06"
-uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.120"
-
-    [deps.Distributions.extensions]
-    DistributionsChainRulesCoreExt = "ChainRulesCore"
-    DistributionsDensityInterfaceExt = "DensityInterface"
-    DistributionsTestExt = "Test"
-
-    [deps.Distributions.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    DensityInterface = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
-    Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
 [[deps.DocStringExtensions]]
 git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 version = "0.9.5"
 
-[[deps.DomainSets]]
-deps = ["CompositeTypes", "IntervalSets", "LinearAlgebra", "StaticArrays"]
-git-tree-sha1 = "c249d86e97a7e8398ce2068dce4c078a1c3464de"
-uuid = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
-version = "0.7.16"
-
-    [deps.DomainSets.extensions]
-    DomainSetsMakieExt = "Makie"
-    DomainSetsRandomExt = "Random"
-
-    [deps.DomainSets.weakdeps]
-    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-    Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
-
-[[deps.DynamicPolynomials]]
-deps = ["Future", "LinearAlgebra", "MultivariatePolynomials", "MutableArithmetics", "Reexport", "Test"]
-git-tree-sha1 = "98c4bb95af37e5d980129261fdd6dab0392c6607"
-uuid = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
-version = "0.6.2"
-
-[[deps.EnumX]]
-git-tree-sha1 = "bddad79635af6aec424f53ed8aad5d7555dc6f00"
-uuid = "4e289a0a-7415-4d19-859d-a7e5c4648b56"
-version = "1.0.5"
 
 [[deps.EpollShim_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -902,16 +1054,6 @@ git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
 version = "2.6.5+0"
 
-[[deps.ExprTools]]
-git-tree-sha1 = "27415f162e6028e81c72b82ef756bf321213b6ec"
-uuid = "e2ba6199-217a-4e67-a87a-7c52f15ade04"
-version = "0.1.10"
-
-[[deps.ExproniconLite]]
-git-tree-sha1 = "c13f0b150373771b0fdc1713c97860f8df12e6c2"
-uuid = "55351af7-c7e9-48d6-89ff-24e801d99491"
-version = "0.10.14"
-
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
 git-tree-sha1 = "83dc665d0312b41367b7263e8a4d172eac1897f4"
@@ -927,18 +1069,6 @@ version = "7.1.1+0"
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 version = "1.11.0"
-
-[[deps.FillArrays]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "6a70198746448456524cb442b8af316927ff3e1a"
-uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.13.0"
-weakdeps = ["PDMats", "SparseArrays", "Statistics"]
-
-    [deps.FillArrays.extensions]
-    FillArraysPDMatsExt = "PDMats"
-    FillArraysSparseArraysExt = "SparseArrays"
-    FillArraysStatisticsExt = "Statistics"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -957,16 +1087,6 @@ git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
 
-[[deps.ForwardDiff]]
-deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
-git-tree-sha1 = "910febccb28d493032495b7009dce7d7f7aee554"
-uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "1.0.1"
-weakdeps = ["StaticArrays"]
-
-    [deps.ForwardDiff.extensions]
-    ForwardDiffStaticArraysExt = "StaticArrays"
-
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
 git-tree-sha1 = "2c5512e11c791d1baed2049c5652441b28fc6a31"
@@ -979,33 +1099,11 @@ git-tree-sha1 = "7a214fdac5ed5f59a22c2d9a885a16da1c74bbc7"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.17+0"
 
-[[deps.FunctionWrappers]]
-git-tree-sha1 = "d62485945ce5ae9c0c48f124a84998d755bae00e"
-uuid = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
-version = "1.1.3"
-
-[[deps.FunctionWrappersWrappers]]
-deps = ["FunctionWrappers"]
-git-tree-sha1 = "b104d487b34566608f8b4e1c39fb0b10aa279ff8"
-uuid = "77dc65aa-8811-40c2-897b-53d922fa7daf"
-version = "0.1.3"
-
-[[deps.Future]]
-deps = ["Random"]
-uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
-version = "1.11.0"
-
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
 git-tree-sha1 = "fcb0584ff34e25155876418979d4c8971243bb89"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.4.0+2"
-
-[[deps.GPUArraysCore]]
-deps = ["Adapt"]
-git-tree-sha1 = "83cf05ab16a73219e5f6bd1bdfa9848fa24ac627"
-uuid = "46192b85-c4d5-4398-a991-12ede77f4527"
-version = "0.2.0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
@@ -1054,70 +1152,15 @@ git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "8.5.1+0"
 
-[[deps.HypergeometricFunctions]]
-deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
-git-tree-sha1 = "68c173f4f449de5b438ee67ed0c9c748dc31a2ec"
-uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
-version = "0.3.28"
-
-[[deps.Hyperscript]]
-deps = ["Test"]
-git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
-uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
-version = "0.0.5"
-
-[[deps.HypertextLiteral]]
-deps = ["Tricks"]
-git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
-uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-version = "0.9.5"
-
-[[deps.IOCapture]]
-deps = ["Logging", "Random"]
-git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
-uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-version = "0.2.5"
-
-[[deps.IntegerMathUtils]]
-git-tree-sha1 = "4c1acff2dc6b6967e7e750633c50bc3b8d83e617"
-uuid = "18e54dd8-cb9d-406c-a71d-865a43cbb235"
-version = "0.1.3"
-
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 version = "1.11.0"
 
-[[deps.IntervalSets]]
-git-tree-sha1 = "5fbb102dcb8b1a858111ae81d56682376130517d"
-uuid = "8197267c-284f-5f27-9208-e0e47529a953"
-version = "0.7.11"
-weakdeps = ["Random", "RecipesBase", "Statistics"]
-
-    [deps.IntervalSets.extensions]
-    IntervalSetsRandomExt = "Random"
-    IntervalSetsRecipesBaseExt = "RecipesBase"
-    IntervalSetsStatisticsExt = "Statistics"
-
-[[deps.InverseFunctions]]
-git-tree-sha1 = "a779299d77cd080bf77b97535acecd73e1c5e5cb"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.17"
-weakdeps = ["Dates", "Test"]
-
-    [deps.InverseFunctions.extensions]
-    InverseFunctionsDatesExt = "Dates"
-    InverseFunctionsTestExt = "Test"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.4"
-
-[[deps.IteratorInterfaceExtensions]]
-git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
-uuid = "82899510-4779-5014-852e-03e436cf321d"
-version = "1.0.0"
 
 [[deps.JLFzf]]
 deps = ["REPL", "Random", "fzf_jll"]
@@ -1136,12 +1179,6 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.4"
-
-[[deps.Jieko]]
-deps = ["ExproniconLite"]
-git-tree-sha1 = "2f05ed29618da60c06a87e9c033982d4f71d0b6c"
-uuid = "ae98c720-c025-4a4a-838c-29b094483192"
-version = "0.2.1"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1292,11 +1329,6 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
-[[deps.MIMEs]]
-git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
-uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
-version = "1.1.0"
-
 [[deps.MacroTools]]
 git-tree-sha1 = "1e0228a030642014fe5cfe68c2c0a818f9e3f522"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
@@ -1333,27 +1365,9 @@ version = "1.2.0"
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 version = "1.11.0"
 
-[[deps.Moshi]]
-deps = ["ExproniconLite", "Jieko"]
-git-tree-sha1 = "53f817d3e84537d84545e0ad749e483412dd6b2a"
-uuid = "2e0e35c7-a2e4-4343-998d-7ef72827ed2d"
-version = "0.3.7"
-
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.12.12"
-
-[[deps.MultivariatePolynomials]]
-deps = ["ChainRulesCore", "DataStructures", "LinearAlgebra", "MutableArithmetics"]
-git-tree-sha1 = "b250c7588f8525ec9f555ab13d4daaf210656569"
-uuid = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3"
-version = "0.5.10"
-
-[[deps.MutableArithmetics]]
-deps = ["LinearAlgebra", "SparseArrays", "Test"]
-git-tree-sha1 = "491bdcdc943fcbc4c005900d7463c9f216aabf4c"
-uuid = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
-version = "1.6.4"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1364,15 +1378,6 @@ version = "1.1.3"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
-
-[[deps.OffsetArrays]]
-git-tree-sha1 = "117432e406b5c023f665fa73dc26e79ec3630151"
-uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.17.0"
-weakdeps = ["Adapt"]
-
-    [deps.OffsetArrays.extensions]
-    OffsetArraysAdaptExt = "Adapt"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1402,12 +1407,6 @@ git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "3.5.2+0"
 
-[[deps.OpenSpecFun_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "1346c9208249809840c91b26703912dff463d335"
-uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
-version = "0.5.6+0"
-
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
@@ -1423,12 +1422,6 @@ version = "1.8.1"
 deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
 version = "10.42.0+1"
-
-[[deps.PDMats]]
-deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "f07c06228a1c670ae4c87d1276b92c7c597fdda0"
-uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.35"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
@@ -1489,28 +1482,6 @@ version = "1.40.18"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
-uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.69"
-
-[[deps.PreallocationTools]]
-deps = ["Adapt", "ArrayInterface", "PrecompileTools"]
-git-tree-sha1 = "520070df581845686c8c488b6dadce6b2c316856"
-uuid = "d236fae5-4411-538c-8e31-a6e3d9e00b46"
-version = "0.4.32"
-
-    [deps.PreallocationTools.extensions]
-    PreallocationToolsForwardDiffExt = "ForwardDiff"
-    PreallocationToolsReverseDiffExt = "ReverseDiff"
-    PreallocationToolsSparseConnectivityTracerExt = "SparseConnectivityTracer"
-
-    [deps.PreallocationTools.weakdeps]
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseConnectivityTracer = "9f842d2f-2579-4b1d-911e-f412cf18a3f5"
-
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1522,12 +1493,6 @@ deps = ["TOML"]
 git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.5.0"
-
-[[deps.Primes]]
-deps = ["IntegerMathUtils"]
-git-tree-sha1 = "25cdd1d20cd005b52fc12cb6be3f75faaf59bb9b"
-uuid = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
-version = "0.5.7"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1563,18 +1528,6 @@ git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
 version = "6.8.2+1"
 
-[[deps.QuadGK]]
-deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "9da16da70037ba9d701192e27befedefb91ec284"
-uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.11.2"
-
-    [deps.QuadGK.extensions]
-    QuadGKEnzymeExt = "Enzyme"
-
-    [deps.QuadGK.weakdeps]
-    Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
-
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -1597,38 +1550,6 @@ git-tree-sha1 = "45cf9fd0ca5839d06ef333c8201714e888486342"
 uuid = "01d81517-befc-4cb6-b9ec-a95719d0359c"
 version = "0.6.12"
 
-[[deps.RecursiveArrayTools]]
-deps = ["Adapt", "ArrayInterface", "DocStringExtensions", "GPUArraysCore", "LinearAlgebra", "RecipesBase", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface"]
-git-tree-sha1 = "96bef5b9ac123fff1b379acf0303cf914aaabdfd"
-uuid = "731186ca-8d62-57ce-b412-fbd966d074cd"
-version = "3.37.1"
-
-    [deps.RecursiveArrayTools.extensions]
-    RecursiveArrayToolsFastBroadcastExt = "FastBroadcast"
-    RecursiveArrayToolsForwardDiffExt = "ForwardDiff"
-    RecursiveArrayToolsKernelAbstractionsExt = "KernelAbstractions"
-    RecursiveArrayToolsMeasurementsExt = "Measurements"
-    RecursiveArrayToolsMonteCarloMeasurementsExt = "MonteCarloMeasurements"
-    RecursiveArrayToolsReverseDiffExt = ["ReverseDiff", "Zygote"]
-    RecursiveArrayToolsSparseArraysExt = ["SparseArrays"]
-    RecursiveArrayToolsStructArraysExt = "StructArrays"
-    RecursiveArrayToolsTablesExt = ["Tables"]
-    RecursiveArrayToolsTrackerExt = "Tracker"
-    RecursiveArrayToolsZygoteExt = "Zygote"
-
-    [deps.RecursiveArrayTools.weakdeps]
-    FastBroadcast = "7034ab61-46d4-4ed7-9d0f-46aef9175898"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
-    Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
-    MonteCarloMeasurements = "0987c9cc-fe09-11e8-30f0-b96dd679fdca"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-    Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
-    Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
-
 [[deps.Reexport]]
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
@@ -1646,76 +1567,9 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
-[[deps.Rmath]]
-deps = ["Random", "Rmath_jll"]
-git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
-uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
-version = "0.8.0"
-
-[[deps.Rmath_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "58cdd8fb2201a6267e1db87ff148dd6c1dbd8ad8"
-uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
-version = "0.5.1+0"
-
-[[deps.RuntimeGeneratedFunctions]]
-deps = ["ExprTools", "SHA", "Serialization"]
-git-tree-sha1 = "86a8a8b783481e1ea6b9c91dd949cb32191f8ab4"
-uuid = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
-version = "0.5.15"
-
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
-
-[[deps.SciMLBase]]
-deps = ["ADTypes", "Accessors", "Adapt", "ArrayInterface", "CommonSolve", "ConstructionBase", "Distributed", "DocStringExtensions", "EnumX", "FunctionWrappersWrappers", "IteratorInterfaceExtensions", "LinearAlgebra", "Logging", "Markdown", "Moshi", "PreallocationTools", "PrecompileTools", "Preferences", "Printf", "RecipesBase", "RecursiveArrayTools", "Reexport", "RuntimeGeneratedFunctions", "SciMLOperators", "SciMLStructures", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface"]
-git-tree-sha1 = "4398bda451c3c7aaca91a8077bcba227fe236d72"
-uuid = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
-version = "2.111.1"
-
-    [deps.SciMLBase.extensions]
-    SciMLBaseChainRulesCoreExt = "ChainRulesCore"
-    SciMLBaseMLStyleExt = "MLStyle"
-    SciMLBaseMakieExt = "Makie"
-    SciMLBasePartialFunctionsExt = "PartialFunctions"
-    SciMLBasePyCallExt = "PyCall"
-    SciMLBasePythonCallExt = "PythonCall"
-    SciMLBaseRCallExt = "RCall"
-    SciMLBaseZygoteExt = ["Zygote", "ChainRulesCore"]
-
-    [deps.SciMLBase.weakdeps]
-    ChainRules = "082447d4-558c-5d27-93f4-14fc19e9eca2"
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
-    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-    PartialFunctions = "570af359-4316-4cb7-8c74-252c00c2016b"
-    PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-    PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-    RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
-    Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
-
-[[deps.SciMLOperators]]
-deps = ["Accessors", "ArrayInterface", "DocStringExtensions", "LinearAlgebra", "MacroTools"]
-git-tree-sha1 = "aea915a39b547c48a18ee041120db1ae8df5a691"
-uuid = "c0aeaf25-5076-4817-a8d5-81caf7dfa961"
-version = "1.5.0"
-weakdeps = ["SparseArrays", "StaticArraysCore"]
-
-    [deps.SciMLOperators.extensions]
-    SciMLOperatorsSparseArraysExt = "SparseArrays"
-    SciMLOperatorsStaticArraysCoreExt = "StaticArraysCore"
-
-[[deps.SciMLPublic]]
-git-tree-sha1 = "ed647f161e8b3f2973f24979ec074e8d084f1bee"
-uuid = "431bcebd-1456-4ced-9d72-93c2757fff0b"
-version = "1.0.0"
-
-[[deps.SciMLStructures]]
-deps = ["ArrayInterface"]
-git-tree-sha1 = "566c4ed301ccb2a44cbd5a27da5f885e0ed1d5df"
-uuid = "53ae85a6-f571-4167-b2af-e1d143709226"
-version = "1.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
@@ -1726,12 +1580,6 @@ version = "1.3.0"
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 version = "1.11.0"
-
-[[deps.Setfield]]
-deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
-git-tree-sha1 = "c5391c6ace3bc430ca630251d02ea9687169ca68"
-uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
-version = "1.1.2"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -1759,37 +1607,11 @@ deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.11.0"
 
-[[deps.SpecialFunctions]]
-deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "41852b8679f78c8d8961eeadc8f62cef861a52e3"
-uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.5.1"
-weakdeps = ["ChainRulesCore"]
-
-    [deps.SpecialFunctions.extensions]
-    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
-
 [[deps.StableRNGs]]
 deps = ["Random"]
 git-tree-sha1 = "95af145932c2ed859b63329952ce8d633719f091"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
-
-[[deps.StaticArrays]]
-deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "cbea8a6bd7bed51b1619658dec70035e07b8502f"
-uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.14"
-weakdeps = ["ChainRulesCore", "Statistics"]
-
-    [deps.StaticArrays.extensions]
-    StaticArraysChainRulesCoreExt = "ChainRulesCore"
-    StaticArraysStatisticsExt = "Statistics"
-
-[[deps.StaticArraysCore]]
-git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
-uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.3"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]
@@ -1813,87 +1635,14 @@ git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.6"
 
-[[deps.StatsFuns]]
-deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
-git-tree-sha1 = "8e45cecc66f3b42633b8ce14d431e8e57a3e242e"
-uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
-version = "1.5.0"
-weakdeps = ["ChainRulesCore", "InverseFunctions"]
-
-    [deps.StatsFuns.extensions]
-    StatsFunsChainRulesCoreExt = "ChainRulesCore"
-    StatsFunsInverseFunctionsExt = "InverseFunctions"
-
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 version = "1.11.0"
-
-[[deps.SuiteSparse]]
-deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
-uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.7.0+0"
-
-[[deps.SymbolicIndexingInterface]]
-deps = ["Accessors", "ArrayInterface", "RuntimeGeneratedFunctions", "StaticArraysCore"]
-git-tree-sha1 = "93104ca226670c0cb92ba8bc6998852ad55a2d4c"
-uuid = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
-version = "0.3.43"
-
-    [deps.SymbolicIndexingInterface.extensions]
-    SymbolicIndexingInterfacePrettyTablesExt = "PrettyTables"
-
-    [deps.SymbolicIndexingInterface.weakdeps]
-    PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-
-[[deps.SymbolicLimits]]
-deps = ["SymbolicUtils"]
-git-tree-sha1 = "fabf4650afe966a2ba646cabd924c3fd43577fc3"
-uuid = "19f23fe9-fdab-4a78-91af-e7b7767979c3"
-version = "0.2.2"
-
-[[deps.SymbolicUtils]]
-deps = ["AbstractTrees", "ArrayInterface", "Bijections", "ChainRulesCore", "Combinatorics", "ConstructionBase", "DataStructures", "DocStringExtensions", "DynamicPolynomials", "ExproniconLite", "LinearAlgebra", "MultivariatePolynomials", "NaNMath", "Setfield", "SparseArrays", "SpecialFunctions", "StaticArrays", "SymbolicIndexingInterface", "TaskLocalValues", "TermInterface", "TimerOutputs", "Unityper"]
-git-tree-sha1 = "8c103c491ccf3e2b4284635c24b5de768adc6be8"
-uuid = "d1185830-fcd6-423d-90d6-eec64667417b"
-version = "3.31.0"
-
-    [deps.SymbolicUtils.extensions]
-    SymbolicUtilsLabelledArraysExt = "LabelledArrays"
-    SymbolicUtilsReverseDiffExt = "ReverseDiff"
-
-    [deps.SymbolicUtils.weakdeps]
-    LabelledArrays = "2ee39098-c373-598a-b85f-a56591580800"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-
-[[deps.Symbolics]]
-deps = ["ADTypes", "ArrayInterface", "Bijections", "CommonWorldInvalidations", "ConstructionBase", "DataStructures", "DiffRules", "Distributions", "DocStringExtensions", "DomainSets", "DynamicPolynomials", "LaTeXStrings", "Latexify", "Libdl", "LinearAlgebra", "LogExpFunctions", "MacroTools", "Markdown", "NaNMath", "OffsetArrays", "PrecompileTools", "Primes", "RecipesBase", "Reexport", "RuntimeGeneratedFunctions", "SciMLBase", "SciMLPublic", "Setfield", "SparseArrays", "SpecialFunctions", "StaticArraysCore", "SymbolicIndexingInterface", "SymbolicLimits", "SymbolicUtils", "TermInterface"]
-git-tree-sha1 = "83d9eaffba90db9f0127ef4ae8ffa124e93b34f2"
-uuid = "0c5d862f-8b57-4792-8d23-62f2024744c7"
-version = "6.51.0"
-
-    [deps.Symbolics.extensions]
-    SymbolicsD3TreesExt = "D3Trees"
-    SymbolicsForwardDiffExt = "ForwardDiff"
-    SymbolicsGroebnerExt = "Groebner"
-    SymbolicsLuxExt = "Lux"
-    SymbolicsNemoExt = "Nemo"
-    SymbolicsPreallocationToolsExt = ["PreallocationTools", "ForwardDiff"]
-    SymbolicsSymPyExt = "SymPy"
-    SymbolicsSymPyPythonCallExt = "SymPyPythonCall"
-
-    [deps.Symbolics.weakdeps]
-    D3Trees = "e3df1716-f71e-5df9-9e2d-98e193103c45"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    Groebner = "0b43b601-686d-58a3-8a1c-6623616c7cd4"
-    Lux = "b2108857-7c20-44ae-9111-449ecde12c47"
-    Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
-    PreallocationTools = "d236fae5-4411-538c-8e31-a6e3d9e00b46"
-    SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
-    SymPyPythonCall = "bc8888f7-b21e-4b7c-a06a-5d9c9496438c"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1905,48 +1654,21 @@ deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 version = "1.10.0"
 
-[[deps.TaskLocalValues]]
-git-tree-sha1 = "67e469338d9ce74fc578f7db1736a74d93a49eb8"
-uuid = "ed4db957-447d-4319-bfb6-7fa9ae7ecf34"
-version = "0.1.3"
-
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
 git-tree-sha1 = "1feb45f88d133a655e001435632f019a9a1bcdb6"
 uuid = "62fd8b95-f654-4bbd-a8a5-9c27f68ccd50"
 version = "0.1.1"
 
-[[deps.TermInterface]]
-git-tree-sha1 = "d673e0aca9e46a2f63720201f55cc7b3e7169b16"
-uuid = "8ea1fca8-c5ef-4a55-8b96-4e9afe9c9a3c"
-version = "2.0.0"
-
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 version = "1.11.0"
 
-[[deps.TimerOutputs]]
-deps = ["ExprTools", "Printf"]
-git-tree-sha1 = "3748bd928e68c7c346b52125cf41fff0de6937d0"
-uuid = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
-version = "0.5.29"
-
-    [deps.TimerOutputs.extensions]
-    FlameGraphsExt = "FlameGraphs"
-
-    [deps.TimerOutputs.weakdeps]
-    FlameGraphs = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
-
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
-
-[[deps.Tricks]]
-git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
-uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -1973,7 +1695,6 @@ deps = ["Dates", "LinearAlgebra", "Random"]
 git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.24.0"
-weakdeps = ["ConstructionBase", "ForwardDiff", "InverseFunctions", "Printf"]
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -1981,17 +1702,17 @@ weakdeps = ["ConstructionBase", "ForwardDiff", "InverseFunctions", "Printf"]
     InverseFunctionsUnitfulExt = "InverseFunctions"
     PrintfExt = "Printf"
 
+    [deps.Unitful.weakdeps]
+    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
 git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
 version = "1.7.0"
-
-[[deps.Unityper]]
-deps = ["ConstructionBase"]
-git-tree-sha1 = "25008b734a03736c41e2a7dc314ecb95bd6bbdb0"
-uuid = "a7c27f48-0311-42f6-a7f8-2c11e75eb415"
-version = "0.1.6"
 
 [[deps.Unzip]]
 git-tree-sha1 = "ca0969166a028236229f63514992fc073799bb78"
@@ -2266,28 +1987,30 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─6a7e2c37-c021-45d0-8d68-ce6fdfffd44c
-# ╟─3c4e850c-9829-11f0-208a-4f76fa503c4c
-# ╟─d1f98b86-fbd0-4f26-bb57-11c1c6160b73
-# ╟─9c805802-51ae-4737-8aa7-1a2f9e6e90cd
-# ╟─40c276ea-5e24-4ff7-b587-4ab35cb1579b
-# ╟─3863bff0-6c9f-47bc-b91f-f931634092bd
-# ╟─89527fbb-bc0e-4851-90f4-c0bf7ee3dc4b
-# ╟─fcdb1eb5-024f-46bc-9516-c976283b6d5b
-# ╟─225cb203-0009-467e-8753-6742e1abcb62
-# ╟─b681bfe2-1fc1-4a50-b678-55fbddf2daf8
-# ╟─7c706bf6-27ae-452b-a225-39bf98be9cf3
-# ╟─ce365c9f-5011-4464-b51c-5f7b852d19bb
-# ╟─3eb63ddd-a92e-4533-b91a-1550ea8aa61a
-# ╟─b337a9cc-5613-4b0b-a336-ec9b202fea85
-# ╟─3bb2eb98-c07c-48e6-b702-be1af5451506
-# ╠═1501ff77-4b00-4f8a-96a5-05b4612a682b
-# ╠═eddced41-b3af-48a2-a999-202bbecb95b9
-# ╟─8f5ecd2b-d3d7-47a4-87ef-c1efdf1bd148
-# ╟─550bc4e0-b611-4634-b35a-3892eceee757
-# ╟─434c4576-0523-4a92-9d4f-c03d3f9f62f2
-# ╟─79b52611-73e0-4089-ab5b-e378c273a06a
-# ╟─2a8486a4-070c-4c52-8cf2-38061da43561
-# ╟─07311b14-bed5-4906-8390-3756524c8f21
+# ╟─4560e049-d77a-48a1-bfb8-b1522606b8e3
+# ╟─54ada3f0-9db6-11f0-1cda-4d9664634884
+# ╟─5009af20-deef-4ce2-8766-7a5ba77ceec0
+# ╟─f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
+# ╟─53689987-f6a6-4d29-9bb1-e77f8c4f6c27
+# ╟─65debf88-458d-4452-be5b-f218e3117bd7
+# ╟─2507bcf3-b0f4-4b31-881c-077b4711c261
+# ╟─eef9bcab-9e8d-4af5-8029-daa9a8a8e747
+# ╟─d64c6bb0-c387-494a-a0c6-6dbf385f43f0
+# ╟─5fa6c7e4-8be0-4c78-8084-6a4ab81af890
+# ╟─502b8378-6c74-410a-bf53-b5baa30c174c
+# ╟─781b8096-c19b-4257-af21-cba6248b0b5e
+# ╟─78f02703-f3a3-43cc-a7d7-b573f6391506
+# ╟─8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
+# ╟─0423f4ff-6ab9-4014-9a67-c818c0564e7a
+# ╟─193d7395-f86a-4604-9d3c-a2f302a9185f
+# ╟─8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
+# ╟─d79ea06f-b582-4c1b-9e05-4ee273e6ec10
+# ╟─12934380-24d0-45f5-9ca3-1823cef69f23
+# ╟─3aa09a14-a115-4a8d-8b9a-36c682639652
+# ╟─0b27e42d-6505-4afc-979d-9d73685af241
+# ╟─f4d2afbe-3346-4760-86eb-98692a8e76e0
+# ╟─d369d7ca-e282-4199-9da8-b557533a03e0
+# ╟─f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
+# ╟─cbe3b676-d2e0-445d-9f31-998d87456407
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

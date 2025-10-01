@@ -1,5 +1,5 @@
 ---
-title: "Lecture #14: Fourier Stability Analysis"
+title: "Lecture #14: Richards equation"
 ---
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thu, Oct 9, 3:30 pm – 4:45 pm (Bo Guo)

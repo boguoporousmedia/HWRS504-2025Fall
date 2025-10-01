@@ -1,5 +1,5 @@
 ---
-title: "Lecture #15: Fourier Stability Analysis"
+title: "Lecture #15: Particle methods"
 ---
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tu, Oct 14, 3:30 pm – 4:45 pm (Bo Guo)

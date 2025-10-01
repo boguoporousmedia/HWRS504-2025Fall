@@ -389,7 +389,7 @@ md"""
 md"""
 **Advantages**:
 - No derivative required
-- Requires two starting guesses and more memory-efficient
+- Less computational cost per iteration and more memory-efficient
 
 **Disadvantages**:
 - Slower convergence rate (superlinear convergence, ``r≈1.618``)
@@ -623,7 +623,9 @@ F_1(x_1, x_2, \ldots, x_N) = 0
 F_2(x_1, x_2, \ldots, x_N) = 0
 ```
 
+```math
 ...
+```
 
 ```math
 F_N(x_1, x_2, \ldots, x_N) = 0
@@ -777,7 +779,7 @@ md"""
 * This is of the form:
 
 ```math
-\mathbf{J}^n \cdot (\mathbf{x}^{n+1} - x^n) = -\mathbf{F}^n
+\mathbf{J}^n \cdot (\mathbf{x}^{n+1} - \mathbf{x}^n) = -\mathbf{F}^n
 ```
 
 ```math
@@ -791,18 +793,211 @@ md"""
 * We can again notice that Newton–Raphson leads to an iterative method of the form
 
 ```math
-\mathbf{x}^{n+1} = g(\mathbf{x}^n).
+\mathbf{x}^{n+1} = \mathbf{g}(\mathbf{x}^n).
 ```
 
 This is an example of the general fixed-point problem which arises from rewriting equations
 
 ```math
-\mathbf{F}(\mathbf{x}) = 0 \quad \Longleftrightarrow \quad \mathbf{x} = \mathbf{g}(\mathbf{x})
+\mathbf{F}(\mathbf{x}) = \mathbf{0} \quad \Longleftrightarrow \quad \mathbf{x} = \mathbf{g}(\mathbf{x})
 ```
 
 * Fixed-point theorems are analogous to their 1D counterparts.
   """
 
+
+# ╔═╡ 9a73dfb7-5ccd-4a1b-b215-4d3805839b23
+md"""
+### Example: Movement of water in (partially saturated) soils
+
+Mass balance (1D, transient)
+
+```math
+\frac{\partial \theta}{\partial t} + \frac{\partial q_z}{\partial z} = 0
+```
+
+Assuming steady state
+
+```math
+\frac{\partial \theta}{\partial t} = 0
+```
+
+```math
+\frac{\partial q_z}{\partial z} = 0 \quad \text{(actually } \frac{dq_z}{dz} = 0\text{)}
+```
+
+---
+
+Darcy’s Law (constitutive equation, analogous to Fick’s Law of diffusion)
+
+```math
+q_z = - \frac{k k_{rw}}{\mu_w} \left( \frac{dp}{dz} + \rho_w g \right)
+```
+
+---
+
+* ``k`` = permeability of material
+* ``μ_w`` = viscosity of water
+* ``p`` = pressure of water
+* ``ρ_w`` = density of water
+* ``g`` = gravity constant
+* ``k_{rw}`` = relative permeability, a nonlinear function of ``p``
+
+"""
+
+
+# ╔═╡ 1b49d42d-c772-4917-837d-929765c022e8
+md"""
+Assuming ``ρ_w`` constant, then:
+
+```math
+q_z = -\left( \frac{k k_{rw} \rho_w g}{\mu_w} \right) \left( \frac{dh}{dz} + 1 \right)
+```
+
+```math
+= -K \left( \frac{dh}{dz} + 1 \right)
+```
+
+where
+
+* ``K`` = hydraulic conductivity (units of L/T)
+* ``h`` = pressure head = ``p / (ρ_w g)`` (units of length)
+
+---
+
+**Thus governing equation is:**
+
+```math
+\frac{dq_z}{dz} = 0 = \frac{d}{dz} \left[ -K \left( \frac{dh}{dz} + 1 \right) \right]
+```
+
+OR
+
+```math
+\frac{d}{dz} \left( K \frac{dh}{dz} \right) + \frac{dK}{dz} = 0
+```
+
+---
+
+How to solve? Let’s try FDA.
+
+
+"""
+
+# ╔═╡ e75a15cf-a50e-4585-94c0-7844550665c5
+md"""
+
+FDA for ``z_i``:
+
+```math
+\left. \frac{d}{dz} \left( K \frac{dh}{dz} \right) \right|_{z_i}
+= \frac{ \left( K \frac{dh}{dz} \right)_{i+1/2} - \left( K \frac{dh}{dz} \right)_{i-1/2} }{\Delta z}
+```
+
+
+```math
+\left( \frac{dh}{dz} \right)_{i+1/2} \approx \frac{h_{i+1} - h_i}{\Delta z},
+\qquad
+\left( \frac{dh}{dz} \right)_{i-1/2} \approx \frac{h_i - h_{i-1}}{\Delta z}
+```
+
+Thus,
+
+```math
+\left. \frac{d}{dz} \left( K \frac{dh}{dz} \right) \right|_{z_i}
+= \frac{ K_{i+1/2} \frac{h_{i+1} - h_i}{\Delta z} - K_{i-1/2} \frac{h_i - h_{i-1}}{\Delta z} }{\Delta z}
+```
+
+``\frac{dK}{dz}|_{z_i}`` can be approximated as
+
+```math
+\left. \frac{dK}{dz} \right|_{z_i} \approx \frac{K_{i+1/2} - K_{i-1/2}}{\Delta z}
+```
+
+---
+
+Final FDA form:
+
+```math
+\Bigg[ K_{i+1/2} \frac{h_{i+1} - h_i}{\Delta z^2} + \frac{K_{i+1/2}}{\Delta z} \Bigg]
+-
+\Bigg[ K_{i-1/2} \frac{h_i - h_{i-1}}{\Delta z^2} + \frac{K_{i-1/2}}{\Delta z} \Bigg] = 0
+```
+
+"""
+
+# ╔═╡ 021d4b6d-ac40-4283-b068-18f10f4aa209
+md"""
+Rewrite the discrete equation as:
+
+```math
+\frac{K_{i-1/2}}{\Delta z^2} h_{i-1}
+-
+\left[ \frac{K_{i+1/2} + K_{i-1/2}}{\Delta z^2} \right] h_i
++
+\frac{K_{i+1/2}}{\Delta z^2} h_{i+1}
++
+\frac{K_{i+1/2} - K_{i-1/2}}{\Delta z} = 0
+```
+
+---
+
+Define residual function:
+
+```math
+F_i(\mathbf{h}) = 0
+```
+
+which corresponds to the FDA written about point ``z_i``.
+
+Compact form:
+
+```math
+\mathbf{F}(\mathbf{h}) = 0
+```
+
+- Apply the Newton–Raphson method
+
+```math
+\left. \frac{\partial \mathbf{F}}{\partial \mathbf{h}} \right|_{\mathbf{h}^m} (\mathbf{h}^{m+1} - \mathbf{h}^m) = -\mathbf{F}(\mathbf{h}^m)
+```
+
+- Apply Picard iteration
+
+```math
+\mathbf{A}(\mathbf{h}) \cdot \mathbf{h} = \mathbf{R}
+```
+
+"""
+
+# ╔═╡ 285705ae-65cd-4e45-9b40-77eac3513a9e
+md"""
+
+```math
+\mathbf{h} = \mathbf{A}^{-1} \mathbf{R} = \mathbf{g}(\mathbf{h})
+```
+
+This is a *fixed-point formula*, so we might consider:
+
+```math
+\mathbf{h}^{m+1} = \mathbf{g}(\mathbf{h}^m) = [\mathbf{A}^m]^{-1} \mathbf{R}^m
+```
+
+This is also referred to as **Picard iteration**. Note that Picard iteration does not involve computing derivatives. It has a linear convergence rate.
+
+---
+
+To actually solve, we require:
+
+* Functional form for ``K(h)``
+* Boundary conditions at ``z = 0``, ``z = L``
+* A definition of ``K_{i+1/2}``. Example:
+
+```math
+K_{i+1/2} = \tfrac{1}{2}(K_i + K_{i+1})
+```
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2575,8 +2770,8 @@ version = "1.9.2+0"
 # ╟─3eb63ddd-a92e-4533-b91a-1550ea8aa61a
 # ╟─b337a9cc-5613-4b0b-a336-ec9b202fea85
 # ╟─3bb2eb98-c07c-48e6-b702-be1af5451506
-# ╠═1501ff77-4b00-4f8a-96a5-05b4612a682b
-# ╠═eddced41-b3af-48a2-a999-202bbecb95b9
+# ╟─1501ff77-4b00-4f8a-96a5-05b4612a682b
+# ╟─eddced41-b3af-48a2-a999-202bbecb95b9
 # ╟─660d86a6-58a0-4dbe-aba3-5c4cf4ff63c5
 # ╟─cd478de1-afac-4f4d-a599-0928f08b6da1
 # ╟─8f5ecd2b-d3d7-47a4-87ef-c1efdf1bd148
@@ -2592,5 +2787,10 @@ version = "1.9.2+0"
 # ╟─8c835d26-c129-4c36-95d5-091f772545a0
 # ╟─91baf162-ad07-4c0d-babe-790e4fee4270
 # ╟─37bc9322-ef4d-49e7-ae54-0c59a2f3a55e
+# ╟─9a73dfb7-5ccd-4a1b-b215-4d3805839b23
+# ╟─1b49d42d-c772-4917-837d-929765c022e8
+# ╟─e75a15cf-a50e-4585-94c0-7844550665c5
+# ╟─021d4b6d-ac40-4283-b068-18f10f4aa209
+# ╟─285705ae-65cd-4e45-9b40-77eac3513a9e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
