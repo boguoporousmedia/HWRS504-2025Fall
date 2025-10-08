@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v0.20.13
 
 using Markdown
 using InteractiveUtils
@@ -154,7 +154,7 @@ local img = LocalResource("./figs/mod7_derivative_concepts.png", :width => "700p
 
 # ╔═╡ 70f57536-5164-4935-98f0-864fc51f52e3
 md"""
-## “Characteristics” of PDEs
+### “Characteristics” of PDEs
 
 #### Classification of PDEs (Characteristic Curves)
 
@@ -208,7 +208,7 @@ which gives
 dx - V\,dt = 0 \quad \Rightarrow \quad \frac{dx}{dt} = V
 ```
 
-This defines the **characteristic curves**.
+The two equations are linearly dependent, i.e., the PDE is automatically satisfied along the path of ``\frac{dx}{dt} = V``. This defines the **characteristic curves**, where the PDE reduces to an ODE that describes how ``u`` changes along the characteristic curves.
 
 Along the characteristic curve
 
@@ -219,7 +219,7 @@ Along the characteristic curve
 = 0
 ```
 
-Thus, ``u`` remains constant along lines with slope ``\frac{dx}{dt} = V``.
+Thus, ``u`` remains constant along lines with slope ``\frac{dx}{dt} = V``, i.e., the PDE just expresses the conservation of ``u`` along these characteristics.
 
 """
 
@@ -343,7 +343,7 @@ md"""
 Identify coefficients:
 
 ```math
-A = -\beta^2, \quad B = 0, \quad C = 1
+A = -\beta^2, \quad B = 0, \quad C = 1, \quad D = 0, \quad E = 0
 ```
 
 Compute the discriminant:
@@ -366,13 +366,13 @@ md"""
 
 ```math
 \frac{\partial u}{\partial t}
-- D \frac{\partial^2 u}{\partial x^2} = 0
+- \frac{\partial^2 u}{\partial x^2} = 0
 ```
 
 Identify coefficients:
 
 ```math
-A = 0, \quad B = 0, \quad C = -D
+A = -1, \quad B = 0, \quad C = 0, \quad D = 0, \quad E = 1
 ```
 
 Compute the discriminant:
@@ -385,8 +385,8 @@ Therefore, this is a **Parabolic Equation**.
 
 **Interpretation:**
 
-* The heat equation has **one family of real characteristic curves**, corresponding to ``\frac{dx}{dt} = +\infty``.
-* These represent *secondary characteristic curves*, i.e., vertical lines in the ``x\text{-}t`` plane.
+* The heat equation has **one family of real characteristic curves**, corresponding to ``\frac{dx}{dt} = +\infty``. These are often referred to as *primary* characteristic curves.
+* The dashed vertical lines are often referred to as the *secondary* characteristic curves.
 
 """
 
@@ -400,7 +400,7 @@ md"""
 
 ```math
 \frac{\partial^2 u}{\partial x^2}
-+ D \frac{\partial^2 u}{\partial y^2} = 0
++ \frac{\partial^2 u}{\partial y^2} = 0
 ```
 
 Identify coefficients:
@@ -538,7 +538,7 @@ They are identical when  ``u_*^n`` is approximated using only ``u_{i-1}^n`` and 
 
 For ``\nu > 1``:  
 - FTBS becomes unstable.  
-- The Characteristic method remains perfectly fine — it simply traces further back along the ``x``-axis.
+- The Characteristic method remains perfectly fine — it simply traces further back along the ``x``-axis. The only error is interpolation error. Greater ``\nu`` increases numerical error because you interpolate over further data, but the scheme does not blow up.
 
 """
 
