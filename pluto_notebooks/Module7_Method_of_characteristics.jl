@@ -4,1039 +4,559 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 4560e049-d77a-48a1-bfb8-b1522606b8e3
+# ╔═╡ cba2003e-da27-49a4-b4fa-79c49fce6ef5
 using Plots, LaTeXStrings , PlutoUI
 
-# ╔═╡ 54ada3f0-9db6-11f0-1cda-4d9664634884
+# ╔═╡ 370cd200-a39f-11f0-1577-f33185318fad
 md"""
-# Module 6: Fourier Stability Analysis
+# Method of characteristics
 """
 
-# ╔═╡ 5009af20-deef-4ce2-8766-7a5ba77ceec0
-md"""
-### Fourier Series
-
-- Consider a function ``f(x)`` defined on ``-π < x < π``.
-
-- Next consider the “Fourier Series” representation of this function by the sum
-
-```math
-S_N(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-= \sum_{n=0}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-```
-
-* Let ``I ≡ ∫_{-π}^{π} [ f(x) - S_N(x) ]^2 dx``.
-  Minimization of ``I`` with respect to coefficients ``a_0, a_n, b_n`` leads to
-
-```math
-a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
-```
-
-```math
-a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
-```
-
-```math
-b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
-```
-
-- An excellent explanation of Fourier series on [YouTube] (https://www.youtube.com/watch?v=r6sGWTCMz2k)
-
-"""
-
-
-# ╔═╡ f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
-md"""
-- We then have the following **Theorem**
-
-For every ``f(x) \in C^0[-\pi, \pi]``, the Fourier Series given above converge uniformly to ``f(x)``, such that 
-
-```math
-f(x) = \lim_{N \to \infty} S_N(x)
-```
-
-or
-
-```math
-f(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-```
-
-with coefficients
-
-```math
-a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
-```
-
-```math
-a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
-```
-
-```math
-b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
-```
-
----
-
-✓ **Notes:**
-
-* We can change intervals in ``x`` by simple linear coordinate transformation.
-* We can use complex exponential notation representation (Euler's formula):
-
-```math
-e^{i\theta} \equiv \cos\theta + i\sin\theta, \qquad i \equiv \sqrt{-1}
-```
-
-From this,
-
-```math
-\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}, 
-\qquad 
-\sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}
-```
-
-"""
-
-
-# ╔═╡ 53689987-f6a6-4d29-9bb1-e77f8c4f6c27
+# ╔═╡ dcd848e2-7490-49b3-919a-ebb1f616852d
 md"""
 
-``\cos(nx), \cos(mx), \sin(nx), \sin(mx)`` are linearly independent.
-
-Define an inner product by  
-``\langle g(x), h(x) \rangle = \int_{-\pi}^{\pi} g(x)h(x)\, dx``, then
-
-- ``\langle \cos(nx), \sin(mx) \rangle = 0, \ \forall n, m``
-- ``\langle \cos(nx), \cos(mx) \rangle = 0, \ \text{if } n \neq m``
-- ``\langle \cos(nx), \cos(mx) \rangle = \pi, \ \text{if } n = m``
-- ``\langle \sin(nx), \sin(mx) \rangle = 0, \ \text{if } n \neq m``
-- ``\langle \sin(nx), \sin(mx) \rangle = \pi, \ \text{if } n = m``
-
-
-Using the prior property we can compute ``a_n`` and ``b_n`` by
-
-```math
-\langle f(x), \cos(nx) \rangle 
-= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \cos(nx) \Big\rangle
-```
-
-```math
-= \langle a_n \cos(nx), \cos(nx) \rangle = \pi a_n
-```
-
-
-```math
-\langle f(x), \sin(nx) \rangle 
-= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \sin(nx) \Big\rangle
-```
-
-```math
-= \langle b_n \sin(nx), \sin(nx) \rangle = \pi b_n
-```
-
-**Note:** ``a_n`` and ``b_n`` are constant here.
-"""
-
-
-# ╔═╡ 65debf88-458d-4452-be5b-f218e3117bd7
-md"""
-Therefore:
-
-```math
-f(x) = \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left( a_n \frac{e^{inx} + e^{-inx}}{2} + b_n \frac{e^{inx} - e^{-inx}}{2i} \right)
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} + \frac{b_n}{2i}\right)e^{inx} + \left(\frac{a_n}{2} - \frac{b_n}{2i}\right)e^{-inx} \right]
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} - i\frac{b_n}{2}\right)e^{inx} + \left(\frac{a_n}{2} + i\frac{b_n}{2}\right)e^{-inx} \right]
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} c_n e^{inx} + \sum_{n=-\infty}^{-1} c_n e^{inx}
-```
-
-```math
-= \sum_{n=-\infty}^{+\infty} c_n e^{inx}
-```
-
-```math
-\Rightarrow \quad f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{inx}, 
-\qquad c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi} f(x) e^{-inx}\, dx
-```
-
-**Note:**
-
-* ``e^{inx}`` and ``e^{imx}`` are linearly independent for ``n \neq m``.
-* ``c_n`` are also constant and can be computed in a similar way as ``a_n`` and ``b_n``.
-  """
-
-
-
-# ╔═╡ 2507bcf3-b0f4-4b31-881c-077b4711c261
-md"""
-- If instead, we have interval ``[-l, l]``
-
-```math
-f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{i\sigma_n x}
-```
-
-```math
-\sigma_n = \frac{n\pi}{l} = \frac{2\pi}{L_n}
-```
-
-where ``\sigma_n`` is the wave number and ``L_n`` is the wave length. 
-
-* We can also use normalized functions ``\tfrac{\cos(nx)}{\sqrt{\pi}}, \tfrac{\sin(nx)}{\sqrt{\pi}}``, and observe that these form **orthonormal bases**.
-
-```math
-a_n \cos(nx) 
-= \left[ \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx \right] \cos(nx)
-```
-
-```math
-= \frac{\cos(nx)}{\sqrt{\pi}} 
-   \left[ \int_{-\pi}^{\pi} \frac{f(x)\cos(nx)}{\sqrt{\pi}}\, dx \right]
-```
-
-Similarly for ``\sin(nx)``.
-"""
-
-
-# ╔═╡ eef9bcab-9e8d-4af5-8029-daa9a8a8e747
-md"""
-### Stability for space-time problems
-
-✓ **Example:**
-
-```math
-\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
-```
-
-Finite difference approximation (assuming equal grid spacing):
-
-```math
-\frac{dU_i}{dt} - D \frac{U_{i-1} - 2U_i + U_{i+1}}{\Delta x^2} = 0
-```
-
-Proceed with FDA and discretize in time with forward Euler:
-
-```math
-\frac{U_i^{n+1} - U_i^n}{\Delta t} 
-- D \frac{U_{i-1}^n - 2U_i^n + U_{i+1}^n}{\Delta x^2} = 0
-```
-
-"""
-
-
-# ╔═╡ d64c6bb0-c387-494a-a0c6-6dbf385f43f0
-md"""
-```math
-U_i^{n+1} = U_i^n + \frac{D \Delta t}{\Delta x^2} \left( U_{i-1}^n - 2U_i^n + U_{i+1}^n \right)
-```
-
-**Fourier Stability Analysis**
-
-* Recall Fourier Series:
-
-```math
-f(x) = \sum_{k=-\infty}^{+\infty} c_k e^{i\sigma_k x},
-\qquad
-c_k = \frac{1}{2l} \int_{-l}^{l} f(x) e^{-i\sigma_k x}\, dx
-```
-
-"""
-
-
-# ╔═╡ 5fa6c7e4-8be0-4c78-8084-6a4ab81af890
-md"""
-Represent initial condition (I.C.) by
-
-```math
-U^0 \sim \sum_k C_k^0 e^{i\sigma_k x}
-```
-
-I.C. is propagated by the FDA.
-The FDA is the same for each time step.
-The solution at any time ``t^n`` can be expanded using Fourier series.
-For linear operators, each component of the Fourier series is propagated independently.
-
-At ``t^0`` (initial condition):
-
-```math
-U^0 \sim \sum_k C_k^0 e^{i\sigma_k x}
-```
-
-At ``t^1 = t^0 + \Delta t``:
-
-```math
-U^1 \sim \sum_k C_k^1 e^{i\sigma_k x} 
-= \sum_k \frac{C_k^1}{C_k^0} C_k^0 e^{i\sigma_k x} 
-= \sum_k \lambda_k C_k^0 e^{i\sigma_k x}
-```
-
-At ``t^n``:
-
-```math
-U^n \sim \sum_k (\lambda_k)^n C_k^0 e^{i\sigma_k x}
-```
-
-For stability analysis, require ``|\lambda_k| \leq 1 \ \forall k``.
-
-```math
-\lambda_k \equiv \text{Amplification Factor}
-```
-
-"""
-
-
-# ╔═╡ 502b8378-6c74-410a-bf53-b5baa30c174c
-md"""
-### Example (FDA forward Euler, “classic explicit”)
-
-```math
-U_j^{n+1} = U_j^n + \frac{D \Delta t}{\Delta x^2} \big( U_{j-1}^n - 2U_j^n + U_{j+1}^n \big)
-```
-
-Let ``\mathcal{D} = \frac{D \Delta t}{\Delta x^2}`` is dimensionless diffusion coefficient.
-
-```math
-U_j^{n+1} = \mathcal{D} U_{j-1}^n + (1 - 2\mathcal{D}) U_j^n + \mathcal{D} U_{j+1}^n 
-\tag{1}
-```
-
-Substitute ``U_j^n = \sum_k (\lambda_k)^n C_k e^{i\sigma_k x_j} = \sum_k (\lambda_k)^n C_k e^{i\sigma_k j \Delta x}`` into (1):
-
-```math
-\Rightarrow (\lambda_k)^{n+1} C_k e^{i\sigma_k j \Delta x}
-= \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j-1)\Delta x}
-```
-
-```math
-+ (1 - 2\mathcal{D})(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}
-+ \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j+1)\Delta x}
-\tag{2}
-```
-
-Divide (2) by ``(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}``:
-
-```math
-\Rightarrow \lambda_k 
-= \mathcal{D} e^{-i\sigma_k \Delta x} + (1 - 2 \mathcal{D}) + \mathcal{D} e^{i\sigma_k \Delta x}
-= \mathcal{D} \big( e^{-i\sigma_k \Delta x} + e^{i\sigma_k \Delta x} \big) + (1 - 2 \mathcal{D})
-```
-
-```math
-\Rightarrow \lambda_k = 2\mathcal{D} \cos(\sigma_k \Delta x) + (1 - 2\mathcal{D})
-```
-
-"""
-
-
-# ╔═╡ 781b8096-c19b-4257-af21-cba6248b0b5e
-md"""
-```math
-\lambda_k = 1 - 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) 
-= 1 - 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
-```
-
-**Stability requirement:** ``|\lambda_k| \leq 1 \ \Rightarrow\ -1 \leq \lambda_k \leq 1``
-(The right inequality is OK for any ``k``.)
-
-```math
-\Rightarrow \ 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right) \leq 2
-```
-
-```math
-\Rightarrow \ \mathcal{D} \leq \frac{1}{2 \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)}
-\qquad \text{(consider the most restrictive case).}
-```
-
-```math
-\Rightarrow \ \mathcal{D} \leq \frac{1}{2} \quad \text{(stability limit).}
-```
-
-```math
-\Rightarrow \ \mathcal{D} = \frac{D \Delta t}{\Delta x^2} \leq \frac{1}{2}
-```
-
-"""
-
-
-
-# ╔═╡ 78f02703-f3a3-43cc-a7d7-b573f6391506
-md"""
-### Other examples:
-
-- FDA backward Euler (“classic implicit”)
-
-- Perform stability analysis for variably weighted Euler:
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-- D \left[ 
-\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-+ (1 - \theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
-\right] = 0
-```
-
-* Richardson’s method:
-
-```math
-\frac{U_j^{n+1} - U_j^{n-1}}{2 \Delta t}
-- \frac{D}{\Delta x^2} \left( U_{j+1}^n - 2U_j^n + U_{j-1}^n \right) = 0
-```
-
-"""
-
-
-# ╔═╡ 8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
-md"""
-✓ **FDA backward Euler (“classic implicit”)**
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-= D \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-```
-
-where ``\mathcal{D} = \tfrac{D \Delta t}{\Delta x^2}``.
-
-Using Fourier series representation:
-
-```math
-U_j^n \sim (\lambda_k)^n e^{i\sigma_k j \Delta x}
-```
-
-Substitute into scheme:
-
-```math
-\lambda_k \left[ -\mathcal{D} e^{i\sigma_k \Delta x} + (1+2\mathcal{D}) - \mathcal{D} e^{-i\sigma_k \Delta x} \right] = 1
-```
-
-```math
-\lambda_k \left[ 1 + 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) \right] = 1
-```
-
-```math
-\lambda_k \left[ 1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \right] = 1
-```
-
-Thus,
-
-```math
-\lambda_k = \frac{1}{1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)}
-```
-
-Since ``|\lambda_k| \leq 1 \quad \forall k``, the scheme is **unconditionally stable**.
-"""
-
-
-
-# ╔═╡ 0423f4ff-6ab9-4014-9a67-c818c0564e7a
-md"""
-✓ **Variably weighted Euler**
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-- D \left[
-\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-+ (1-\theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
-\right] = 0
-```
-
-Substitute Fourier series representation, then divide by ``U_j^n``:
-
-```math
-\lambda_k = \frac{\tfrac{1}{\Delta t} + \tfrac{2\mathcal{D}}{\Delta x^2}(1-\theta)\big[\cos(\sigma_k \Delta x)-1\big]}
-{\tfrac{1}{\Delta t} - \tfrac{2\mathcal{D}}{\Delta x^2}\theta \big[\cos(\sigma_k \Delta x)-1\big]}
-= \frac{1 - 2\mathcal{D}(1-\theta)\big[1-\cos(\sigma_k \Delta x)\big]}
-{1 + 2\mathcal{D}\theta \big[1-\cos(\sigma_k \Delta x)\big]}
-```
-
----
-
-Stability condition: ``|\lambda_k| \leq 1``
-
-This leads to
-
-```math
-2\mathcal{D}(1-2\theta) \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 1
-```
-
-Hence the **stability limit** (most restrictive condition):
-
-```math
-\mathcal{D}(1-2\theta) \leq \tfrac{1}{2}
-```
-
-"""
-
-# ╔═╡ 193d7395-f86a-4604-9d3c-a2f302a9185f
-md"""
-- **Richardson’s method**
-
-```math
-\frac{U_j^{n+1} - U_j^{n-1}}{2\Delta t}
-- \frac{D}{\Delta x^2}\left(U_{j+1}^n - 2U_j^n + U_{j-1}^n\right) = 0
-```
-
-Rearranging:
-
-```math
-U_j^{n+1} = 2\mathcal{D}\big(U_{j+1}^n - 2U_j^n + U_{j-1}^n\big) + U_j^{n-1}
-```
-
-Substituting Fourier series representation gives
-
-```math
-\lambda_k^2 = 2\mathcal{D} \lambda_k \left[2\cos(\sigma_k \Delta x) - 2\right] + 1
-```
-
-which leads to
-
-```math
-\lambda_k = -4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)
-\;\; \pm \;\;
-\sqrt{\,16\mathcal{D}^2 \sin^4\!\left(\tfrac{\sigma_k \Delta x}{2}\right) + 1}
-```
-
-Since for most ``k`` values the condition ``|\lambda_k| \leq 1`` fails (except in the trivial case ``\sin(\tfrac{\sigma_k \Delta x}{2})=0``),
-Richardson’s method is **unconditionally unstable.**
-
-"""
-
-
-# ╔═╡ 8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
-md"""
-### Why does each component of the Fourier series propagate independently?
-
-- ``C_k`` only depends on time (not space ``x``), we can let  
-
-```math
-u(t,x) = \sum_k C_k(t) e^{i\sigma_k x}.
-```
-
-Then,
-
-```math
-0 = \frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} 
-= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
-  - D \sum_k C_k(t) \frac{\partial^2}{\partial x^2} \big( e^{i\sigma_k x} \big)
-```
-
-```math
-= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
-  - D \sum_k C_k(t) (i\sigma_k)^2 e^{i\sigma_k x}
-```
-
-```math
-= \sum_k \left[ \frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 \right] e^{i\sigma_k x}
-```
-
-* ``e^{i\sigma_n x}`` and ``e^{i\sigma_m x}`` are linearly independent for ``n \neq m``.
-
-Thus,
-
-```math
-\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0
-\quad 
-\tag{1}
-```
-
-Observe that Equation (1) is an ordinary differential equation (ODE) for $C_k(t)$.
-
-* Let ``g(t,x) = C_k(t)e^{i\sigma_k x}``, which is the ``k^{\text{th}}`` component of the Fourier series.
-  Then (1) is equivalent to
-
-```math
-\frac{\partial g}{\partial t} - D \frac{\partial^2 g}{\partial x^2} = 0
-```
-
-*Insights*:
-- Each Fourier component ``C_k(t)e^{i\sigma_k x}`` evolves according to the same PDE structure but independently.
-- There is no coupling between different Fourier components, because the exponential basis functions are independent.
-
-"""
-
-
-# ╔═╡ d79ea06f-b582-4c1b-9e05-4ee273e6ec10
-md"""
-### Why is ``\lambda_k`` constant?
-
-- We can obtain the following equation for ``C_k(t)``,  
-
-```math
-\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0 
-   \;\;\;\;\;\; \Rightarrow \;\;\;\;\;\; 
-   \frac{\partial C_k}{\partial t} = -D \sigma_k^2 C_k
-```
-
-```math
-\Rightarrow \; C_k = A e^{-D\sigma_k^2 t} \quad \text{where A is a constant}
-```
-
-```math
-\Rightarrow \; \lambda_k = \frac{C_k(t+\Delta t)}{C_k(t)} 
-= \frac{A e^{-D\sigma_k^2 (t+\Delta t)}}{A e^{-D\sigma_k^2 t}} 
-= e^{-D\sigma_k^2 \Delta t}
-```
-
-"""
-
-# ╔═╡ 12934380-24d0-45f5-9ca3-1823cef69f23
-md"""
-### Summary of Fourier stability analysis
-
-- Represent the initial condition 
-
-- Marching in time, the amplification factor ``\lambda_k`` is constant  
-
-- Require ``|\lambda_k| \leq 1`` for stability  
-
-- Applies to PDEs with linear coefficients and periodic boundary conditions; equal grid spacing.  
-
-- Comment on Fourier stability analysis vs. matrix stability analysis: Matrix stability analysis applies to essentially any complications including different boundary conditions, unequal grid spacing, non-constant coefficients. However, one has to compute eigenvalues of the matrix, which can be a nontrivial task. Furthermore, the matrix has to be a normal matrix (i.e., eigenvectors are orthogonal). Fourier stability analysis applies to linear equation with periodic boundary conditions.
-
-"""
-
-# ╔═╡ 3aa09a14-a115-4a8d-8b9a-36c682639652
-md"""
-### Accuracy: “overstability”
-
-✓ Analytical behavior of solution  
-
-Let
-
-```math
-u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
-```
-
-Substitute into the PDE:
-
-```math
-\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
-\;\;\;\Rightarrow\;\;\;
-\sum_k \left( \frac{d\Lambda_k}{dt} - D\Lambda_k(-\sigma_k^2) \right) e^{i\sigma_k x} = 0
-```
-
-Because ``e^{i\sigma_k x}`` are linearly independent,
-
-```math
-\frac{d\Lambda_k}{dt} + D\sigma_k^2 \Lambda_k = 0
-```
-
-Solution for coefficients:
-
-```math
-\Lambda_k = C_k e^{-D\sigma_k^2 t}, 
-\qquad \text{where $C_k$ is set by the initial condition.}
-```
-
-Thus,
-
-```math
-u(x,t) = \sum_k C_k e^{-D\sigma_k^2 t} e^{i\sigma_k x}
-```
-
-Over one time step ``\Delta t``:
-
-```math
-\frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
-= \frac{C_k e^{-D\sigma_k^2 (t+\Delta t)}}{C_k e^{-D\sigma_k^2 t}}
-= e^{-D\sigma_k^2 \Delta t}
-\equiv \lambda_k^A
-```
-
-Here, ``\lambda_k^A`` is the **analytical amplification factor**.
-"""
-
-
-# ╔═╡ 0b27e42d-6505-4afc-979d-9d73685af241
-md"""
-✓ Amplitude Ratio  
-
-```math
-R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
-```
-
-where ``\lambda_k^N`` is the **numerical amplitude factor**.
-
-* For stability, require ``|\lambda_k^N| \leq 1``
-* For accuracy, require ``\lambda_k^N \approx \lambda_k^A \;\;\Rightarrow\;\; R_k \approx 1``
-
-
-**Quick example: Forward Euler**
-
-```math
-\lambda^N = 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
-```
-
-```math
-= 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\pi}{L_k / \Delta x}\right)
-```
-
-while the analytical amplification factor is
-
-```math
-\lambda^A = e^{-D \sigma_k^2 \Delta t}
-= e^{-\mathcal{D} \Delta x^2 \left(\frac{2\pi}{L_k}\right)^2}
-= e^{-\mathcal{D} \frac{4\pi^2}{(L_k / \Delta x)^2}}
-```
-
-Parameters:
-
-```math
-\sigma_k = \frac{2\pi}{L_k}, \qquad \mathcal{D} = \frac{D \Delta t}{\Delta x^2}
-```
-
-The plot below illustrates
-
-```math
-R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
-```
-
-as a function of the wavelength ratio ``L_k / \Delta x``.
-
-Takeway: The Forward Euler scheme may damp too aggressively for high-frequency Fourier components.
-
-```math
-u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty}
-\left[
-\left(a_k e^{-D\sigma_k^2 t}\right)\cos(\sigma_k x)
-+ \left(b_k e^{-D\sigma_k^2 t}\right)\sin(\sigma_k x)
-\right]
-```
-
-"""
-
-
-# ╔═╡ f4d2afbe-3346-4760-86eb-98692a8e76e0
-begin
-    # Assumptions:
-    #  - q = L_k/Δx is an integer (# grid points per wavelength), q ∈ {2, …, N-1}
-    #  - 𝒟 = DΔt/Δx^2 (diffusion Courant number for Forward Euler), must satisfy 𝒟 ≤ 1/2 for stability
-    N  = 20                # number of grid points (sets the right end of the q-axis)
-    𝒟  = 0.3                # choose any value ≤ 0.5; adjust to see the behavior
-
-    q  = 2:N-1              # q = L_k/Δx
-    λN = 1 .- 4*𝒟 .* sin.(π ./ q).^2
-    λA = exp.(-4π^2*𝒟 ./ q.^2)
-
-    R  = abs.(λN) ./ abs.(λA)
-
-    p = plot(q, R,
-             xlabel=L"L_k/Δx",
-             ylabel=L"R_k = |λ^N| / |λ^A|",
-             legend=false,
-			 linewidth=2)
-    hline!(p, [1.0], linestyle=:dash,linewidth=2)  # reference line at 1
-    xlims!(2, N-1)
-    p
-end
-
-# ╔═╡ d369d7ca-e282-4199-9da8-b557533a03e0
-md"""
-✓ Consider another example: **pure advection**
-
+### Let's return to FTBS for the Advection Equation
 ```math
 \frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
 ```
 
-FDA: Forward-in-time, Backward-in-space (FTBS)
+Forward-Time Backward-Space (FTBS) scheme:
 
 ```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t} 
-+ V \frac{U_j^n - U_{j-1}^n}{\Delta x} = 0
+u_i^{n+1} = u_i^n + \Delta t
+\left(\frac{\partial u}{\partial t}\right)_i^n
++ \frac{\Delta t^2}{2}
+\left(\frac{\partial^2 u}{\partial t^2}\right)_i^n
++ \frac{\Delta t^3}{6}
+\left(\frac{\partial^3 u}{\partial t^3}\right)_i^n + \cdots
 ```
 
-which gives
+Backward spatial Taylor expansion:
 
 ```math
-U_j^{n+1} = U_j^n - \frac{V \Delta t}{\Delta x}(U_j^n - U_{j-1}^n)
-= (1-\nu) U_j^n + \nu U_{j-1}^n
+u_{i-1}^n = u_i^n
+- \Delta x \left(\frac{\partial u}{\partial x}\right)_i^n
++ \frac{\Delta x^2}{2}
+\left(\frac{\partial^2 u}{\partial x^2}\right)_i^n
+- \frac{\Delta x^3}{6}
+\left(\frac{\partial^3 u}{\partial x^3}\right)_i^n + \cdots
 ```
 
-where the **Courant number** is defined as
+Substitute into the FTBS form:
 
 ```math
-\nu = \frac{V \Delta t}{\Delta x}.
+\frac{u_i^{n+1} - u_i^n}{\Delta t}
++ V \frac{u_i^n - u_{i-1}^n}{\Delta x}
+= \left(\frac{\partial u}{\partial t}\right)_i^n
++ V \left(\frac{\partial u}{\partial x}\right)_i^n
 ```
 
-Fourier series representation:
-
-Let
-
 ```math
-U_j^n \sim \lambda_k^n e^{i \sigma_k j \Delta x}.
++ \frac{\Delta t}{2} \left(\frac{\partial^2 u}{\partial t^2}\right)_i^n
+- V \frac{\Delta x}{2}
+\left(\frac{\partial^2 u}{\partial x^2}\right)_i^n
++ \frac{\Delta t^2}{6}
+\left(\frac{\partial^3 u}{\partial t^3}\right)_i^n
++ V \frac{\Delta x^2}{6}
+\left(\frac{\partial^3 u}{\partial x^3}\right)_i^n + \cdots
 ```
 
-Substitute into the scheme:
+Using the PDE ``\frac{\partial u}{\partial t} = -V \frac{\partial u}{\partial x}``,
+the leading-order truncation terms become:
 
 ```math
-\lambda_k e^{i \sigma_k j \Delta x}
-= (1-\nu)\lambda_k^n e^{i\sigma_k j \Delta x}
-+ \nu \lambda_k^n e^{i \sigma_k (j-1)\Delta x}.
-```
-
----
-
-**Dimensionless groups:**
-
-- Peclet number: ``Pe^G = \dfrac{V \Delta t}{D}``
-- Diffusion number: ``\mathcal{D} = \dfrac{D \Delta t}{\Delta x^2}``
-- Courant number: ``\nu = \dfrac{V \Delta t}{\Delta x}``
-
-"""
-
-
-
-# ╔═╡ f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
-md"""
-```math
-\lambda_k^N = 1 - \nu + \nu e^{-i\sigma_k \Delta x}
-             = (1 - \nu + \nu \cos\sigma_k \Delta x) - i \nu \sin\sigma_k \Delta x
-```
-
-For stability, we require:
-
-```math
-|\lambda_k^N| \leq 1
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-(1 - \nu + \nu \cos\sigma_k \Delta x)^2 + \nu^2 \sin^2\sigma_k \Delta x \leq 1
-```
-
-Expanding:
-
-```math
-(1 - 2\nu) + \nu^2 + 2\nu(1 - \nu)\cos\sigma_k \Delta x + \nu^2 \leq 1
+0
++ \frac{\Delta t V^2}{2} \frac{\partial^2 u}{\partial x^2}
+- V \frac{\Delta x}{2} \frac{\partial^2 u}{\partial x^2}
++ \frac{\Delta t^2 (-V)^3}{6} \frac{\partial^3 u}{\partial x^3}
++ V \frac{\Delta x^2}{6} \frac{\partial^3 u}{\partial x^3}
++ \cdots
 ```
 
 Simplify:
 
 ```math
--2\nu(1 - \nu)\, 2\sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 0
-```
-
-Thus:
-
-```math
-1 - \nu \geq 0 
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-\nu \leq 1
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-\frac{V \Delta t}{\Delta x} \leq 1 \quad \text{(stability limit).}
+0
++ \frac{V \Delta x}{2}
+\left(\frac{V \Delta t}{\Delta x} - 1\right)
+\frac{\partial^2 u}{\partial x^2}
+- \frac{V \Delta x^2}{6}
+\left(\frac{V^2 \Delta t^2}{\Delta x^2} - 1\right)
+\frac{\partial^3 u}{\partial x^3}
++ \cdots
 ```
 
 """
 
-# ╔═╡ cbe3b676-d2e0-445d-9f31-998d87456407
+# ╔═╡ 7873d643-fc89-44ef-8982-1f90c01bc8c7
 md"""
-#### Exact amplification factor for advection
-
-We expand the solution as a Fourier series:
+When ``\nu = 1 ``, All Error Terms ``→ 0``
 
 ```math
-u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
+\nu = \frac{V \Delta t}{\Delta x} = 1
+\quad \Rightarrow \quad
+V \Delta t = \Delta x
 ```
 
-From the advection equation:
+When the Courant number ``\nu = 1``,
+all truncation error terms vanish — the FTBS scheme becomes *exact*
+along the characteristic curves of the advection equation:
 
 ```math
 \frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
 ```
 
-we obtain:
+These are the **characteristic curves**,
+where information propagates with slope ``\frac{\mathrm{d}x}{\mathrm{d}t} = V``.
+
+**Note:** The characteristic lines have slope ( ``V = 1`` ),
+so each step ( ``\Delta t`` ) in time corresponds exactly to a spatial shift of ( ``\Delta x`` ).
+
+*Reminder:* Read Chapter 1 of C&G for the discussion on characteristics.
+"""
+
+
+# ╔═╡ f5b72059-9d2e-4adb-92ce-b6457de20259
+local img = LocalResource("./figs/mod7_FTBS_MoC.png", :width => "700px")
+
+# ╔═╡ 9c744afe-5030-4bda-8549-219e70f03f72
+md"""
+### Some concepts of derivatives
+
+Partial derivative
 
 ```math
-\left(\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k\right) e^{i\sigma_k x} = 0
+\frac{\partial u}{\partial t}
+```
+- Observer does not move (velocity equals to zero).
+
+Total derivative
+
+```math
+\frac{d u}{d t} = \frac{\partial u}{\partial t} + \frac{d x}{d t} \frac{\partial u}{\partial x}
 ```
 
-Thus:
+- ``\frac{d x}{d t}`` is the velocity of the observer.
+
+Material derivative
 
 ```math
-\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k = 0
-\;\;\;\;\Rightarrow\;\;\;\;
-\Lambda_k = C_k e^{-iV\sigma_k t}
+\frac{D u}{D t} = \frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x}
 ```
 
-Therefore, the exact amplification factor is:
+- Specific ``\frac{d x}{d t}`` that equals to the characteristic velocity of the system.
 
+
+"""
+
+# ╔═╡ 87e5fbbf-005d-4e85-8cb9-2d331b73c901
+local img = LocalResource("./figs/mod7_derivative_concepts.png", :width => "700px")
+
+# ╔═╡ 70f57536-5164-4935-98f0-864fc51f52e3
+md"""
+## “Characteristics” of PDEs
+
+#### Classification of PDEs (Characteristic Curves)
+
+- For an `` n^{\text{th}}``-order PDE, if information (values) for the solution ``u``
+  and its directional derivatives up to order ``n-1`` are known along a specific line (in 2-D) or surface (in 3-D), can the ``n^{\text{th}}``-order derivatives be uniquely determined?
+
+Example:
 ```math
-\lambda_k^A = \frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
-             = e^{-iV\sigma_k \Delta t}
+\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
 ```
 
-and:
+Along a curve defined by ``(dx, dt)``
 
 ```math
-|\lambda_k^A| = 1
+du = \frac{\partial u}{\partial t} dt + \frac{\partial u}{\partial x} dx
 ```
 
-So the solution is a **pure translation** of the initial wave without decay:
+We can write this as a linear system:
 
 ```math
-u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty} 
-         \left[a_k \cos\!\big(\sigma_k(x - V t)\big) + 
-               b_k \sin\!\big(\sigma_k(x - V t)\big)\right]
+\begin{bmatrix}
+1 & V \\
+dt & dx
+\end{bmatrix}
+\begin{bmatrix}
+\frac{\partial u}{\partial t} \\
+\frac{\partial u}{\partial x}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+du
+\end{bmatrix}
+```
+
+The solution for `` (\frac{\partial u}{\partial t}, \frac{\partial u}{\partial x})``
+is unique **unless**
+
+```math
+\det
+\begin{bmatrix}
+1 & V \\
+dt & dx
+\end{bmatrix}
+= 0
+```
+
+which gives
+
+```math
+dx - V\,dt = 0 \quad \Rightarrow \quad \frac{dx}{dt} = V
+```
+
+This defines the **characteristic curves**.
+
+Along the characteristic curve
+
+```math
+\frac{du}{dt}
+= \frac{\partial u}{\partial t}
++ \frac{dx}{dt} \frac{\partial u}{\partial x}
+= 0
+```
+
+Thus, ``u`` remains constant along lines with slope ``\frac{dx}{dt} = V``.
+
+"""
+
+
+# ╔═╡ 451261ab-04c1-438d-b3ea-4c9f21b612c5
+local img = LocalResource("./figs/mod7_characteristic_def.png", :width => "300px")
+
+# ╔═╡ 162b202e-b99b-4e72-a597-dfe246cfe5a3
+md"""
+
+**Insights:**
+
+* These lines represent **information propagation paths** in the ``x–t`` plane.
+* For ``V > 0``, characteristics move rightward.
+* Boundary conditions (B.C.) and initial conditions (I.C.) are specified along non-characteristic lines.
+"""
+
+# ╔═╡ cba51464-bae2-4821-bc26-5865451e3e8c
+md"""
+### Example: General Second-Order PDE in 2D
+
+A general second-order PDE in two variables ``x`` and ``t``:
+
+```math
+A \frac{\partial^2 u}{\partial x^2}
++ 2B \frac{\partial^2 u}{\partial x \partial t}
++ C \frac{\partial^2 u}{\partial t^2}
++ D \frac{\partial u}{\partial x}
++ E \frac{\partial u}{\partial t}
+= F(u, t)
+```
+
+Differentials of first derivatives:
+
+```math
+d\!\left(\frac{\partial u}{\partial x}\right)
+= \frac{\partial^2 u}{\partial x^2} dx
++ \frac{\partial^2 u}{\partial x \partial t} dt
+```
+
+```math
+d\!\left(\frac{\partial u}{\partial t}\right)
+= \frac{\partial^2 u}{\partial x \partial t} dx
++ \frac{\partial^2 u}{\partial t^2} dt
+```
+
+We can express this in matrix form:
+
+```math
+\begin{bmatrix}
+A & 2B & C \\
+dx & dt & 0 \\
+0 & dx & dt
+\end{bmatrix}
+\begin{bmatrix}
+\frac{\partial^2 u}{\partial x^2} \\
+\frac{\partial^2 u}{\partial x \partial t} \\
+\frac{\partial^2 u}{\partial t^2}
+\end{bmatrix}
+=
+\begin{bmatrix}
+F - D\frac{\partial u}{\partial x} - E\frac{\partial u}{\partial t} \\
+d\!\left(\frac{\partial u}{\partial x}\right) \\
+d\!\left(\frac{\partial u}{\partial t}\right)
+\end{bmatrix}
+```
+
+Characteristic Curves
+
+The determinant condition:
+
+```math
+\begin{vmatrix}
+A & 2B & C \\
+dx & dt & 0 \\
+0 & dx & dt
+\end{vmatrix} = 0
+```
+
+leads to
+
+```math
+A (dt)^2 - 2B\,dx\,dt + C (dx)^2 = 0
+```
+
+or equivalently,
+
+```math
+C \left(\frac{dx}{dt}\right)^2 - 2B \frac{dx}{dt} + A = 0
+```
+
+Hence,
+
+```math
+\frac{dx}{dt}
+= \frac{B}{C}
+\pm \frac{1}{C} \sqrt{B^2 - A C}
+```
+
+PDE Classification (based on ``B^2 - A C ``)
+
+| Case | Condition         | # of Real Characteristics | PDE Type       |
+| :--: | :---------------- | :------------------------ | :------------- |
+|  (1) | ( B^2 - A C > 0 ) | 2                         | **Hyperbolic** |
+|  (2) | ( B^2 - A C = 0 ) | 1                         | **Parabolic**  |
+|  (3) | ( B^2 - A C < 0 ) | 0                         | **Elliptic**   |
+
+"""
+
+# ╔═╡ b3c73644-178e-42fe-8454-941d255477a9
+md"""
+**Example 1. Second-Order Wave Equation**
+
+```math
+\frac{\partial^2 u}{\partial t^2}
+- \beta^2 \frac{\partial^2 u}{\partial x^2} = 0
+```
+
+---
+
+Identify coefficients:
+
+```math
+A = -\beta^2, \quad B = 0, \quad C = 1
+```
+
+Compute the discriminant:
+
+```math
+B^2 - A C = \beta^2 > 0
+```
+
+Therefore, this is a **Hyperbolic Equation**.
+
+"""
+
+
+# ╔═╡ ad6144a6-4146-43d4-b329-af83a257100c
+local img = LocalResource("./figs/mod7_hyperbolic_cc.png", :width => "400px")
+
+# ╔═╡ 2b8afbf5-d8bf-4e5d-8b8a-d54daaf757dd
+md"""
+**2. Heat Equation**
+
+```math
+\frac{\partial u}{\partial t}
+- D \frac{\partial^2 u}{\partial x^2} = 0
+```
+
+Identify coefficients:
+
+```math
+A = 0, \quad B = 0, \quad C = -D
+```
+
+Compute the discriminant:
+
+```math
+B^2 - A C = 0
+```
+
+Therefore, this is a **Parabolic Equation**.
+
+**Interpretation:**
+
+* The heat equation has **one family of real characteristic curves**, corresponding to ``\frac{dx}{dt} = +\infty``.
+* These represent *secondary characteristic curves*, i.e., vertical lines in the ``x\text{-}t`` plane.
+
+"""
+
+
+# ╔═╡ 856fff86-4410-49dd-810d-a6778171f86c
+local img = LocalResource("./figs/mod7_parabolic_cc.png", :width => "400px")
+
+# ╔═╡ f976dc61-e02b-40ef-8e9d-7b2646239f5a
+md"""
+**3. Laplace Equation**
+
+```math
+\frac{\partial^2 u}{\partial x^2}
++ D \frac{\partial^2 u}{\partial y^2} = 0
+```
+
+Identify coefficients:
+
+```math
+A = 1, \quad B = 0, \quad C = 1
+```
+
+Compute the discriminant:
+
+```math
+B^2 - A C = -1 < 0
+```
+
+Therefore, this is an **Elliptic Equation**.
+
+"""
+
+# ╔═╡ 7cd6c7c0-8f81-4850-8448-b515779e0e94
+md"""
+Let's return to the advection equation
+
+```math
+\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
+```
+
+It has **one family of characteristic curves**.
+
+**Note:**
+If an ``n^{\text{th}}``-order PDE has ``n`` real characteristic curves,
+then the equation is **Hyperbolic**.
+
+Thus,
+
+```math
+\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
+```
+
+is a **first-order Hyperbolic equation**.
+
+*Characteristic Equations*
+
+```math
+\frac{dx}{dt} = V,
+\quad
+\frac{du}{dt} = 0
+```
+
+These describe motion along characteristics where ``u`` is constant.
+
+Let's think about characteristic-based numerical approximation. At time level ``t^{n+1}``, trace backward along the characteristic to find ``x_*`` at ``t^{n}``.
+
+```math
+x_* = x_{i+1} - V \Delta t
+```
+
+Let
+
+```math
+x_{i+1} - x_* = (1 - \alpha)\, \Delta x
+\quad \Rightarrow \quad
+\alpha = 1 - \frac{V \Delta t}{\Delta x}
+```
+
+Then ``u_*^n`` is found by **linear interpolation**:
+
+```math
+u_*^n = u_i^n \alpha + u_{i+1}^n (1 - \alpha)
+```
+
+Substitute for ``\alpha``:
+
+```math
+u_*^n
+= u_i^n \left(1 - \frac{V \Delta t}{\Delta x}\right)
++ u_{i+1}^n \frac{V \Delta t}{\Delta x}
+= u_i^n - \frac{V \Delta t}{\Delta x}(u_i^n - u_{i+1}^n)
 ```
 
 **Interpretation:**
-The solution preserves its magnitude; it simply shifts in space with speed ``V``.
 
-
+* This is the basis of the **characteristic-based upwind scheme**.
+* When ``\frac{V \Delta t}{\Delta x} = 1``, interpolation follows the characteristic exactly.
 
 """
 
-# ╔═╡ fecd9584-27b3-4b43-b03f-d85133590885
+
+
+# ╔═╡ 31e9d718-ac2e-4e51-82d1-96dc552d4b63
+local img = LocalResource("./figs/mod7_moc_AE.png", :width => "400px")
+
+# ╔═╡ ad1a087c-8f53-4d4e-a043-ec93f237d0bb
 md"""
-#### Numerical Solutions of CTCS vs. FTBS (for advection equation)
+Now, let's look at the characteristic-based upwind scheme FDA approach
+```math
+\frac{u_i^{n+1} - u_*^n}{\Delta t} = 0
+```
+
+Substitute the interpolated ``u_*^n`` from the characteristic-based scheme:
+
+```math
+u_*^n = u_i^n - \frac{V \Delta t}{\Delta x}(u_i^n - u_{i-1}^n)
+```
+
+Then,
+
+```math
+\frac{
+u_i^{n+1} - \left[u_i^n - \frac{V \Delta t}{\Delta x}(u_i^n - u_{i-1}^n)\right]
+}{\Delta t} = 0
+```
+
+Simplify:
+
+```math
+\frac{u_i^{n+1} - u_i^n}{\Delta t}
++ V \frac{u_i^n - u_{i-1}^n}{\Delta x} = 0
+```
+
+This is exactly the FTBS (Forward-Time Backward-Space) approximation!
+
+So, *why bother with characteristics?*
+
 """
 
-# ╔═╡ 7eca15e1-3e2d-4a3a-892c-a3ba2e2b35ea
-local img = LocalResource("./figs/mod6_amplitude_ratio_CTCS_FTBS.png", :width => "600px")
-
-# ╔═╡ 74367285-422c-4e24-84bc-c00250f2640f
-local img = LocalResource("./figs/mod6_FTBS_CTCS.png", :width => "1000px")
-
-# ╔═╡ 49964af9-602c-4845-88a2-1e1de4e0c15f
+# ╔═╡ c17f62a0-86a8-456d-a1e2-e813a53c70f2
 md"""
-#### Analysis of phase behavior
+### Characteristic Method vs. FTBS
+
+For `` \nu \le 1 ``:  
+They are identical when  ``u_*^n`` is approximated using only ``u_{i-1}^n`` and ``u_i^n ``.
+
+- For ``\nu < 1``: numerical approximation ``\mathcal{O}(\Delta x, \Delta t)``
+- For ``\nu = 1``: exact solution
+
+For ``\nu > 1``:  
+- FTBS becomes unstable.  
+- The Characteristic method remains perfectly fine — it simply traces further back along the ``x``-axis.
+
 """
 
-# ╔═╡ 45fb0d18-72da-4989-aa68-2107f04b2b1e
-local img = LocalResource("./figs/mod6_phase.png", :width => "300px")
 
-# ╔═╡ 5370c9f1-f048-4b96-bcc2-117b4233b5e7
+# ╔═╡ 3961581d-971a-4928-a484-496bfac4a953
 md"""
+### Notes on the Characteristic Method
 
-``\Phi_k`` = (Angle of) phase change over one time step ``\Delta t``
+- This procedure involves “Back Tracking” along characteristics.
 
-```math
-\Phi_k^A = \tan^{-1}\!\left(\frac{\operatorname{Im}\lambda_k^A}{\operatorname{Re}\lambda_k^A}\right)
-= \tan^{-1}\!\left[\frac{\sin(-V \sigma_k \Delta t)}{\cos(-V \sigma_k \Delta t)}\right]
-```
+- Many Finite Element (FE) and Finite Difference (FD) methods adopt this concept.
 
-```math
-\begin{aligned}
-&= -V \sigma_k \Delta t \\
-&= -\sigma_k (V \Delta t) = -\sigma_k (\nu \Delta x) \\
-&= -\nu \frac{2\pi}{L_k} \Delta x = -\nu \frac{2\pi}{L_k / \Delta x}
-\end{aligned}
-```
+- The method can be extended to 2D and 3D systems.
+
+- Other approaches — for example, Particle Methods — use “Forward Tracking.”
 
 """
 
-
-# ╔═╡ f3538435-fe99-402a-a79b-7deed244e226
-md"""
-Perform analogous analysis for $\Phi_k^N$
-
-*Example: FTBS*
-
-```math
-\tan \Phi_k^N = \frac{\operatorname{Im}\lambda_k^N}{\operatorname{Re}\lambda_k^N}
-= \frac{-\nu \sin\!\left(\frac{2\pi}{L_k / \Delta x}\right)}
-{1 - \nu + \nu \cos\!\left(\frac{2\pi}{L_k / \Delta x}\right)}
-```
-
-Error measures
-
-- Phase ratio
-
-```math
-\Gamma_k = \frac{\Phi_k^N}{\Phi_k^A}
-```
-
-- Phase error
-
-Let $M_k^A =$ number of time steps required for the analytical wave to go through $2\pi$.
-
-```math
-\Gamma_k' = M_k^A \Phi_k^N - M_k^A \Phi_k^A = M_k^A \Phi_k^N - 2\pi
-```
-"""
-
-
-# ╔═╡ 2e3677d7-cabb-4994-924b-a591b7ae5494
-local img = LocalResource("./figs/mod6_phase_error_CTCS_FTBS.png", :width => "700px")
-
-# ╔═╡ 3e0c9359-9a16-4d1f-a9e4-826fcd0e7956
-md"""
-The oscillatory behavior in CTCS is due to phase error.
-FTBS (𝜈=0.75, 0.25) is stable, but could have oscillations (depending on the strength of its damping characteristics).
-"""
-
-# ╔═╡ 5dc2c268-72ca-44d8-9372-ef59b5a10a30
-md"""
-**Numerical Solution of CTCS for a Gaussian Initial Condition** (6 Δ𝑥 vs. 20 Δ𝑥)
-
-Initial condition spanning 6 Δ𝑥:
-- Initial condition is “steep”.
-- Oscillatory behavior due to phase error.
-
-Initial condition spanning 20 Δ𝑥:
-- Initial condition is less “steep”.
-- Essentially no oscillation at this time.
-- Phase error will eventually produce oscillatory behavior (no matter how fine the spatial discretization)
-
-"""
-
-# ╔═╡ 538d3b80-0020-4fd5-b0be-4a9f62dbb6fa
-local img = LocalResource("./figs/mod6_CTCS_Gaussian.png", :width => "800px")
-
-# ╔═╡ 7e070235-ca89-4518-9134-2d33db094445
-md"""
-### Advection–Diffusion Equation
-
-```math
-\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} - D \frac{\partial^2 u}{\partial x^2} = 0
-```
-
-Evolution of a Fourier component
-
-```math
-\Lambda_k(t) = \Lambda_k(0)\, e^{(-i V k - D k^2)t}
-```
-
-Amplification factor over one timestep ``\Delta t``:
-
-```math
-\lambda_k^A = \frac{\Lambda_k(t + \Delta t)}{\Lambda_k(t)} = e^{-i V k \Delta t} e^{-D k^2 \Delta t}
-```
-
-Magnitude and Phase
-
-```math
-|\lambda_k^A| = e^{-D k^2 \Delta t}
-```
-
-```math
-|\Phi_k^A| = \tan^{-1}\!\left[
-  \frac{e^{-D k^2 \Delta t}(-\sin(V k \Delta t))}{
-        e^{-D k^2 \Delta t}\cos(V k \Delta t)}
-\right]
-```
-
-```math
-= -V \sigma_k \Delta t = -\nu \frac{2\pi}{L_k / \Delta x}
-```
-
-"""
-
-
-# ╔═╡ d829961b-1d3b-4c77-8c97-6687077777ac
-local img = LocalResource("./figs/mod6_phase_diagram_ADE.png", :width => "400px")
-
-# ╔═╡ bfe29afa-3a34-4b8c-9da2-b6cc21f9d6bd
-md"""
-
-**Visualization in the complex plane**
-
-* The dashed circle (radius 1) corresponds to (``D = 0`` ) (pure advection, no damping).
-* The inner solid curve shows ( ``D > 0`` ), i.e., diffusion damping (``|\lambda_k^A| < 1``).
-* The phase angle ( ``\Phi_k^A`` ) represents advection, while the magnitude decay represents diffusion.
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2179,44 +1699,26 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─4560e049-d77a-48a1-bfb8-b1522606b8e3
-# ╟─54ada3f0-9db6-11f0-1cda-4d9664634884
-# ╟─5009af20-deef-4ce2-8766-7a5ba77ceec0
-# ╟─f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
-# ╟─53689987-f6a6-4d29-9bb1-e77f8c4f6c27
-# ╟─65debf88-458d-4452-be5b-f218e3117bd7
-# ╟─2507bcf3-b0f4-4b31-881c-077b4711c261
-# ╟─eef9bcab-9e8d-4af5-8029-daa9a8a8e747
-# ╟─d64c6bb0-c387-494a-a0c6-6dbf385f43f0
-# ╟─5fa6c7e4-8be0-4c78-8084-6a4ab81af890
-# ╟─502b8378-6c74-410a-bf53-b5baa30c174c
-# ╟─781b8096-c19b-4257-af21-cba6248b0b5e
-# ╟─78f02703-f3a3-43cc-a7d7-b573f6391506
-# ╟─8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
-# ╟─0423f4ff-6ab9-4014-9a67-c818c0564e7a
-# ╟─193d7395-f86a-4604-9d3c-a2f302a9185f
-# ╟─8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
-# ╟─d79ea06f-b582-4c1b-9e05-4ee273e6ec10
-# ╟─12934380-24d0-45f5-9ca3-1823cef69f23
-# ╟─3aa09a14-a115-4a8d-8b9a-36c682639652
-# ╟─0b27e42d-6505-4afc-979d-9d73685af241
-# ╟─f4d2afbe-3346-4760-86eb-98692a8e76e0
-# ╟─d369d7ca-e282-4199-9da8-b557533a03e0
-# ╟─f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
-# ╟─cbe3b676-d2e0-445d-9f31-998d87456407
-# ╟─fecd9584-27b3-4b43-b03f-d85133590885
-# ╟─7eca15e1-3e2d-4a3a-892c-a3ba2e2b35ea
-# ╟─74367285-422c-4e24-84bc-c00250f2640f
-# ╟─49964af9-602c-4845-88a2-1e1de4e0c15f
-# ╟─45fb0d18-72da-4989-aa68-2107f04b2b1e
-# ╟─5370c9f1-f048-4b96-bcc2-117b4233b5e7
-# ╟─f3538435-fe99-402a-a79b-7deed244e226
-# ╟─2e3677d7-cabb-4994-924b-a591b7ae5494
-# ╟─3e0c9359-9a16-4d1f-a9e4-826fcd0e7956
-# ╟─5dc2c268-72ca-44d8-9372-ef59b5a10a30
-# ╟─538d3b80-0020-4fd5-b0be-4a9f62dbb6fa
-# ╟─7e070235-ca89-4518-9134-2d33db094445
-# ╟─d829961b-1d3b-4c77-8c97-6687077777ac
-# ╟─bfe29afa-3a34-4b8c-9da2-b6cc21f9d6bd
+# ╟─cba2003e-da27-49a4-b4fa-79c49fce6ef5
+# ╟─370cd200-a39f-11f0-1577-f33185318fad
+# ╟─dcd848e2-7490-49b3-919a-ebb1f616852d
+# ╟─7873d643-fc89-44ef-8982-1f90c01bc8c7
+# ╟─f5b72059-9d2e-4adb-92ce-b6457de20259
+# ╟─9c744afe-5030-4bda-8549-219e70f03f72
+# ╟─87e5fbbf-005d-4e85-8cb9-2d331b73c901
+# ╟─70f57536-5164-4935-98f0-864fc51f52e3
+# ╟─451261ab-04c1-438d-b3ea-4c9f21b612c5
+# ╟─162b202e-b99b-4e72-a597-dfe246cfe5a3
+# ╟─cba51464-bae2-4821-bc26-5865451e3e8c
+# ╟─b3c73644-178e-42fe-8454-941d255477a9
+# ╟─ad6144a6-4146-43d4-b329-af83a257100c
+# ╟─2b8afbf5-d8bf-4e5d-8b8a-d54daaf757dd
+# ╟─856fff86-4410-49dd-810d-a6778171f86c
+# ╟─f976dc61-e02b-40ef-8e9d-7b2646239f5a
+# ╟─7cd6c7c0-8f81-4850-8448-b515779e0e94
+# ╟─31e9d718-ac2e-4e51-82d1-96dc552d4b63
+# ╟─ad1a087c-8f53-4d4e-a043-ec93f237d0bb
+# ╟─c17f62a0-86a8-456d-a1e2-e813a53c70f2
+# ╟─3961581d-971a-4928-a484-496bfac4a953
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
