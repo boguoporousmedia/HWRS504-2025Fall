@@ -9,5 +9,6 @@ Oct 14
 Oct 16
 : [Neural networks](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
   : [Lecture note #16](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: **Due**{: .label .label-purple}[**HW #3**](#)
 : **Release**{: .label .label-green}[**HW #4**](#)
 
