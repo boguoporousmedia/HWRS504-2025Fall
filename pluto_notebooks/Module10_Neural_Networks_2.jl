@@ -4,1058 +4,548 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 4560e049-d77a-48a1-bfb8-b1522606b8e3
-using Plots, LaTeXStrings , PlutoUI
+# ╔═╡ 9f20805f-4fc7-45a1-b6e0-34928ed228c3
+begin
+	using InteractiveUtils, Plots, PlutoUI, LaTeXStrings
+	using ForwardDiff, Zygote
+	using GraphViz, Graphviz_jll
+	using BenchmarkTools
+    default(size=(600,400))
+end
 
-# ╔═╡ 60b8cfb9-13b4-4ce1-b069-914fbfcb5a75
+# ╔═╡ cf29b19a-aedf-11f0-9620-41b67480ef6b
 md"""
-### HWRS 504: Numerical Methods
-- **Instructor**: Prof. Bo Guo (boguo@arizona.edu)
-- **Term**: Fall 2025
+# Module 10: Neural Networks - 2
 """
 
-# ╔═╡ 54ada3f0-9db6-11f0-1cda-4d9664634884
+# ╔═╡ f1c9b34c-e4d4-450f-bee3-19f4a8461094
 md"""
-# Module 6: Fourier Stability Analysis
+#### Two-layer neural network
 """
 
-# ╔═╡ 5009af20-deef-4ce2-8766-7a5ba77ceec0
+# ╔═╡ 2b7b368d-9d61-4149-a845-6745e74fa79a
 md"""
-### Fourier Series
-
-- Consider a function ``f(x)`` defined on ``-π < x < π``.
-
-- Next consider the “Fourier Series” representation of this function by the sum
-
 ```math
-S_N(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-= \sum_{n=0}^{N} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-```
-
-* Let ``I ≡ ∫_{-π}^{π} [ f(x) - S_N(x) ]^2 dx``.
-  Minimization of ``I`` with respect to coefficients ``a_0, a_n, b_n`` leads to
-
-```math
-a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
+\forall j \in [1, \ldots, m], \quad 
+z_j = \mathbf{w}_j^{[1] \, \mathrm{T}} \mathbf{x} + b_j^{[1]} 
+\quad \text{where} \quad 
+\mathbf{w}_j^{[1]} \in \mathbb{R}^d, \; b_j^{[1]} \in \mathbb{R},
 ```
 
 ```math
-a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
+a_j = \mathrm{ReLU}(z_j), \text{or another type of activation function.}
 ```
 
 ```math
-b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
+\mathbf{a} = [a_1, \ldots, a_m]^{\mathrm{T}} \in \mathbb{R}^m,
 ```
 
-- An excellent explanation of Fourier series on [YouTube] (https://www.youtube.com/watch?v=r6sGWTCMz2k)
-
+```math
+h_\theta(\mathbf{x}) = \mathbf{w}^{[2] \, \mathrm{T}} \mathbf{a} + b^{[2]} 
+\quad \text{where} \quad 
+\mathbf{w}^{[2]} \in \mathbb{R}^m, \; b^{[2]} \in \mathbb{R}.
+```
 """
 
-
-# ╔═╡ f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
+# ╔═╡ d7e9e5ac-8d65-4d5d-9ae2-293fc1174eea
 md"""
-- We then have the following **Theorem**
-
-For every ``f(x) \in C^0[-\pi, \pi]``, the Fourier Series given above converge uniformly to ``f(x)``, such that 
+The training loss function:
 
 ```math
-f(x) = \lim_{N \to \infty} S_N(x)
+J(\mathbf{\theta}) = \frac{1}{N} \sum_{i=1}^{N} \left( h_{\mathbf{\theta}}(\mathbf{x}^{(i)}) - y^{(i)} \right)^2
 ```
-
-or
-
-```math
-f(x) \equiv \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big)
-```
-
-with coefficients
-
-```math
-a_0 = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\, dx
-```
-
-```math
-a_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx
-```
-
-```math
-b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(nx)\, dx
-```
-
----
-
-✓ **Notes:**
-
-* We can change intervals in ``x`` by simple linear coordinate transformation.
-* We can use complex exponential notation representation (Euler's formula):
-
-```math
-e^{i\theta} \equiv \cos\theta + i\sin\theta, \qquad i \equiv \sqrt{-1}
-```
-
-From this,
-
-```math
-\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}, 
-\qquad 
-\sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}
-```
-
 """
 
-
-# ╔═╡ 53689987-f6a6-4d29-9bb1-e77f8c4f6c27
+# ╔═╡ 9a646dbd-f1a2-4306-9d3e-2e39c619683d
 md"""
-
-``\cos(nx), \cos(mx), \sin(nx), \sin(mx)`` are linearly independent.
-
-Define an inner product by  
-``\langle g(x), h(x) \rangle = \int_{-\pi}^{\pi} g(x)h(x)\, dx``, then
-
-- ``\langle \cos(nx), \sin(mx) \rangle = 0, \ \forall n, m``
-- ``\langle \cos(nx), \cos(mx) \rangle = 0, \ \text{if } n \neq m``
-- ``\langle \cos(nx), \cos(mx) \rangle = \pi, \ \text{if } n = m``
-- ``\langle \sin(nx), \sin(mx) \rangle = 0, \ \text{if } n \neq m``
-- ``\langle \sin(nx), \sin(mx) \rangle = \pi, \ \text{if } n = m``
-
-
-Using the prior property we can compute ``a_n`` and ``b_n`` by
-
+If we apply gradient descent, at each iteration:
 ```math
-\langle f(x), \cos(nx) \rangle 
-= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \cos(nx) \Big\rangle
+\mathbf{\theta}_{k+1} = \mathbf{\theta}_k - \eta \nabla_\mathbf{\theta} J(\mathbf{\theta}_k)
 ```
+where:
 
-```math
-= \langle a_n \cos(nx), \cos(nx) \rangle = \pi a_n
-```
-
-
-```math
-\langle f(x), \sin(nx) \rangle 
-= \Big\langle \frac{a_0}{2} + \sum_{n=1}^{+\infty} \big( a_n \cos(nx) + b_n \sin(nx) \big), \sin(nx) \Big\rangle
-```
-
-```math
-= \langle b_n \sin(nx), \sin(nx) \rangle = \pi b_n
-```
-
-**Note:** ``a_n`` and ``b_n`` are constant here.
+* ``\eta`` = learning rate (step size),
+* ``\nabla_\mathbf{\theta} J(\mathbf{\theta}_k)`` = gradient of the loss function at current parameters.
 """
 
-
-# ╔═╡ 65debf88-458d-4452-be5b-f218e3117bd7
+# ╔═╡ 76e5995a-dab1-4615-a2b6-e38148ac17d1
 md"""
-Therefore:
-
-```math
-f(x) = \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left( a_n \frac{e^{inx} + e^{-inx}}{2} + b_n \frac{e^{inx} - e^{-inx}}{2i} \right)
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} + \frac{b_n}{2i}\right)e^{inx} + \left(\frac{a_n}{2} - \frac{b_n}{2i}\right)e^{-inx} \right]
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} \left[ \left(\frac{a_n}{2} - i\frac{b_n}{2}\right)e^{inx} + \left(\frac{a_n}{2} + i\frac{b_n}{2}\right)e^{-inx} \right]
-```
-
-```math
-= \frac{a_0}{2} + \sum_{n=1}^{+\infty} c_n e^{inx} + \sum_{n=-\infty}^{-1} c_n e^{inx}
-```
-
-```math
-= \sum_{n=-\infty}^{+\infty} c_n e^{inx}
-```
-
-```math
-\Rightarrow \quad f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{inx}, 
-\qquad c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi} f(x) e^{-inx}\, dx
-```
-
-**Note:**
-
-* ``e^{inx}`` and ``e^{imx}`` are linearly independent for ``n \neq m``.
-* ``c_n`` are also constant and can be computed in a similar way as ``a_n`` and ``b_n``.
-  """
-
-
-
-# ╔═╡ 2507bcf3-b0f4-4b31-881c-077b4711c261
-md"""
-- If instead, we have interval ``[-l, l]``
-
-```math
-f(x) = \sum_{n=-\infty}^{+\infty} c_n e^{i\sigma_n x}
-```
-
-```math
-\sigma_n = \frac{n\pi}{l} = \frac{2\pi}{L_n}
-```
-
-where ``\sigma_n`` is the wave number and ``L_n`` is the wave length. 
-
-* We can also use normalized functions ``\tfrac{\cos(nx)}{\sqrt{\pi}}, \tfrac{\sin(nx)}{\sqrt{\pi}}``, and observe that these form **orthonormal bases**.
-
-```math
-a_n \cos(nx) 
-= \left[ \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(nx)\, dx \right] \cos(nx)
-```
-
-```math
-= \frac{\cos(nx)}{\sqrt{\pi}} 
-   \left[ \int_{-\pi}^{\pi} \frac{f(x)\cos(nx)}{\sqrt{\pi}}\, dx \right]
-```
-
-Similarly for ``\sin(nx)``.
+**Question**: How do we compute ``\nabla_\mathbf{\theta}J(\mathbf{\theta}_k)``?
 """
 
-
-# ╔═╡ eef9bcab-9e8d-4af5-8029-daa9a8a8e747
+# ╔═╡ 9c2f142b-6174-4301-a8f5-3376d78660bf
 md"""
-### Stability for space-time problems
+#### Backpropagation
 
-✓ **Example:**
+1. Output layer:
+   ```math
+   \delta^{[2]} = \frac{\partial J}{\partial h_\theta} = (h_\theta(\mathbf{x}) - y)
+   ```
 
-```math
-\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
-```
+   ```math
+   \frac{\partial J}{\partial \mathbf{w}^{[2]}} = \frac{\partial J}{\partial h_\theta} \frac{\partial h_\theta}{\partial \mathbf{w}^{[2]}} =  \delta^{[2]} \mathbf{a}, \qquad
+   \frac{\partial J}{\partial b^{[2]}} = \frac{\partial J}{\partial h_\theta} \frac{\partial h_\theta}{\partial b^{[2]}} = \delta^{[2]}.
+   ```
 
-Finite difference approximation (assuming equal grid spacing):
+2. Hidden layer:
+   ```math
+   \delta_j^{[1]} = \frac{\partial J}{\partial z_j} = \frac{\partial J}{\partial h_\theta} \frac{\partial h_\theta}{\partial a_j} \frac{\partial a_j}{\partial z_j}
+   = \delta^{[2]} w_j^{[2]} g'(z_j),
+   ```
+   where ``g(z_j)`` is ``\mathrm{ReLU}(z_j)`` and ``g'(z_j) = 1`` if ``z_j>0`` and ``0`` otherwise.
+   ```math
+   \frac{\partial J}{\partial \mathbf{w}^{[1]}_j} = \frac{\partial J}{\partial z_j} \frac{\partial z_j}{\partial \mathbf{w}^{[1]}_j} = \delta_j^{[1]} \mathbf{x},
+   \qquad
+   \frac{\partial J}{\partial b^{[1]}_j} = \frac{\partial J}{\partial z_j} \frac{\partial z_j}{\partial b^{[1]}_j} =  \delta_j^{[1]}.
+   ```
 
-```math
-\frac{dU_i}{dt} - D \frac{U_{i-1} - 2U_i + U_{i+1}}{\Delta x^2} = 0
-```
-
-Proceed with FDA and discretize in time with forward Euler:
-
-```math
-\frac{U_i^{n+1} - U_i^n}{\Delta t} 
-- D \frac{U_{i-1}^n - 2U_i^n + U_{i+1}^n}{\Delta x^2} = 0
-```
-
-"""
-
-
-# ╔═╡ d64c6bb0-c387-494a-a0c6-6dbf385f43f0
-md"""
-```math
-U_i^{n+1} = U_i^n + \frac{D \Delta t}{\Delta x^2} \left( U_{i-1}^n - 2U_i^n + U_{i+1}^n \right)
-```
-
-**Fourier Stability Analysis**
-
-* Recall Fourier Series:
+3. Parameter Update Rule
 
 ```math
-f(x) = \sum_{k=-\infty}^{+\infty} c_k e^{i\sigma_k x},
+\mathbf{w}^{[2]} \leftarrow \mathbf{w}^{[2]} - \eta \frac{\partial J}{\partial \mathbf{w}^{[2]}},
 \qquad
-c_k = \frac{1}{2l} \int_{-l}^{l} f(x) e^{-i\sigma_k x}\, dx
+b^{[2]} \leftarrow b^{[2]} - \eta \frac{\partial J}{\partial b^{[2]}},
+```
+
+```math
+\mathbf{w}^{[1]}_j \leftarrow \mathbf{w}^{[1]}_j - \eta \frac{\partial J}{\partial \mathbf{w}^{[1]}_j},
+\qquad
+b^{[1]}_j \leftarrow b^{[1]}_j - \eta \frac{\partial J}{\partial b^{[1]}_j}.
 ```
 
 """
 
-
-# ╔═╡ 5fa6c7e4-8be0-4c78-8084-6a4ab81af890
+# ╔═╡ 20058299-981a-4adc-8ea3-9fcfc9268bc3
 md"""
-Represent initial condition (I.C.) by
-
-```math
-U^0 \sim \sum_k C_k^0 e^{i\sigma_k x}
-```
-
-I.C. is propagated by the FDA.
-The FDA is the same for each time step.
-The solution at any time ``t^n`` can be expanded using Fourier series.
-For linear operators, each component of the Fourier series is propagated independently.
-
-At ``t^0`` (initial condition):
-
-```math
-U^0 \sim \sum_k C_k^0 e^{i\sigma_k x}
-```
-
-At ``t^1 = t^0 + \Delta t``:
-
-```math
-U^1 \sim \sum_k C_k^1 e^{i\sigma_k x} 
-= \sum_k \frac{C_k^1}{C_k^0} C_k^0 e^{i\sigma_k x} 
-= \sum_k \lambda_k C_k^0 e^{i\sigma_k x}
-```
-
-At ``t^n``:
-
-```math
-U^n \sim \sum_k (\lambda_k)^n C_k^0 e^{i\sigma_k x}
-```
-
-For stability analysis, require ``|\lambda_k| \leq 1 \ \forall k``.
-
-```math
-\lambda_k \equiv \text{Amplification Factor}
-```
-
-"""
-
-
-# ╔═╡ 502b8378-6c74-410a-bf53-b5baa30c174c
-md"""
-### Example (FDA forward Euler, “classic explicit”)
-
-```math
-U_j^{n+1} = U_j^n + \frac{D \Delta t}{\Delta x^2} \big( U_{j-1}^n - 2U_j^n + U_{j+1}^n \big)
-```
-
-Let ``\mathcal{D} = \frac{D \Delta t}{\Delta x^2}`` is dimensionless diffusion coefficient.
-
-```math
-U_j^{n+1} = \mathcal{D} U_{j-1}^n + (1 - 2\mathcal{D}) U_j^n + \mathcal{D} U_{j+1}^n 
-\tag{1}
-```
-
-Substitute ``U_j^n = \sum_k (\lambda_k)^n C_k e^{i\sigma_k x_j} = \sum_k (\lambda_k)^n C_k e^{i\sigma_k j \Delta x}`` into (1):
-
-```math
-\Rightarrow (\lambda_k)^{n+1} C_k e^{i\sigma_k j \Delta x}
-= \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j-1)\Delta x}
-```
-
-```math
-+ (1 - 2\mathcal{D})(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}
-+ \mathcal{D} (\lambda_k)^n C_k e^{i\sigma_k (j+1)\Delta x}
-\tag{2}
-```
-
-Divide (2) by ``(\lambda_k)^n C_k e^{i\sigma_k j \Delta x}``:
-
-```math
-\Rightarrow \lambda_k 
-= \mathcal{D} e^{-i\sigma_k \Delta x} + (1 - 2 \mathcal{D}) + \mathcal{D} e^{i\sigma_k \Delta x}
-= \mathcal{D} \big( e^{-i\sigma_k \Delta x} + e^{i\sigma_k \Delta x} \big) + (1 - 2 \mathcal{D})
-```
-
-```math
-\Rightarrow \lambda_k = 2\mathcal{D} \cos(\sigma_k \Delta x) + (1 - 2\mathcal{D})
-```
-
-"""
-
-
-# ╔═╡ 781b8096-c19b-4257-af21-cba6248b0b5e
-md"""
-```math
-\lambda_k = 1 - 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) 
-= 1 - 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
-```
-
-**Stability requirement:** ``|\lambda_k| \leq 1 \ \Rightarrow\ -1 \leq \lambda_k \leq 1``
-(The right inequality is OK for any ``k``.)
-
-```math
-\Rightarrow \ 4\mathcal{D} \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right) \leq 2
-```
-
-```math
-\Rightarrow \ \mathcal{D} \leq \frac{1}{2 \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)}
-\qquad \text{(consider the most restrictive case).}
-```
-
-```math
-\Rightarrow \ \mathcal{D} \leq \frac{1}{2} \quad \text{(stability limit).}
-```
-
-```math
-\Rightarrow \ \mathcal{D} = \frac{D \Delta t}{\Delta x^2} \leq \frac{1}{2}
-```
-
-"""
-
-
-
-# ╔═╡ 78f02703-f3a3-43cc-a7d7-b573f6391506
-md"""
-### Other examples:
-
-- FDA backward Euler (“classic implicit”)
-
-- Perform stability analysis for variably weighted Euler:
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-- D \left[ 
-\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-+ (1 - \theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
-\right] = 0
-```
-
-* Richardson’s method:
-
-```math
-\frac{U_j^{n+1} - U_j^{n-1}}{2 \Delta t}
-- \frac{D}{\Delta x^2} \left( U_{j+1}^n - 2U_j^n + U_{j-1}^n \right) = 0
-```
-
-"""
-
-
-# ╔═╡ 8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
-md"""
-✓ **FDA backward Euler (“classic implicit”)**
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-= D \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-```
-
-where ``\mathcal{D} = \tfrac{D \Delta t}{\Delta x^2}``.
-
-Using Fourier series representation:
-
-```math
-U_j^n \sim (\lambda_k)^n e^{i\sigma_k j \Delta x}
-```
-
-Substitute into scheme:
-
-```math
-\lambda_k \left[ -\mathcal{D} e^{i\sigma_k \Delta x} + (1+2\mathcal{D}) - \mathcal{D} e^{-i\sigma_k \Delta x} \right] = 1
-```
-
-```math
-\lambda_k \left[ 1 + 2\mathcal{D}(1 - \cos(\sigma_k \Delta x)) \right] = 1
-```
-
-```math
-\lambda_k \left[ 1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \right] = 1
-```
-
-Thus,
-
-```math
-\lambda_k = \frac{1}{1 + 4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)}
-```
-
-Since ``|\lambda_k| \leq 1 \quad \forall k``, the scheme is **unconditionally stable**.
-"""
-
-
-
-# ╔═╡ 0423f4ff-6ab9-4014-9a67-c818c0564e7a
-md"""
-✓ **Variably weighted Euler**
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t}
-- D \left[
-\theta \frac{U_{j+1}^{n+1} - 2U_j^{n+1} + U_{j-1}^{n+1}}{\Delta x^2}
-+ (1-\theta) \frac{U_{j+1}^n - 2U_j^n + U_{j-1}^n}{\Delta x^2}
-\right] = 0
-```
-
-Substitute Fourier series representation, then divide by ``U_j^n``:
-
-```math
-\lambda_k = \frac{\tfrac{1}{\Delta t} + \tfrac{2\mathcal{D}}{\Delta x^2}(1-\theta)\big[\cos(\sigma_k \Delta x)-1\big]}
-{\tfrac{1}{\Delta t} - \tfrac{2\mathcal{D}}{\Delta x^2}\theta \big[\cos(\sigma_k \Delta x)-1\big]}
-= \frac{1 - 2\mathcal{D}(1-\theta)\big[1-\cos(\sigma_k \Delta x)\big]}
-{1 + 2\mathcal{D}\theta \big[1-\cos(\sigma_k \Delta x)\big]}
-```
+**Computational graph**
 
 ---
+"""
 
-Stability condition: ``|\lambda_k| \leq 1``
+# ╔═╡ 814e6940-7fbf-4563-952b-7b6065859683
+local img = LocalResource("./figs/mod10_NN_2_backprop.png",:width => "900pt")
 
-This leads to
+# ╔═╡ 5c42f3bc-50ab-4fe5-ac7e-ad8b76988fef
+md"""
+---
+The above formulation is for full gradient descent, how about **Mini-batch gradient descent**?
+
+At each step, compute the gradient over a small random subset (mini-batch) of the data:
+```math
+\theta_{k+1} = \theta_k - \eta \frac{1}{B} \sum_{i \in B} \nabla_\theta L_i(\theta_k)
+```
+where ``B`` = random batch, e.g., size 32, 64, etc.
+
+Per-sample loss:
 
 ```math
-2\mathcal{D}(1-2\theta) \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 1
+L_i(\theta) = \tfrac12(h_\theta(\mathbf{x}^{(i)}) - y^{(i)})^2.
 ```
 
-Hence the **stability limit** (most restrictive condition):
+The batch loss is
 
 ```math
-\mathcal{D}(1-2\theta) \leq \tfrac{1}{2}
+J_B(\theta) = \frac{1}{B}\sum_{i\in B} L_i(\theta).
+```
+
+**Per-sample gradients**
+
+Output layer:
+
+```math
+\delta^{[2](i)} = h_\theta(\mathbf{x}^{(i)}) - y^{(i)}.
+```
+
+Hidden layer:
+
+```math
+\delta_j^{[1](i)} = \delta^{[2](i)}\,w_j^{[2]}\,g'(z_j^{(i)}).
+```
+
+**Per-sample parameter gradients**
+
+```math
+\nabla_{\mathbf{w}^{[2]}}L_i = \mathbf{a}^{(i)}\,\delta^{[2](i)},\quad
+\nabla_{b^{[2]}}L_i = \delta^{[2](i)},
+```
+
+```math
+\nabla_{\mathbf{w}^{[1]}_j}L_i = \mathbf{x}^{(i)}\,\delta_j^{[1](i)},\quad
+\nabla_{b^{[1]}_j}L_i = \delta_j^{[1](i)}.
+```
+
+Gradients averaged over batch (B):
+
+```math
+\frac{1}{B}\sum_{i\in B}\nabla_{\mathbf{w}^{[2]}}L_i,\quad
+\frac{1}{B}\sum_{i\in B}\nabla_{b^{[2]}}L_i,
+```
+
+```math
+\frac{1}{B}\sum_{i\in B}\nabla_{\mathbf{w}^{[1]}_j}L_i,\quad
+\frac{1}{B}\sum_{i\in B}\nabla_{b^{[1]}_j}L_i.
+```
+
+Mini-batch gradient descent update:
+
+```math
+\theta_{k+1}
+= \theta_k
+- \eta\,\frac{1}{B}\sum_{i\in B}\nabla_\theta L_i(\theta_k).
+```
+
+That is,
+
+```math
+\mathbf{w}^{[2]} \leftarrow \mathbf{w}^{[2]} - \eta\,\frac{1}{B}\sum_{i\in B}\mathbf{a}^{(i)}\,\delta^{[2](i)},
+```
+
+```math
+b^{[2]} \leftarrow b^{[2]} - \eta\,\frac{1}{B}\sum_{i\in B}\delta^{[2](i)},
+```
+
+```math
+\mathbf{w}^{[1]}_j \leftarrow \mathbf{w}^{[1]}_j - \eta\,\frac{1}{B}\sum_{i\in B}\mathbf{x}^{(i)}\,\delta_j^{[1](i)},
+```
+
+```math
+b^{[1]}_j \leftarrow b^{[1]}_j - \eta\,\frac{1}{B}\sum_{i\in B}\delta_j^{[1](i)}.
 ```
 
 """
 
-# ╔═╡ 193d7395-f86a-4604-9d3c-a2f302a9185f
+# ╔═╡ 68bed2f9-57da-4775-bac2-03156cafec6e
 md"""
-- **Richardson’s method**
+**Question**: We can differentiate a two-layer network by hand, but what about a network with 100 layers or arbitrary operations?
+
+- Manually writing derivatives becomes impossible. Naïve finite differences are too slow and inaccurate.
+
+- Automatic differentiation (AD) gives you machine-precision exact derivatives for any code that can be written as a composition of differentiable operations.
+"""
+
+# ╔═╡ deaf674f-5df4-43f6-981e-7b85479db946
+md"""
+### Automatic differentiation
+"""
+
+# ╔═╡ 704c6a4c-9bb6-41cc-a476-b8509b6f7127
+md"""
+Three Approaches to Differentiation
+
+| Method | Example | Accuracy | Comments |
+|:--------|:--------|:----------|:----------|
+| **Symbolic** | Algebraic manipulation (`SymPy.jl`) | Exact | Can explode in expression size |
+| **Numerical** | Finite difference: $(f'(x) ≈ (f(x+h)-f(x))/h)$ | Approximate | Simple but noisy and unstable |
+| **Automatic** | Chain rule applied programmatically | Machine-precision exact | Used in ML and PDE optimization |
+
+"""
+
+# ╔═╡ 118ecc76-63f7-4389-a770-2e56fbdc4915
+md"""
+**Example**:
+
+``f(x) = x^2 * \sin(x)``
+
+Compute the ``f'(x)`` at ``x=x_0``
+
+"""
+
+# ╔═╡ a3a544e8-618e-473d-9f11-e3d9f81441a1
+md"""
+Compute the function value and the true derivative
+"""
+
+# ╔═╡ a4645f39-f87d-4f12-8192-cb9841dfb36d
+begin
+    f(x) = x^2 * sin(x)
+    df_true(x) = 2x*sin(x) + x^2*cos(x)
+    x0 = 2.0
+    f(x0), df_true(x0)
+end
+
+# ╔═╡ f821eaa0-9b2d-44fd-bc06-2670b315953e
+md"""
+Finite difference
+"""
+
+# ╔═╡ 34c50713-fa8b-4c8b-957b-c0d141408f21
+md"""
+Forward-mode AD derivative
+"""
+
+# ╔═╡ 706a56c0-1b9b-4ca7-8a04-e24078cf95c4
+md"""
+Reverse-mode AD derivative
+"""
+
+# ╔═╡ d4bf05a3-7d4d-4a5d-81f3-bf406f012e09
+md"""
+Comparing the three approaches
+"""
+
+# ╔═╡ dfb03136-aaea-4be0-a277-00234284e5f3
+md"""
+Both forward- and reverse-mode AD give **machine-precision accurate** derivatives. Finite differences have truncation and rounding error.
+"""
+
+# ╔═╡ edf1fdda-3635-4d7a-8fd1-4eb891fdb09e
+begin
+    # Function with d inputs -> scalar output
+    function g1(x::Vector)
+        sum(sin.(x.^2))  # smooth nonlinear function
+    end
+
+    xs = rand(1000)
+    @btime ForwardDiff.gradient(g1, xs)  # forward-mode
+    @btime Zygote.gradient(g1, xs)       # reverse-mode
+end
+
+# ╔═╡ 67c07cd5-79dc-49c2-9644-756a02678d0a
+md"""
+For large-dimensional inputs and scalar outputs (typical in neural networks), **reverse-mode AD** is far more efficient — this is why it is used in backpropagation.
+"""
+
+# ╔═╡ 770cd112-ab09-4f19-9d37-e71e42288ad3
+md"""
+#### Computational Graph
+
+For a simple function:
+```math
+x₁ = x,\quad
+x₂ = \sin(x₁),\quad
+x₃ = x₁ \times x₂,\quad
+y = \log(x₃)
+```
+"""
+
+# ╔═╡ f4c46d7d-e97a-4ced-9c86-74f11424a382
+begin
+    dot = """
+    digraph G {
+      x1 [label="x₁ = x"];
+      x2 [label="x₂ = sin(x₁)"];
+      x3 [label="x₃ = x₁ × x₂"];
+      y  [label="y = log(x₃)"];
+      x1 -> x2; x2 -> x3; x1 -> x3; x3 -> y;
+    }
+    """
+
+    # write DOT to a temp file
+    base = tempname()
+    dotfile = base * ".dot"
+    svgfile = base * ".svg"
+    open(dotfile, "w") do f; write(f, dot); end
+
+    # run graphviz: dot -Tsvg input.dot -o output.svg
+    run(`$(Graphviz_jll.dot()) -Tsvg $dotfile -o $svgfile`)
+
+    # display in Pluto
+    HTML(read(svgfile, String))
+end
+
+
+# ╔═╡ eae7314e-1902-4bf5-b60d-3b3e494fbbc9
+md"""
+AD builds this computational graph, stores intermediate results, and applies the chain rule backward to get derivatives efficiently.
+
+In neural networks, this graph corresponds to the layers and activations.
+"""
+
+# ╔═╡ 8e6d1006-1c4c-4a22-a325-98f7d2f79e33
+begin
+    # Simple 2-layer neural network using Zygote
+    σ(x) = max.(x, 0)  # ReLU
+    h(x, W1, b1, W2, b2) = W2 * σ.(W1 * x .+ b1) .+ b2
+    loss(W1, b1, W2, b2, x, y) = 0.5 * (h(x, W1, b1, W2, b2)[1] - y)^2
+
+    # Dimensions
+    W1 = randn(4, 2); b1 = randn(4)
+    W2 = randn(1, 4); b2 = randn(1)
+    x = randn(2); y = 1.0
+
+    # Define f to accept the same arguments you want gradients w.r.t.
+    f(W1, b1, W2, b2) = loss(W1, b1, W2, b2, x, y)
+
+    grads = Zygote.gradient(f, W1, b1, W2, b2)
+    grads
+end
+
+# ╔═╡ 781787d5-0745-4147-90e0-526a4cdb7d1c
+begin
+    local h = 1e-5
+    df_fd = (f(x0 + h) - f(x0 - h)) / (2h)
+    println("Finite difference ≈ $df_fd")
+end
+
+# ╔═╡ 5ef107f4-161c-48f5-b3e0-b733940a4ad5
+begin
+	df_forward = ForwardDiff.derivative(f, x0)
+	println("Forward-mode AD derivative = $df_forward")
+end
+
+# ╔═╡ 590a5b20-aa66-40c3-a9ce-e24bea246d92
+begin
+    local y, back = Zygote.pullback(f, x0)      # y is the primal output
+    g = back(1.0)                         # apply seed sensitivity (∂y/∂y = 1)
+    df_reverse = g[1]                     # gradient w.r.t. the first argument (x)
+
+    println("f(x0) = ", y)
+    println("Reverse-mode AD derivative = ", df_reverse)
+end
+
+# ╔═╡ bca35e00-80c6-4592-925d-c34425d10962
+begin
+    println("True derivative: ", df_true(x0))
+    println("Finite diff error: ", abs(df_fd - df_true(x0)))
+    println("Forward AD error: ", abs(df_forward - df_true(x0)))
+	println("Reverse AD error: ", abs(df_reverse - df_true(x0)))
+end
+
+# ╔═╡ 5f240efc-3b5c-4aeb-a728-6f57cc7697d0
+md"""
+| Mode | Direction | Cost scales with | Best for | Example |
+|:------|:-----------|:-----------------|:-----------|:-----------|
+| **Forward-mode** | inputs → outputs | #inputs | few inputs, many outputs | Jacobian-vector products |
+| **Reverse-mode** | outputs → inputs | #outputs | many inputs, few outputs | backpropagation |
+
+**Backpropagation = reverse-mode AD applied to neural networks.**
+"""
+
+# ╔═╡ 132a4e5a-8184-44fb-ac62-f90ebf601e82
+md"""
+#### AD and the adjoint-state method
+
+- PDE-constrained problem
+
+We’re solving:
+```math
+\min_{\theta, u} J(u,\theta)
+\quad \text{subject to} \quad F(u,\theta)=0,
+```
+where ``F(u,\theta)=0`` is the discretized PDE (e.g., ``A(\theta)u-b=0``).
+
+The complication: ``u`` and ``\theta`` are coupled by the PDE, so ``u=u(\theta)``.
+We want ``\frac{dJ}{d\theta} = \frac{\partial J}{\partial \theta} + \frac{\partial J}{\partial u} \frac{\partial u}{\partial \theta}``, but computing ``\frac{\partial u}{\partial \theta}`` is expensive.
+
+- Introduce the Lagrangian
+
+Define the **Lagrangian functional**:
+```math
+\mathcal{L}(u,\theta,\lambda)
+= J(u,\theta) - \lambda^{\top} F(u,\theta),
+```
+where ``\lambda`` is a vector of Lagrange multipliers (the *adjoint variables*).
+
+At the optimum, variations of ``\mathcal{L}`` with respect to all variables must vanish:
+```math
+\frac{\partial \mathcal{L}}{\partial u}=0,\qquad
+\frac{\partial \mathcal{L}}{\partial \lambda}=0,\qquad
+\frac{\partial \mathcal{L}}{\partial \theta}=0.
+```
+
+- Variation with respect to ``\lambda``: forward equation
 
 ```math
-\frac{U_j^{n+1} - U_j^{n-1}}{2\Delta t}
-- \frac{D}{\Delta x^2}\left(U_{j+1}^n - 2U_j^n + U_{j-1}^n\right) = 0
+\frac{\partial \mathcal{L}}{\partial \lambda}
+= -F(u,\theta) = 0,
+```
+which simply **recovers the PDE constraint** ``F(u,\theta)=0``.
+This is your **forward (state) equation**.
+
+- Variation with respect to ``u``: adjoint equation
+
+Now take the variation with respect to ``u``:
+```math
+\frac{\partial \mathcal{L}}{\partial u}
+= \frac{\partial J}{\partial u}
+
+* \lambda^{\top} \frac{\partial F}{\partial u}
+  = 0.
 ```
 
 Rearranging:
-
 ```math
-U_j^{n+1} = 2\mathcal{D}\big(U_{j+1}^n - 2U_j^n + U_{j-1}^n\big) + U_j^{n-1}
+\boxed{
+\left(\frac{\partial F}{\partial u}\right)^{\top}\lambda
+= \frac{\partial J}{\partial u}.
+}
 ```
 
-Substituting Fourier series representation gives
+This is the **adjoint equation**.
+It ensures that all dependence of ``u`` on ``\theta`` is captured via ``\lambda``, so we don’t need to compute ``\frac{\partial u}{\partial \theta}`` explicitly.
 
+- Variation with respect to ``\theta``: gradient equation
+
+Next, vary the Lagrangian with respect to the parameters:
 ```math
-\lambda_k^2 = 2\mathcal{D} \lambda_k \left[2\cos(\sigma_k \Delta x) - 2\right] + 1
+\frac{\partial \mathcal{L}}{\partial \theta}
+= \frac{\partial J}{\partial \theta}
+
+* \lambda^{\top}\frac{\partial F}{\partial \theta}.
 ```
 
-which leads to
-
+Since ``u`` and ``\lambda`` already satisfy their respective equations,
+this gives the **gradient** used in optimization:
 ```math
-\lambda_k = -4\mathcal{D} \sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right)
-\;\; \pm \;\;
-\sqrt{\,16\mathcal{D}^2 \sin^4\!\left(\tfrac{\sigma_k \Delta x}{2}\right) + 1}
+\boxed{
+\nabla_\theta J =
+\frac{\partial J}{\partial \theta}
+
+* \lambda^{\top} \frac{\partial F}{\partial \theta}.
+  }
 ```
 
-Since for most ``k`` values the condition ``|\lambda_k| \leq 1`` fails (except in the trivial case ``\sin(\tfrac{\sigma_k \Delta x}{2})=0``),
-Richardson’s method is **unconditionally unstable.**
+- Interpretation
+
+* ``F(u,\theta)=0`` → **forward PDE** (solve for state ``u``);
+* ``(\partial F/\partial u)^{\top}\lambda = \partial J/\partial u`` → **adjoint PDE** (solve for adjoint (\lambda));
+* Then plug into the gradient formula to get (\nabla_\theta J).
+
+- Intuitive analogy
+
+Think of the adjoint equation as the **reverse pass** in backpropagation:
+
+* Forward: compute the PDE solution ``u``.
+* Reverse: propagate “sensitivities” (the effect of ``u`` on ``J``) backward through the PDE operator.
+* That backward propagation is mathematically expressed as solving
+  ``(\partial F/\partial u)^{\top}\lambda = \partial J/\partial u``.
 
 """
 
-
-# ╔═╡ 8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
+# ╔═╡ 1eebe5fd-75a2-411d-830a-091cbf769cdf
 md"""
-### Why does each component of the Fourier series propagate independently?
+#### Summary
 
-- ``C_k`` only depends on time (not space ``x``), we can let  
+- AD = *the chain rule turned into an algorithm*.
+- Forward-mode → efficient for few inputs, many outputs.  
+- Reverse-mode → efficient for many inputs, one scalar output (e.g., loss).
+- Backpropagation = reverse-mode AD specialized for neural networks.
+- Reverse-mode AD = adjoint-state method in PDE-constrained optimization.
 
-```math
-u(t,x) = \sum_k C_k(t) e^{i\sigma_k x}.
-```
-
-Then,
-
-```math
-0 = \frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} 
-= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
-  - D \sum_k C_k(t) \frac{\partial^2}{\partial x^2} \big( e^{i\sigma_k x} \big)
-```
-
-```math
-= \sum_k \frac{\partial C_k(t)}{\partial t} e^{i\sigma_k x} 
-  - D \sum_k C_k(t) (i\sigma_k)^2 e^{i\sigma_k x}
-```
-
-```math
-= \sum_k \left[ \frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 \right] e^{i\sigma_k x}
-```
-
-* ``e^{i\sigma_n x}`` and ``e^{i\sigma_m x}`` are linearly independent for ``n \neq m``.
-
-Thus,
-
-```math
-\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0
-\quad 
-\tag{1}
-```
-
-Observe that Equation (1) is an ordinary differential equation (ODE) for $C_k(t)$.
-
-* Let ``g(t,x) = C_k(t)e^{i\sigma_k x}``, which is the ``k^{\text{th}}`` component of the Fourier series.
-  Then (1) is equivalent to
-
-```math
-\frac{\partial g}{\partial t} - D \frac{\partial^2 g}{\partial x^2} = 0
-```
-
-*Insights*:
-- Each Fourier component ``C_k(t)e^{i\sigma_k x}`` evolves according to the same PDE structure but independently.
-- There is no coupling between different Fourier components, because the exponential basis functions are independent.
-
-"""
-
-
-# ╔═╡ d79ea06f-b582-4c1b-9e05-4ee273e6ec10
-md"""
-### Why is ``\lambda_k`` constant?
-
-- We can obtain the following equation for ``C_k(t)``,  
-
-```math
-\frac{\partial C_k(t)}{\partial t} - D C_k(t)(i\sigma_k)^2 = 0 
-   \;\;\;\;\;\; \Rightarrow \;\;\;\;\;\; 
-   \frac{\partial C_k}{\partial t} = -D \sigma_k^2 C_k
-```
-
-```math
-\Rightarrow \; C_k = A e^{-D\sigma_k^2 t} \quad \text{where A is a constant}
-```
-
-```math
-\Rightarrow \; \lambda_k = \frac{C_k(t+\Delta t)}{C_k(t)} 
-= \frac{A e^{-D\sigma_k^2 (t+\Delta t)}}{A e^{-D\sigma_k^2 t}} 
-= e^{-D\sigma_k^2 \Delta t}
-```
-
-"""
-
-# ╔═╡ 12934380-24d0-45f5-9ca3-1823cef69f23
-md"""
-### Summary of Fourier stability analysis
-
-- Represent the initial condition 
-
-- Marching in time, the amplification factor ``\lambda_k`` is constant  
-
-- Require ``|\lambda_k| \leq 1`` for stability  
-
-- Applies to PDEs with linear coefficients and periodic boundary conditions; equal grid spacing.  
-
-- Comment on Fourier stability analysis vs. matrix stability analysis: Matrix stability analysis applies to essentially any complications including different boundary conditions, unequal grid spacing, non-constant coefficients. However, one has to compute eigenvalues of the matrix, which can be a nontrivial task. Furthermore, the matrix has to be a normal matrix (i.e., eigenvectors are orthogonal). Fourier stability analysis applies to linear equation with periodic boundary conditions.
-
-"""
-
-# ╔═╡ 3aa09a14-a115-4a8d-8b9a-36c682639652
-md"""
-### Accuracy: “overstability”
-
-✓ Analytical behavior of solution  
-
-Let
-
-```math
-u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
-```
-
-Substitute into the PDE:
-
-```math
-\frac{\partial u}{\partial t} - D \frac{\partial^2 u}{\partial x^2} = 0
-\;\;\;\Rightarrow\;\;\;
-\sum_k \left( \frac{d\Lambda_k}{dt} - D\Lambda_k(-\sigma_k^2) \right) e^{i\sigma_k x} = 0
-```
-
-Because ``e^{i\sigma_k x}`` are linearly independent,
-
-```math
-\frac{d\Lambda_k}{dt} + D\sigma_k^2 \Lambda_k = 0
-```
-
-Solution for coefficients:
-
-```math
-\Lambda_k = C_k e^{-D\sigma_k^2 t}, 
-\qquad \text{where $C_k$ is set by the initial condition.}
-```
-
-Thus,
-
-```math
-u(x,t) = \sum_k C_k e^{-D\sigma_k^2 t} e^{i\sigma_k x}
-```
-
-Over one time step ``\Delta t``:
-
-```math
-\frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
-= \frac{C_k e^{-D\sigma_k^2 (t+\Delta t)}}{C_k e^{-D\sigma_k^2 t}}
-= e^{-D\sigma_k^2 \Delta t}
-\equiv \lambda_k^A
-```
-
-Here, ``\lambda_k^A`` is the **analytical amplification factor**.
-"""
-
-
-# ╔═╡ 0b27e42d-6505-4afc-979d-9d73685af241
-md"""
-✓ Amplitude Ratio  
-
-```math
-R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
-```
-
-where ``\lambda_k^N`` is the **numerical amplitude factor**.
-
-* For stability, require ``|\lambda_k^N| \leq 1``
-* For accuracy, require ``\lambda_k^N \approx \lambda_k^A \;\;\Rightarrow\;\; R_k \approx 1``
-
-
-**Quick example: Forward Euler**
-
-```math
-\lambda^N = 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\sigma_k \Delta x}{2}\right)
-```
-
-```math
-= 1 - 4\mathcal{D} \, \sin^2\!\left(\frac{\pi}{L_k / \Delta x}\right)
-```
-
-while the analytical amplification factor is
-
-```math
-\lambda^A = e^{-D \sigma_k^2 \Delta t}
-= e^{-\mathcal{D} \Delta x^2 \left(\frac{2\pi}{L_k}\right)^2}
-= e^{-\mathcal{D} \frac{4\pi^2}{(L_k / \Delta x)^2}}
-```
-
-Parameters:
-
-```math
-\sigma_k = \frac{2\pi}{L_k}, \qquad \mathcal{D} = \frac{D \Delta t}{\Delta x^2}
-```
-
-The plot below illustrates
-
-```math
-R_k \equiv \frac{|\lambda_k^N|}{|\lambda_k^A|}
-```
-
-as a function of the wavelength ratio ``L_k / \Delta x``.
-
-Takeway: The Forward Euler scheme may damp too aggressively for high-frequency Fourier components.
-
-```math
-u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty}
-\left[
-\left(a_k e^{-D\sigma_k^2 t}\right)\cos(\sigma_k x)
-+ \left(b_k e^{-D\sigma_k^2 t}\right)\sin(\sigma_k x)
-\right]
-```
-
-"""
-
-
-# ╔═╡ f4d2afbe-3346-4760-86eb-98692a8e76e0
-begin
-    # Assumptions:
-    #  - q = L_k/Δx is an integer (# grid points per wavelength), q ∈ {2, …, N-1}
-    #  - 𝒟 = DΔt/Δx^2 (diffusion Courant number for Forward Euler), must satisfy 𝒟 ≤ 1/2 for stability
-    N  = 20                # number of grid points (sets the right end of the q-axis)
-    𝒟  = 0.3                # choose any value ≤ 0.5; adjust to see the behavior
-
-    q  = 2:N-1              # q = L_k/Δx
-    λN = 1 .- 4*𝒟 .* sin.(π ./ q).^2
-    λA = exp.(-4π^2*𝒟 ./ q.^2)
-
-    R  = abs.(λN) ./ abs.(λA)
-
-    p = plot(q, R,
-             xlabel=L"L_k/Δx",
-             ylabel=L"R_k = |λ^N| / |λ^A|",
-             legend=false,
-			 linewidth=2)
-    hline!(p, [1.0], linestyle=:dash,linewidth=2)  # reference line at 1
-    xlims!(2, N-1)
-    p
-end
-
-# ╔═╡ d369d7ca-e282-4199-9da8-b557533a03e0
-md"""
-✓ Consider another example: **pure advection**
-
-```math
-\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
-```
-
-FDA: Forward-in-time, Backward-in-space (FTBS)
-
-```math
-\frac{U_j^{n+1} - U_j^n}{\Delta t} 
-+ V \frac{U_j^n - U_{j-1}^n}{\Delta x} = 0
-```
-
-which gives
-
-```math
-U_j^{n+1} = U_j^n - \frac{V \Delta t}{\Delta x}(U_j^n - U_{j-1}^n)
-= (1-\nu) U_j^n + \nu U_{j-1}^n
-```
-
-where the **Courant number** is defined as
-
-```math
-\nu = \frac{V \Delta t}{\Delta x}.
-```
-
-Fourier series representation:
-
-Let
-
-```math
-U_j^n \sim \lambda_k^n e^{i \sigma_k j \Delta x}.
-```
-
-Substitute into the scheme:
-
-```math
-\lambda_k e^{i \sigma_k j \Delta x}
-= (1-\nu)\lambda_k^n e^{i\sigma_k j \Delta x}
-+ \nu \lambda_k^n e^{i \sigma_k (j-1)\Delta x}.
-```
-
----
-
-**Dimensionless groups:**
-
-- Peclet number: ``Pe^G = \dfrac{V \Delta t}{D}``
-- Diffusion number: ``\mathcal{D} = \dfrac{D \Delta t}{\Delta x^2}``
-- Courant number: ``\nu = \dfrac{V \Delta t}{\Delta x}``
-
-"""
-
-
-
-# ╔═╡ f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
-md"""
-```math
-\lambda_k^N = 1 - \nu + \nu e^{-i\sigma_k \Delta x}
-             = (1 - \nu + \nu \cos\sigma_k \Delta x) - i \nu \sin\sigma_k \Delta x
-```
-
-For stability, we require:
-
-```math
-|\lambda_k^N| \leq 1
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-(1 - \nu + \nu \cos\sigma_k \Delta x)^2 + \nu^2 \sin^2\sigma_k \Delta x \leq 1
-```
-
-Expanding:
-
-```math
-(1 - 2\nu) + \nu^2 + 2\nu(1 - \nu)\cos\sigma_k \Delta x + \nu^2 \leq 1
-```
-
-Simplify:
-
-```math
--2\nu(1 - \nu)\, 2\sin^2\!\left(\tfrac{\sigma_k \Delta x}{2}\right) \leq 0
-```
-
-Thus:
-
-```math
-1 - \nu \geq 0 
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-\nu \leq 1
-\;\;\;\;\;\; \Rightarrow \;\;\;\;\;\;
-\frac{V \Delta t}{\Delta x} \leq 1 \quad \text{(stability limit).}
-```
-
-"""
-
-# ╔═╡ cbe3b676-d2e0-445d-9f31-998d87456407
-md"""
-#### Exact amplification factor for advection
-
-We expand the solution as a Fourier series:
-
-```math
-u(x,t) = \sum_k \Lambda_k(t) e^{i\sigma_k x}
-```
-
-From the advection equation:
-
-```math
-\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} = 0
-```
-
-we obtain:
-
-```math
-\left(\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k\right) e^{i\sigma_k x} = 0
-```
-
-Thus:
-
-```math
-\frac{d\Lambda_k}{dt} + i V \sigma_k \Lambda_k = 0
-\;\;\;\;\Rightarrow\;\;\;\;
-\Lambda_k = C_k e^{-iV\sigma_k t}
-```
-
-Therefore, the exact amplification factor is:
-
-```math
-\lambda_k^A = \frac{\Lambda_k(t+\Delta t)}{\Lambda_k(t)}
-             = e^{-iV\sigma_k \Delta t}
-```
-
-and:
-
-```math
-|\lambda_k^A| = 1
-```
-
-So the solution is a **pure translation** of the initial wave without decay:
-
-```math
-u(x,t) = \frac{a_0}{2} + \sum_{k=1}^{\infty} 
-         \left[a_k \cos\!\big(\sigma_k(x - V t)\big) + 
-               b_k \sin\!\big(\sigma_k(x - V t)\big)\right]
-```
-
-**Interpretation:**
-The solution preserves its magnitude; it simply shifts in space with speed ``V``.
-
-
-
-"""
-
-# ╔═╡ fecd9584-27b3-4b43-b03f-d85133590885
-md"""
-#### Numerical Solutions of CTCS vs. FTBS (for advection equation)
-"""
-
-# ╔═╡ 7eca15e1-3e2d-4a3a-892c-a3ba2e2b35ea
-local img = LocalResource("./figs/mod6_amplitude_ratio_CTCS_FTBS.png", :width => "600px")
-
-# ╔═╡ 74367285-422c-4e24-84bc-c00250f2640f
-local img = LocalResource("./figs/mod6_FTBS_CTCS.png", :width => "1000px")
-
-# ╔═╡ 49964af9-602c-4845-88a2-1e1de4e0c15f
-md"""
-#### Analysis of phase behavior
-"""
-
-# ╔═╡ 45fb0d18-72da-4989-aa68-2107f04b2b1e
-local img = LocalResource("./figs/mod6_phase.png", :width => "300px")
-
-# ╔═╡ 5370c9f1-f048-4b96-bcc2-117b4233b5e7
-md"""
-
-``\Phi_k`` = (Angle of) phase change over one time step ``\Delta t``
-
-```math
-\Phi_k^A = \tan^{-1}\!\left(\frac{\operatorname{Im}\lambda_k^A}{\operatorname{Re}\lambda_k^A}\right)
-= \tan^{-1}\!\left[\frac{\sin(-V \sigma_k \Delta t)}{\cos(-V \sigma_k \Delta t)}\right]
-```
-
-```math
-\begin{aligned}
-&= -V \sigma_k \Delta t \\
-&= -\sigma_k (V \Delta t) = -\sigma_k (\nu \Delta x) \\
-&= -\nu \frac{2\pi}{L_k} \Delta x = -\nu \frac{2\pi}{L_k / \Delta x}
-\end{aligned}
-```
-
-"""
-
-
-# ╔═╡ f3538435-fe99-402a-a79b-7deed244e226
-md"""
-Perform analogous analysis for $\Phi_k^N$
-
-*Example: FTBS*
-
-```math
-\tan \Phi_k^N = \frac{\operatorname{Im}\lambda_k^N}{\operatorname{Re}\lambda_k^N}
-= \frac{-\nu \sin\!\left(\frac{2\pi}{L_k / \Delta x}\right)}
-{1 - \nu + \nu \cos\!\left(\frac{2\pi}{L_k / \Delta x}\right)}
-```
-
-Error measures
-
-- Phase ratio
-
-```math
-\Gamma_k = \frac{\Phi_k^N}{\Phi_k^A}
-```
-
-- Phase error
-
-Let $M_k^A =$ number of time steps required for the analytical wave to go through $2\pi$.
-
-```math
-\Gamma_k' = M_k^A \Phi_k^N - M_k^A \Phi_k^A = M_k^A \Phi_k^N - 2\pi
-```
-"""
-
-
-# ╔═╡ 2e3677d7-cabb-4994-924b-a591b7ae5494
-local img = LocalResource("./figs/mod6_phase_error_CTCS_FTBS.png", :width => "700px")
-
-# ╔═╡ 3e0c9359-9a16-4d1f-a9e4-826fcd0e7956
-md"""
-The oscillatory behavior in CTCS is due to phase error.
-FTBS (𝜈=0.75, 0.25) is stable, but could have oscillations (depending on the strength of its damping characteristics).
-"""
-
-# ╔═╡ 5dc2c268-72ca-44d8-9372-ef59b5a10a30
-md"""
-**Numerical Solution of CTCS for a Gaussian Initial Condition** (6 Δ𝑥 vs. 20 Δ𝑥)
-
-Initial condition spanning 6 Δ𝑥:
-- Initial condition is “steep”.
-- Oscillatory behavior due to phase error.
-
-Initial condition spanning 20 Δ𝑥:
-- Initial condition is less “steep”.
-- Essentially no oscillation at this time.
-- Phase error will eventually produce oscillatory behavior (no matter how fine the spatial discretization)
-
-"""
-
-# ╔═╡ 538d3b80-0020-4fd5-b0be-4a9f62dbb6fa
-local img = LocalResource("./figs/mod6_CTCS_Gaussian.png", :width => "800px")
-
-# ╔═╡ 7e070235-ca89-4518-9134-2d33db094445
-md"""
-### Advection–Diffusion Equation
-
-```math
-\frac{\partial u}{\partial t} + V \frac{\partial u}{\partial x} - D \frac{\partial^2 u}{\partial x^2} = 0
-```
-
-Evolution of a Fourier component
-
-```math
-\Lambda_k(t) = \Lambda_k(0)\, e^{(-i V k - D k^2)t}
-```
-
-Amplification factor over one timestep ``\Delta t``:
-
-```math
-\lambda_k^A = \frac{\Lambda_k(t + \Delta t)}{\Lambda_k(t)} = e^{-i V k \Delta t} e^{-D k^2 \Delta t}
-```
-
-Magnitude and Phase
-
-```math
-|\lambda_k^A| = e^{-D k^2 \Delta t}
-```
-
-```math
-|\Phi_k^A| = \tan^{-1}\!\left[
-  \frac{e^{-D k^2 \Delta t}(-\sin(V k \Delta t))}{
-        e^{-D k^2 \Delta t}\cos(V k \Delta t)}
-\right]
-```
-
-```math
-= -V \sigma_k \Delta t = -\nu \frac{2\pi}{L_k / \Delta x}
-```
-
-"""
-
-
-# ╔═╡ d829961b-1d3b-4c77-8c97-6687077777ac
-local img = LocalResource("./figs/mod6_phase_diagram_ADE.png", :width => "400px")
-
-# ╔═╡ bfe29afa-3a34-4b8c-9da2-b6cc21f9d6bd
-md"""
-
-**Visualization in the complex plane**
-
-* The dashed circle (radius 1) corresponds to (``D = 0`` ) (pure advection, no damping).
-* The inner solid curve shows ( ``D > 0`` ), i.e., diffusion damping (``|\lambda_k^A| < 1``).
-* The phase angle ( ``\Phi_k^A`` ) represents advection, while the magnitude decay represents diffusion.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+GraphViz = "f526b714-d49f-11e8-06ff-31ed36ee7ee0"
+Graphviz_jll = "3c863552-8265-54e4-a6dc-903eb78fde85"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+BenchmarkTools = "~1.6.2"
+ForwardDiff = "~1.2.2"
+GraphViz = "~0.2.0"
+Graphviz_jll = "~2.50.0"
 LaTeXStrings = "~1.4.0"
-Plots = "~1.40.18"
-PlutoUI = "~0.7.70"
+Plots = "~1.40.20"
+PlutoUI = "~0.7.72"
+Zygote = "~0.7.10"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1064,13 +554,38 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.0"
 manifest_format = "2.0"
-project_hash = "658154e80cefb47ae03493c52db596ebd6b96784"
+project_hash = "f871611dc31cbf36485aaf3891efe5b300c7025b"
+
+[[deps.AbstractFFTs]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "d92ad398961a3ed262d8bf04a1a2b8340f915fef"
+uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+version = "1.5.0"
+weakdeps = ["ChainRulesCore", "Test"]
+
+    [deps.AbstractFFTs.extensions]
+    AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
+    AbstractFFTsTestExt = "Test"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
 git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.2"
+
+[[deps.Adapt]]
+deps = ["LinearAlgebra", "Requires"]
+git-tree-sha1 = "7e35fca2bdfba44d797c53dfe63a51fabf39bfc0"
+uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+version = "4.4.0"
+
+    [deps.Adapt.extensions]
+    AdaptSparseArraysExt = "SparseArrays"
+    AdaptStaticArraysExt = "StaticArrays"
+
+    [deps.Adapt.weakdeps]
+    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -1090,6 +605,12 @@ version = "1.11.0"
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 version = "1.11.0"
 
+[[deps.BenchmarkTools]]
+deps = ["Compat", "JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
+git-tree-sha1 = "67797b8a2ab55dcfcd19529454e5d53669b1350c"
+uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+version = "1.6.2"
+
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
@@ -1107,6 +628,22 @@ git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.5+0"
 
+[[deps.ChainRules]]
+deps = ["Adapt", "ChainRulesCore", "Compat", "Distributed", "GPUArraysCore", "IrrationalConstants", "LinearAlgebra", "Random", "RealDot", "SparseArrays", "SparseInverseSubset", "Statistics", "StructArrays", "SuiteSparse"]
+git-tree-sha1 = "3b704353e517a957323bd3ac70fa7b669b5f48d4"
+uuid = "082447d4-558c-5d27-93f4-14fc19e9eca2"
+version = "1.72.6"
+
+[[deps.ChainRulesCore]]
+deps = ["Compat", "LinearAlgebra"]
+git-tree-sha1 = "e4c6a16e77171a5f5e25e9646617ab1c276c5607"
+uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+version = "1.26.0"
+weakdeps = ["SparseArrays"]
+
+    [deps.ChainRulesCore.extensions]
+    ChainRulesCoreSparseArraysExt = "SparseArrays"
+
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "962834c22b66e32aa10f7611c08c8ca4e20749a9"
@@ -1115,9 +652,9 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
+git-tree-sha1 = "b0fd3f56fa442f81e0a47815c92245acfaaa4e34"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.30.0"
+version = "3.31.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -1134,18 +671,32 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.11.0"
+weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
     SpecialFunctionsExt = "SpecialFunctions"
-
-    [deps.ColorVectorSpace.weakdeps]
-    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
+
+[[deps.CommonSubexpressions]]
+deps = ["MacroTools"]
+git-tree-sha1 = "cda2cfaebb4be89c9084adaca7dd7333369715c5"
+uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
+version = "0.3.1"
+
+[[deps.Compat]]
+deps = ["TOML", "UUIDs"]
+git-tree-sha1 = "9d8a54ce4b17aa5bdce0ea5c34bc5e7c340d16ad"
+uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
+version = "4.18.1"
+weakdeps = ["Dates", "LinearAlgebra"]
+
+    [deps.Compat.extensions]
+    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1157,6 +708,21 @@ deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "d9d26935a0bcffc87d2613ce14c527c99fc543fd"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
+
+[[deps.ConstructionBase]]
+git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
+uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+version = "1.6.0"
+
+    [deps.ConstructionBase.extensions]
+    ConstructionBaseIntervalSetsExt = "IntervalSets"
+    ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
+    ConstructionBaseStaticArraysExt = "StaticArrays"
+
+    [deps.ConstructionBase.weakdeps]
+    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -1170,9 +736,14 @@ version = "1.16.0"
 
 [[deps.DataStructures]]
 deps = ["OrderedCollections"]
-git-tree-sha1 = "76b3b7c3925d943edf158ddb7f693ba54eb297a5"
+git-tree-sha1 = "6c72198e6a101cccdd4c9731d3985e904ba26037"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.19.0"
+version = "0.19.1"
+
+[[deps.DataValueInterfaces]]
+git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
+uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
+version = "1.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -1190,6 +761,23 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
+
+[[deps.DiffResults]]
+deps = ["StaticArraysCore"]
+git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
+uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
+version = "1.1.0"
+
+[[deps.DiffRules]]
+deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
+git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
+uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
+version = "1.15.1"
+
+[[deps.Distributed]]
+deps = ["Random", "Serialization", "Sockets"]
+uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.DocStringExtensions]]
 git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
@@ -1215,9 +803,9 @@ version = "0.1.11"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
+git-tree-sha1 = "7bb1361afdb33c7f2b085aa49ea8fe1b0fb14e58"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.6.5+0"
+version = "2.7.1+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -1231,9 +819,35 @@ git-tree-sha1 = "3a948313e7a41eb1db7a1e733e6335f17b4ab3c4"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "7.1.1+0"
 
+[[deps.FileIO]]
+deps = ["Pkg", "Requires", "UUIDs"]
+git-tree-sha1 = "d60eb76f37d7e5a40cc2e7c36974d864b82dc802"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.17.1"
+weakdeps = ["HTTP"]
+
+    [deps.FileIO.extensions]
+    HTTPExt = "HTTP"
+
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 version = "1.11.0"
+
+[[deps.FillArrays]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "173e4d8f14230a7523ae11b9a3fa9edb3e0efd78"
+uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
+version = "1.14.0"
+
+    [deps.FillArrays.extensions]
+    FillArraysPDMatsExt = "PDMats"
+    FillArraysSparseArraysExt = "SparseArrays"
+    FillArraysStatisticsExt = "Statistics"
+
+    [deps.FillArrays.weakdeps]
+    PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
+    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -1243,14 +857,26 @@ version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
-git-tree-sha1 = "301b5d5d731a0654825f1f2e906990f7141a106b"
+git-tree-sha1 = "f85dac9a96a01087df6e3a749840015a0ca3817d"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.16.0+0"
+version = "2.17.1+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
+
+[[deps.ForwardDiff]]
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
+git-tree-sha1 = "ba6ce081425d0afb2bedd00d9884464f764a9225"
+uuid = "f6369f11-7733-5829-9624-2563aa707210"
+version = "1.2.2"
+
+    [deps.ForwardDiff.extensions]
+    ForwardDiffStaticArraysExt = "StaticArrays"
+
+    [deps.ForwardDiff.weakdeps]
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -1270,6 +896,12 @@ git-tree-sha1 = "fcb0584ff34e25155876418979d4c8971243bb89"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.4.0+2"
 
+[[deps.GPUArraysCore]]
+deps = ["Adapt"]
+git-tree-sha1 = "83cf05ab16a73219e5f6bd1bdfa9848fa24ac627"
+uuid = "46192b85-c4d5-4398-a991-12ede77f4527"
+version = "0.2.0"
+
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
 git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
@@ -1288,17 +920,35 @@ git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
 uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
 version = "0.22.4+0"
 
+[[deps.Ghostscript_jll]]
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Zlib_jll"]
+git-tree-sha1 = "38044a04637976140074d0b0621c1edf0eb531fd"
+uuid = "61579ee1-b43e-5ca0-a5da-69d92c66a64b"
+version = "9.55.1+0"
+
 [[deps.Glib_jll]]
 deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
+git-tree-sha1 = "50c11ffab2a3d50192a228c313f05b5b5dc5acb2"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.84.3+0"
+version = "2.86.0+0"
+
+[[deps.GraphViz]]
+deps = ["FileIO", "Graphviz_jll", "Requires"]
+git-tree-sha1 = "da5580b236c5b6bb634e96ca35dcd7eaeeac1bd1"
+uuid = "f526b714-d49f-11e8-06ff-31ed36ee7ee0"
+version = "0.2.0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "8a6dbda1fd736d60cc477d99f2e7a042acfa46e8"
 uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
 version = "1.3.15+0"
+
+[[deps.Graphviz_jll]]
+deps = ["Artifacts", "Cairo_jll", "Expat_jll", "JLLWrappers", "Libdl", "Pango_jll", "Pkg"]
+git-tree-sha1 = "a5d45833dda71048117e8a9828bef75c03b18b1c"
+uuid = "3c863552-8265-54e4-a6dc-903eb78fde85"
+version = "2.50.0+1"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -1307,9 +957,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
+git-tree-sha1 = "5e6fe50ae7f23d171f44e311c2960294aaa0beb5"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.17"
+version = "1.10.19"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
@@ -1335,15 +985,26 @@ git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.5"
 
+[[deps.IRTools]]
+deps = ["InteractiveUtils", "MacroTools"]
+git-tree-sha1 = "57e9ce6cf68d0abf5cb6b3b4abf9bedf05c939c0"
+uuid = "7869d1d1-7146-5819-86e3-90919afe41df"
+version = "0.4.15"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 version = "1.11.0"
 
 [[deps.IrrationalConstants]]
-git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
+git-tree-sha1 = "b2d91fe939cae05960e760110b328288867b5758"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
-version = "0.2.4"
+version = "0.2.6"
+
+[[deps.IteratorInterfaceExtensions]]
+git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
+uuid = "82899510-4779-5014-852e-03e436cf321d"
+version = "1.0.0"
 
 [[deps.JLFzf]]
 deps = ["REPL", "Random", "fzf_jll"]
@@ -1365,9 +1026,9 @@ version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
+git-tree-sha1 = "4255f0032eafd6451d707a51d5f0248b8a165e4d"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.1.1+0"
+version = "3.1.3+0"
 
 [[deps.JuliaSyntaxHighlighting]]
 deps = ["StyledStrings"]
@@ -1404,10 +1065,10 @@ uuid = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 version = "1.4.0"
 
 [[deps.Latexify]]
-deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "52e1296ebbde0db845b356abbbe67fb82a0a116c"
+deps = ["Format", "Ghostscript_jll", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
+git-tree-sha1 = "44f93c47f9cd6c7e431f2f2091fcba8f01cd7e8f"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.9"
+version = "0.16.10"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1470,21 +1131,21 @@ version = "1.18.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "a31572773ac1b745e0343fe5e2c8ddda7a37e997"
+git-tree-sha1 = "3acf07f130a76f87c041cfb2ff7d7284ca67b072"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.41.0+0"
+version = "2.41.2+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
-git-tree-sha1 = "4ab7581296671007fc33f07a721631b8855f4b1d"
+git-tree-sha1 = "f04133fe05eff1667d2054c53d59f9122383fe05"
 uuid = "89763e89-9b03-5906-acba-b20f662cd828"
-version = "4.7.1+0"
+version = "4.7.2+0"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "321ccef73a96ba828cd51f2ab5b9f917fa73945a"
+git-tree-sha1 = "2a7a12fc0a4e7fb773450d17975322aa77142106"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.41.0+0"
+version = "2.41.2+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -1513,9 +1174,9 @@ version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
-git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
+git-tree-sha1 = "f00544d95982ea270145636c181ceda21c4e2575"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
@@ -1540,9 +1201,9 @@ version = "1.1.9"
 
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "926c6af3a037c68d02596a44c22ec3595f5f760b"
+git-tree-sha1 = "3cce3511ca2c6f87b19c34ffc623417ed2798cbd"
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.6+0"
+version = "2.28.10+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1600,6 +1261,12 @@ deps = ["Artifacts", "Libdl"]
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "3.5.1+0"
 
+[[deps.OpenSpecFun_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "1346c9208249809840c91b26703912dff463d335"
+uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
+version = "0.5.6+0"
+
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
@@ -1618,9 +1285,9 @@ version = "10.44.0+1"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
+git-tree-sha1 = "1f7f9bbd5f7a2e5a9f7d96e51c9754454ea7f60b"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.3+0"
+version = "1.56.4+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1657,9 +1324,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
+git-tree-sha1 = "bfe839e9668f0c58367fb62d8757315c0eac8777"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.18"
+version = "1.40.20"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1677,15 +1344,15 @@ version = "1.40.18"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
+git-tree-sha1 = "f53232a27a8c1c836d3998ae1e17d898d4df2a46"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.70"
+version = "0.7.72"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
-git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
+git-tree-sha1 = "07a921781cab75691315adc645096ed5e370cb77"
 uuid = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
-version = "1.2.1"
+version = "1.3.3"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -1698,6 +1365,11 @@ deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 version = "1.11.0"
 
+[[deps.Profile]]
+deps = ["StyledStrings"]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
+version = "1.11.0"
+
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
 uuid = "43287f4e-b6f4-7ad1-bb20-aadabca52c3d"
@@ -1705,9 +1377,9 @@ version = "1.3.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
+git-tree-sha1 = "34f7e5d2861083ec7596af8b8c092531facf2192"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.8.2+1"
+version = "6.8.2+2"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
@@ -1723,9 +1395,9 @@ version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
+git-tree-sha1 = "8f528b0851b5b7025032818eb5abbeb8a736f853"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.8.2+1"
+version = "6.8.2+2"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "JuliaSyntaxHighlighting", "Markdown", "Sockets", "StyledStrings", "Unicode"]
@@ -1736,6 +1408,12 @@ version = "1.11.0"
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 version = "1.11.0"
+
+[[deps.RealDot]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "9f0a1b71baaf7650f4fa8a1d168c7fb6ee41f0c9"
+uuid = "c1ae055f-0cd5-4b69-90a6-9a35b1a98df9"
+version = "0.1.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1806,11 +1484,32 @@ deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.12.0"
 
+[[deps.SparseInverseSubset]]
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
+git-tree-sha1 = "52962839426b75b3021296f7df242e40ecfc0852"
+uuid = "dc90abb0-5640-4711-901d-7e5b23a2fada"
+version = "0.1.2"
+
+[[deps.SpecialFunctions]]
+deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
+git-tree-sha1 = "f2685b435df2613e25fc10ad8c26dddb8640f547"
+uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
+version = "2.6.1"
+weakdeps = ["ChainRulesCore"]
+
+    [deps.SpecialFunctions.extensions]
+    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
+
 [[deps.StableRNGs]]
 deps = ["Random"]
 git-tree-sha1 = "95af145932c2ed859b63329952ce8d633719f091"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
+
+[[deps.StaticArraysCore]]
+git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
+uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
+version = "1.4.3"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]
@@ -1834,9 +1533,34 @@ git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.6"
 
+[[deps.StructArrays]]
+deps = ["ConstructionBase", "DataAPI", "Tables"]
+git-tree-sha1 = "a2c37d815bf00575332b7bd0389f771cb7987214"
+uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+version = "0.7.2"
+
+    [deps.StructArrays.extensions]
+    StructArraysAdaptExt = "Adapt"
+    StructArraysGPUArraysCoreExt = ["GPUArraysCore", "KernelAbstractions"]
+    StructArraysLinearAlgebraExt = "LinearAlgebra"
+    StructArraysSparseArraysExt = "SparseArrays"
+    StructArraysStaticArraysExt = "StaticArrays"
+
+    [deps.StructArrays.weakdeps]
+    Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
+    KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 version = "1.11.0"
+
+[[deps.SuiteSparse]]
+deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
+uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
@@ -1847,6 +1571,18 @@ version = "7.8.3+2"
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
+
+[[deps.TableTraits]]
+deps = ["IteratorInterfaceExtensions"]
+git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
+uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
+version = "1.0.1"
+
+[[deps.Tables]]
+deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
+git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
+uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+version = "1.12.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -1985,9 +1721,9 @@ version = "1.3.7+0"
 
 [[deps.Xorg_libXfixes_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
-git-tree-sha1 = "9caba99d38404b285db8801d5c45ef4f4f425a6d"
+git-tree-sha1 = "75e00946e43621e09d431d9b95818ee751e6b2ef"
 uuid = "d091e8ba-531a-589c-9de9-94069b037ed8"
-version = "6.0.1+0"
+version = "6.0.2+0"
 
 [[deps.Xorg_libXi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libXext_jll", "Xorg_libXfixes_jll"]
@@ -2027,9 +1763,9 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
+git-tree-sha1 = "9750dc53819eba4e9a20be42349a6d3b86c7cdf8"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.5+0"
+version = "0.1.6+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
@@ -2090,6 +1826,30 @@ git-tree-sha1 = "446b23e73536f84e8037f5dce465e92275f6a308"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
+[[deps.Zygote]]
+deps = ["AbstractFFTs", "ChainRules", "ChainRulesCore", "DiffRules", "Distributed", "FillArrays", "ForwardDiff", "GPUArraysCore", "IRTools", "InteractiveUtils", "LinearAlgebra", "LogExpFunctions", "MacroTools", "NaNMath", "PrecompileTools", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "ZygoteRules"]
+git-tree-sha1 = "a29cbf3968d36022198bcc6f23fdfd70f7caf737"
+uuid = "e88e6eb3-aa80-5325-afca-941959d7151f"
+version = "0.7.10"
+
+    [deps.Zygote.extensions]
+    ZygoteAtomExt = "Atom"
+    ZygoteColorsExt = "Colors"
+    ZygoteDistancesExt = "Distances"
+    ZygoteTrackerExt = "Tracker"
+
+    [deps.Zygote.weakdeps]
+    Atom = "c52e3926-4ff0-5f6e-af25-54175e0327b1"
+    Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+    Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
+
+[[deps.ZygoteRules]]
+deps = ["ChainRulesCore", "MacroTools"]
+git-tree-sha1 = "434b3de333c75fc446aa0d19fc394edafd07ab08"
+uuid = "700de1a5-db45-46bc-99cf-38207098b444"
+version = "0.2.7"
+
 [[deps.eudev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
@@ -2104,9 +1864,9 @@ version = "0.61.1+0"
 
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "4bba74fa59ab0755167ad24f98800fe5d727175b"
+git-tree-sha1 = "371cc681c00a3ccc3fbc5c0fb91f58ba9bec1ecf"
 uuid = "a4ae2306-e953-59d6-aa16-d00cac43593b"
-version = "3.12.1+0"
+version = "3.13.1+0"
 
 [[deps.libass_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
@@ -2191,45 +1951,40 @@ version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─4560e049-d77a-48a1-bfb8-b1522606b8e3
-# ╟─60b8cfb9-13b4-4ce1-b069-914fbfcb5a75
-# ╟─54ada3f0-9db6-11f0-1cda-4d9664634884
-# ╟─5009af20-deef-4ce2-8766-7a5ba77ceec0
-# ╟─f5f76d78-f1ed-47f7-ab4d-4cff53512a1d
-# ╟─53689987-f6a6-4d29-9bb1-e77f8c4f6c27
-# ╟─65debf88-458d-4452-be5b-f218e3117bd7
-# ╟─2507bcf3-b0f4-4b31-881c-077b4711c261
-# ╟─eef9bcab-9e8d-4af5-8029-daa9a8a8e747
-# ╟─d64c6bb0-c387-494a-a0c6-6dbf385f43f0
-# ╟─5fa6c7e4-8be0-4c78-8084-6a4ab81af890
-# ╟─502b8378-6c74-410a-bf53-b5baa30c174c
-# ╟─781b8096-c19b-4257-af21-cba6248b0b5e
-# ╟─78f02703-f3a3-43cc-a7d7-b573f6391506
-# ╟─8fa4a7e1-e2c1-4e45-9660-fa7a8a3b76a7
-# ╟─0423f4ff-6ab9-4014-9a67-c818c0564e7a
-# ╟─193d7395-f86a-4604-9d3c-a2f302a9185f
-# ╟─8f29f07d-8072-4ae2-8dcd-eb0c6a0bf9c1
-# ╟─d79ea06f-b582-4c1b-9e05-4ee273e6ec10
-# ╟─12934380-24d0-45f5-9ca3-1823cef69f23
-# ╟─3aa09a14-a115-4a8d-8b9a-36c682639652
-# ╟─0b27e42d-6505-4afc-979d-9d73685af241
-# ╟─f4d2afbe-3346-4760-86eb-98692a8e76e0
-# ╟─d369d7ca-e282-4199-9da8-b557533a03e0
-# ╟─f2a30d23-c5eb-4346-9ab3-b33c01c5cfa6
-# ╟─cbe3b676-d2e0-445d-9f31-998d87456407
-# ╟─fecd9584-27b3-4b43-b03f-d85133590885
-# ╟─7eca15e1-3e2d-4a3a-892c-a3ba2e2b35ea
-# ╟─74367285-422c-4e24-84bc-c00250f2640f
-# ╟─49964af9-602c-4845-88a2-1e1de4e0c15f
-# ╟─45fb0d18-72da-4989-aa68-2107f04b2b1e
-# ╟─5370c9f1-f048-4b96-bcc2-117b4233b5e7
-# ╟─f3538435-fe99-402a-a79b-7deed244e226
-# ╟─2e3677d7-cabb-4994-924b-a591b7ae5494
-# ╟─3e0c9359-9a16-4d1f-a9e4-826fcd0e7956
-# ╟─5dc2c268-72ca-44d8-9372-ef59b5a10a30
-# ╟─538d3b80-0020-4fd5-b0be-4a9f62dbb6fa
-# ╟─7e070235-ca89-4518-9134-2d33db094445
-# ╟─d829961b-1d3b-4c77-8c97-6687077777ac
-# ╟─bfe29afa-3a34-4b8c-9da2-b6cc21f9d6bd
+# ╟─9f20805f-4fc7-45a1-b6e0-34928ed228c3
+# ╟─cf29b19a-aedf-11f0-9620-41b67480ef6b
+# ╟─f1c9b34c-e4d4-450f-bee3-19f4a8461094
+# ╟─2b7b368d-9d61-4149-a845-6745e74fa79a
+# ╟─d7e9e5ac-8d65-4d5d-9ae2-293fc1174eea
+# ╟─9a646dbd-f1a2-4306-9d3e-2e39c619683d
+# ╟─76e5995a-dab1-4615-a2b6-e38148ac17d1
+# ╟─9c2f142b-6174-4301-a8f5-3376d78660bf
+# ╟─20058299-981a-4adc-8ea3-9fcfc9268bc3
+# ╟─814e6940-7fbf-4563-952b-7b6065859683
+# ╟─5c42f3bc-50ab-4fe5-ac7e-ad8b76988fef
+# ╟─68bed2f9-57da-4775-bac2-03156cafec6e
+# ╟─deaf674f-5df4-43f6-981e-7b85479db946
+# ╟─704c6a4c-9bb6-41cc-a476-b8509b6f7127
+# ╟─118ecc76-63f7-4389-a770-2e56fbdc4915
+# ╟─a3a544e8-618e-473d-9f11-e3d9f81441a1
+# ╠═a4645f39-f87d-4f12-8192-cb9841dfb36d
+# ╟─f821eaa0-9b2d-44fd-bc06-2670b315953e
+# ╠═781787d5-0745-4147-90e0-526a4cdb7d1c
+# ╟─34c50713-fa8b-4c8b-957b-c0d141408f21
+# ╠═5ef107f4-161c-48f5-b3e0-b733940a4ad5
+# ╟─706a56c0-1b9b-4ca7-8a04-e24078cf95c4
+# ╠═590a5b20-aa66-40c3-a9ce-e24bea246d92
+# ╟─d4bf05a3-7d4d-4a5d-81f3-bf406f012e09
+# ╠═bca35e00-80c6-4592-925d-c34425d10962
+# ╟─dfb03136-aaea-4be0-a277-00234284e5f3
+# ╠═edf1fdda-3635-4d7a-8fd1-4eb891fdb09e
+# ╟─67c07cd5-79dc-49c2-9644-756a02678d0a
+# ╟─770cd112-ab09-4f19-9d37-e71e42288ad3
+# ╠═f4c46d7d-e97a-4ced-9c86-74f11424a382
+# ╟─eae7314e-1902-4bf5-b60d-3b3e494fbbc9
+# ╠═8e6d1006-1c4c-4a22-a325-98f7d2f79e33
+# ╟─5f240efc-3b5c-4aeb-a728-6f57cc7697d0
+# ╠═132a4e5a-8184-44fb-ac62-f90ebf601e82
+# ╟─1eebe5fd-75a2-411d-830a-091cbf769cdf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

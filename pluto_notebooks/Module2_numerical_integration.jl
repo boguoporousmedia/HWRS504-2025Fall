@@ -1,11 +1,18 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ d1d973f0-3671-43bb-b461-07b27ca5b5e0
 using Plots, LaTeXStrings, PlutoUI, QuadGK, SpecialFunctions
+
+# ╔═╡ a51acd23-9915-4cac-8377-6283bb28fcd6
+md"""
+### HWRS 504: Numerical Methods
+- **Instructor**: Prof. Bo Guo (boguo@arizona.edu)
+- **Term**: Fall 2025
+"""
 
 # ╔═╡ e34e84c4-7eca-11f0-20bb-6ff86d3d3926
 md"""
@@ -1772,6 +1779,7 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─d1d973f0-3671-43bb-b461-07b27ca5b5e0
+# ╟─a51acd23-9915-4cac-8377-6283bb28fcd6
 # ╟─e34e84c4-7eca-11f0-20bb-6ff86d3d3926
 # ╟─dc539d88-d67a-40db-9161-ce1fcd35d3a7
 # ╟─d975c170-126a-456d-8c2d-5ef6a402326f
