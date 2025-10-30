@@ -3,10 +3,10 @@ title: Week 02
 ---
 
 Sep 2
-: [Numerical Integration](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #03](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Numerical Integration](/lecture/#lecture-03-numerical-integration)
+  : [Pluto Notebook](../assets/pluto_notebooks/Module2_numerical_integration.html)
 
 Sep 4
-: [Finite Difference Approximation](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #04](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Finite Difference Approximation in Space](/lecture/#lecture-04-finite-difference-approximation-in-space)
+  : [Pluto Notebook](../assets/pluto_notebooks/Module3_FDA_space.html)
 : **Due**{: .label .label-purple}[**HW #1**](#)

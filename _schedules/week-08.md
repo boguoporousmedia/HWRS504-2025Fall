@@ -3,12 +3,11 @@ title: Week 08
 ---
 
 Oct 14
-: [Particle methods](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #15](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Particle methods](/lecture/#lecture-15-particle-methods)
+  : [Pluto Notebook](../assets/pluto_notebooks/Module8_particle_methods_general_comments.html)
 
 Oct 16
-: [Neural networks](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #16](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Neural networks](/lecture/#lecture-16-neural-networks)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec16_particle_methods.html)
 : **Due**{: .label .label-purple}[**HW #3**](#)
 : **Release**{: .label .label-green}[**HW #4**](#)
-

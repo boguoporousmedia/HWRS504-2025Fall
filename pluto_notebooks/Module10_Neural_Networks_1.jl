@@ -22,6 +22,13 @@ begin
 	using MLUtils: DataLoader
 end
 
+# ╔═╡ c46c2c43-0e3d-4662-9a30-98fc6001b653
+md"""
+### HWRS 504: Numerical Methods
+- **Instructor**: Prof. Bo Guo (boguo@arizona.edu)
+- **Term**: Fall 2025
+"""
+
 # ╔═╡ b34236b8-ad3a-11f0-94aa-0da2fe297fb2
 md"""
 # Module 10: Neural Networks - 1
@@ -2472,6 +2479,7 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─9b776c60-0381-4330-88da-79d8291cc73a
+# ╟─c46c2c43-0e3d-4662-9a30-98fc6001b653
 # ╟─b34236b8-ad3a-11f0-94aa-0da2fe297fb2
 # ╟─2c39201a-4b01-4e5a-bdb9-827f478c250e
 # ╟─bfd0024b-7ed3-4b0f-ac70-9e7a52092548

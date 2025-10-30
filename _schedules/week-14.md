@@ -3,11 +3,9 @@ title: Week 14
 ---
 
 Nov 25
-: [Hybrid Modeling & Differentiable Simulators (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #27](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Hybrid Modeling & Differentiable Simulators](/lecture/#lecture-27-hybrid-modeling-differentiable-simulators)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec27_hybrid_modeling_continued.html)
 : **Release**{: .label .label-green}[**HW #6**](#)
 
 Nov 27
-: [Thanksgiving Recess (No Class)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #28](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-
+: [Thanksgiving Recess (No Class)](/lecture/#lecture-28-thanksgiving-recess-no-class)

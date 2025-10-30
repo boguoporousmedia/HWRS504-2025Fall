@@ -3,9 +3,7 @@ title: Week 16
 ---
 
 Dec 9
-: [Final Project Presentation](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #31](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Final Project Presentation](/lecture/#lecture-31-final-project-presentation)
 
 Dec 11
-: [Reading Day (No Class)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #32](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Reading Day (No Class)](/lecture/#lecture-32-reading-day-no-class)

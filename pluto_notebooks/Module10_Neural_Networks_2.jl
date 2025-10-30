@@ -13,6 +13,13 @@ begin
     default(size=(600,400))
 end
 
+# ╔═╡ 50c6da75-008c-4ce5-a35f-55b09da08f57
+md"""
+### HWRS 504: Numerical Methods
+- **Instructor**: Prof. Bo Guo (boguo@arizona.edu)
+- **Term**: Fall 2025
+"""
+
 # ╔═╡ cf29b19a-aedf-11f0-9620-41b67480ef6b
 md"""
 # Module 10: Neural Networks - 2
@@ -432,83 +439,137 @@ We want ``\frac{dJ}{d\theta} = \frac{\partial J}{\partial \theta} + \frac{\parti
 Define the **Lagrangian functional**:
 ```math
 \mathcal{L}(u,\theta,\lambda)
-= J(u,\theta) - \lambda^{\top} F(u,\theta),
+= J(u,\theta) + \lambda^{\top} F(u,\theta),
 ```
 where ``\lambda`` is a vector of Lagrange multipliers (the *adjoint variables*).
 
-At the optimum, variations of ``\mathcal{L}`` with respect to all variables must vanish:
 ```math
-\frac{\partial \mathcal{L}}{\partial u}=0,\qquad
-\frac{\partial \mathcal{L}}{\partial \lambda}=0,\qquad
-\frac{\partial \mathcal{L}}{\partial \theta}=0.
+\frac{d\mathcal L}{d\theta}
+= \underbrace{\frac{\partial J}{\partial \theta}}_{(1)}
+
++ \underbrace{\frac{\partial J}{\partial u}\frac{du}{d\theta}}_{(2)}
++ \lambda^\top \left(
+  \underbrace{\frac{\partial F}{\partial u}\frac{du}{d\theta}}_{(3)}
++ \underbrace{\frac{\partial F}{\partial \theta}}_{(4)}
+  \right).
 ```
 
-- Variation with respect to ``\lambda``: forward equation
-
+Group the terms multiplying ``du/d\theta``:
 ```math
-\frac{\partial \mathcal{L}}{\partial \lambda}
-= -F(u,\theta) = 0,
-```
-which simply **recovers the PDE constraint** ``F(u,\theta)=0``.
-This is your **forward (state) equation**.
-
-- Variation with respect to ``u``: adjoint equation
-
-Now take the variation with respect to ``u``:
-```math
-\frac{\partial \mathcal{L}}{\partial u}
-= \frac{\partial J}{\partial u}
-
-* \lambda^{\top} \frac{\partial F}{\partial u}
-  = 0.
-```
-
-Rearranging:
-```math
-\boxed{
-\left(\frac{\partial F}{\partial u}\right)^{\top}\lambda
-= \frac{\partial J}{\partial u}.
-}
-```
-
-This is the **adjoint equation**.
-It ensures that all dependence of ``u`` on ``\theta`` is captured via ``\lambda``, so we don’t need to compute ``\frac{\partial u}{\partial \theta}`` explicitly.
-
-- Variation with respect to ``\theta``: gradient equation
-
-Next, vary the Lagrangian with respect to the parameters:
-```math
-\frac{\partial \mathcal{L}}{\partial \theta}
+\frac{d\mathcal L}{d\theta}
 = \frac{\partial J}{\partial \theta}
 
-* \lambda^{\top}\frac{\partial F}{\partial \theta}.
++ \Big(\frac{\partial J}{\partial u} + \lambda^\top \frac{\partial F}{\partial u}\Big)\frac{du}{d\theta}
++ \lambda^\top \frac{\partial F}{\partial \theta}.
 ```
 
-Since ``u`` and ``\lambda`` already satisfy their respective equations,
-this gives the **gradient** used in optimization:
+Now choose ``\lambda`` such that
 ```math
-\boxed{
-\nabla_\theta J =
-\frac{\partial J}{\partial \theta}
+\frac{\partial J}{\partial u} + \lambda^\top \frac{\partial F}{\partial u} = 0,
+```
+This is the **adjoint equation** ``\left( \frac{\partial \mathcal L}{\partial u} = 0 \right)``, which eliminates the term involving ``du/d\theta``. Because ``F=0`` **everywhere** by construction, ``\frac{dF}{d\theta} = 0``, and we obtain the gradient:
 
-* \lambda^{\top} \frac{\partial F}{\partial \theta}.
-  }
+```math
+\boxed{\frac{dJ}{d\theta}
+= \frac{d\mathcal L}{d\theta}
+= \frac{\partial J}{\partial \theta} + \lambda^\top \frac{\partial F}{\partial \theta}}
 ```
 
-- Interpretation
+Interpretation
 
 * ``F(u,\theta)=0`` → **forward PDE** (solve for state ``u``);
-* ``(\partial F/\partial u)^{\top}\lambda = \partial J/\partial u`` → **adjoint PDE** (solve for adjoint (\lambda));
-* Then plug into the gradient formula to get (\nabla_\theta J).
+* ``(\partial F/\partial u)^{\top}\lambda = - \left( \partial J/\partial u \right)`` → **adjoint PDE** (solve for adjoint ``\lambda``). It ensures that all dependence of ``u`` on ``\theta`` is captured via ``\lambda``, so we don’t need to compute ``\frac{\partial u}{\partial \theta}`` explicitly. We solve this equation once to obtain ``\lambda``.
+* Then plug into the gradient formula to get ``\frac{dJ}{d\theta}``.
 
-- Intuitive analogy
-
-Think of the adjoint equation as the **reverse pass** in backpropagation:
+Intuitive analogy. Think of the adjoint equation as the **reverse pass** in backpropagation:
 
 * Forward: compute the PDE solution ``u``.
 * Reverse: propagate “sensitivities” (the effect of ``u`` on ``J``) backward through the PDE operator.
 * That backward propagation is mathematically expressed as solving
-  ``(\partial F/\partial u)^{\top}\lambda = \partial J/\partial u``.
+  ``(\partial F/\partial u)^{\top}\lambda = - \left( \partial J/\partial u \right)``.
+
+"""
+
+# ╔═╡ de70015c-afdc-49e1-93fa-0c61fc2e5cee
+md"""
+
+#### Example: Algebraic Equation
+
+We want to minimize
+```math
+J(u,\theta) = \frac{1}{2}(u - u_\text{obs})^2
+```
+subject to the **state equation**
+```math
+F(u,\theta) = u^2 - \theta = 0.
+```
+
+Here:
+
+* ``u`` is the *state variable*,
+* ``\theta`` is the *parameter*,
+* ``u_\text{obs}`` is an observation.
+
+Our goal: compute ``\displaystyle \frac{dJ}{d\theta}``.
+
+
+🔹 Step 1: Define the Lagrangian
+
+```math
+\mathcal{L}(u,\lambda,\theta) = J(u,\theta) + \lambda F(u,\theta)
+= \frac{1}{2}(u - u_\text{obs})^2 + \lambda (u^2 - \theta).
+```
+
+🔹 Step 2: Derive the adjoint equation
+
+Take the variation w.r.t. ``u``:
+```math
+\frac{\partial \mathcal{L}}{\partial u}
+= (u - u_\text{obs}) + \lambda (2u) = 0.
+```
+
+Hence the **adjoint variable** satisfies
+```math
+\lambda = -\frac{u - u_\text{obs}}{2u}.
+```
+
+🔹 Step 3: Derive the gradient w.r.t. parameter
+
+Take the variation w.r.t. ``\theta``:
+```math
+\frac{d \mathcal{L}}{d \theta}
+= \frac{\partial J}{\partial \theta} + \lambda \frac{\partial F}{\partial \theta}
+= 0 + \lambda(-1) = -\lambda.
+```
+
+Thus, the **gradient of the objective** is
+```math
+\boxed{\frac{dJ}{d\theta} = -\lambda.}
+```
+
+🔹 Step 4: Substitute ``\lambda`` and state relation
+
+Since ``F(u,\theta)=0 \implies u = \sqrt{\theta}``,
+the adjoint variable is
+```math
+\lambda = -\frac{u - u_\text{obs}}{2u} = -\frac{\sqrt{\theta} - u_\text{obs}}{2\sqrt{\theta}}.
+```
+Therefore,
+```math
+\boxed{\frac{dJ}{d\theta} = \frac{\sqrt{\theta} - u_\text{obs}}{2\sqrt{\theta}}.}
+```
+
+🔹 Step 5: Verification by brute-force differentiation
+
+Given ``u = \sqrt{\theta}``, we obtain
+```math
+\frac{dJ}{d\theta} = \frac{\partial J}{\partial \theta} + \frac{\partial J}{\partial u} \frac{\partial u}{\partial \theta} = 0 + (u - u_\text{obs}) \frac{1}{2\sqrt{\theta}} = \frac{\sqrt{\theta} - u_\text{obs}}{2\sqrt{\theta}},
+```
+which **matches perfectly** with the adjoint result.
+
+* The adjoint method let us compute ``dJ/d\theta`` **without ever computing ``\partial u/ \partial \theta``** directly.
+  (If we differentiate ``F(u,\theta)=0``, we’d get ``\partial u/ \partial \theta = \frac{1}{2}{\theta}^{-1/2}``, which would be messy for large systems.)
+* For large PDEs, the cost of computing this gradient remains **independent of the number of parameters**—only one adjoint solve per gradient is needed.
 
 """
 
@@ -1952,6 +2013,7 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─9f20805f-4fc7-45a1-b6e0-34928ed228c3
+# ╟─50c6da75-008c-4ce5-a35f-55b09da08f57
 # ╟─cf29b19a-aedf-11f0-9620-41b67480ef6b
 # ╟─f1c9b34c-e4d4-450f-bee3-19f4a8461094
 # ╟─2b7b368d-9d61-4149-a845-6745e74fa79a
@@ -1980,11 +2042,12 @@ version = "1.9.2+0"
 # ╠═edf1fdda-3635-4d7a-8fd1-4eb891fdb09e
 # ╟─67c07cd5-79dc-49c2-9644-756a02678d0a
 # ╟─770cd112-ab09-4f19-9d37-e71e42288ad3
-# ╠═f4c46d7d-e97a-4ced-9c86-74f11424a382
+# ╟─f4c46d7d-e97a-4ced-9c86-74f11424a382
 # ╟─eae7314e-1902-4bf5-b60d-3b3e494fbbc9
 # ╠═8e6d1006-1c4c-4a22-a325-98f7d2f79e33
 # ╟─5f240efc-3b5c-4aeb-a728-6f57cc7697d0
 # ╠═132a4e5a-8184-44fb-ac62-f90ebf601e82
+# ╠═de70015c-afdc-49e1-93fa-0c61fc2e5cee
 # ╟─1eebe5fd-75a2-411d-830a-091cbf769cdf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

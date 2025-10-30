@@ -3,12 +3,11 @@ title: Week 15
 ---
 
 Dec 2
-: [Hybrid Modeling & Differentiable Simulators (continued)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #29](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Hybrid Modeling & Differentiable Simulators](/lecture/#lecture-29-hybrid-modeling-differentiable-simulators)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec29_hybrid_modeling_continued.html)
 
 Dec 4
-: [Review Session for Final Exam](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #30](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Review Session for Final Exam](/lecture/#lecture-30-review-session-for-final-exam)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec30_review_session.html)
 : **Due**{: .label .label-purple}[**HW #6**](#)
-
 

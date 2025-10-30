@@ -3,10 +3,10 @@ title: Week 10
 ---
 
 Oct 28
-: [Midterm Exam (Oral)](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #19](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [Midterm Exam (Oral)](/lecture/#lecture-19-midterm-exam-oral)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec19_midterm_exam.html)
 : **Due**{: .label .label-purple}[**HW #4**](#)
 
 Oct 30
-: [PINN](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
-  : [Lecture note #20](https://boguoporousmedia.github.io/HWRS504-2025Fall/lecture/)
+: [PINN](/lecture/#lecture-20-pinn)
+  : [Pluto Notebook](../assets/pluto_notebooks/Lec20_pinn.html)
