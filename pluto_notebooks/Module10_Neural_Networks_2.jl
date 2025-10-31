@@ -653,9 +653,7 @@ So:
 
 This is exactly how PyTorch, TensorFlow, and JAX implement *backpropagation*.
 
-🔹 7. Information flow
-Each backward arrow applies the **transpose of the local Jacobian**,
-so “adjoint” literally describes the **mathematical operator** that sends gradients backward through the computational graph.
+🔹 7. Information flow: Each backward arrow applies the **transpose of the local Jacobian**, so “adjoint” literally describes the **mathematical operator** that sends gradients backward through the computational graph.
 
 **Key insights**
 
@@ -675,7 +673,7 @@ md"""
 - Forward-mode → efficient for few inputs, many outputs.  
 - Reverse-mode → efficient for many inputs, one scalar output (e.g., loss).
 - Backpropagation = reverse-mode AD specialized for neural networks.
-- Reverse-mode AD = adjoint-state method in PDE-constrained optimization.
+- Reverse-mode AD is equivalent to adjoint-state method in PDE-constrained optimization.
 
 """
 
