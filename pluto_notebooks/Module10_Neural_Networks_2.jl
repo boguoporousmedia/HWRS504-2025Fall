@@ -573,6 +573,100 @@ which **matches perfectly** with the adjoint result.
 
 """
 
+# ╔═╡ 3accd6dd-f58e-47fd-a380-06757a2dec62
+md"""
+#### How does the adjoint method relate to backpropagation?
+
+🔹 1. Setup — forward propagation through layers
+
+A neural network (or any sequential computation) is a chain of transformations:
+```math
+x_{k+1} = f_k(x_k, W_k), \quad k=0,\dots,n-1,
+```
+where
+
+* ``x_0`` = input,
+* ``x_n`` = output,
+* ``W_k`` = parameters of layer ``k``.
+
+We have a scalar loss ``J(x_n)``.
+
+🔹 2. Goal — derivative of ``J`` with respect to all ``W_k``
+
+By the chain rule,
+```math
+\frac{dJ}{dW_k} = \frac{\partial J}{\partial x_n}
+\frac{\partial x_n}{\partial W_k}.
+```
+But ``x_n`` depends on all intermediate layers ``x_k``, so computing this directly would require recomputing Jacobians forward for each ``W_k`` — **expensive**.
+
+The adjoint (backpropagation) method reverses this process.
+
+🔹 3. Define the adjoint variables
+
+Define
+```math
+\lambda_k := \left(\frac{\partial J}{\partial x_k}\right)^\top,
+```
+which represents the **sensitivity of the loss** to the state ``x_k``.
+This is the discrete analogue of the *adjoint variable* in PDEs.
+
+🔹 4. Propagate sensitivities backward
+
+Using the chain rule:
+```math
+\frac{\partial J}{\partial x_k}
+= \frac{\partial J}{\partial x_{k+1}} \frac{\partial x_{k+1}}{\partial x_k}.
+```
+
+Transpose both sides:
+```math
+\lambda_k
+= \left(\frac{\partial x_{k+1}}{\partial x_k}\right)^{\top}\lambda_{k+1}.
+```
+
+This equation tells us *how to move one layer backward*, computing ``\lambda_k`` from ``\lambda_{k+1}``.
+
+🔹 5. Why is this “adjoint propagation”?
+
+The Jacobian ``\frac{\partial x_{k+1}}{\partial x_k}`` maps *forward perturbations* in the state. Its transpose maps *backward sensitivities*.
+
+So the backward step uses the **adjoint (transpose)** of the forward linearized operator. That’s precisely what happens in the PDE adjoint equation:
+```math
+\left(\frac{\partial F}{\partial u}\right)^\top \lambda = \frac{\partial J}{\partial u}.
+```
+
+🔹 6. Computing gradients with respect to parameters
+
+Once we have ``\lambda_{k+1}``, the gradient w.r.t. the layer parameters is
+```math
+\frac{dJ}{dW_k}
+= \lambda_{k+1} \left(\frac{\partial x_{k+1}}{\partial W_k}\right)^{\top}.
+```
+Again — the transpose (adjoint) of the layer’s Jacobian appears.
+
+So:
+
+* *Forward pass:* compute all ``x_k``.
+* *Backward pass:* compute all ``\lambda_k`` via transposed Jacobians.
+* *Gradient assembly:* combine ``\lambda_{k+1}`` with local derivatives w.r.t ``W_k``.
+
+This is exactly how PyTorch, TensorFlow, and JAX implement *backpropagation*.
+
+🔹 7. Information flow
+Each backward arrow applies the **transpose of the local Jacobian**,
+so “adjoint” literally describes the **mathematical operator** that sends gradients backward through the computational graph.
+
+**Key insights**
+
+* `` \frac{\partial x_{k+1}}{\partial x_k} ``: forward (tangent) sensitivity
+* `` \left(\frac{\partial x_{k+1}}{\partial x_k}\right)^{\top} ``: backward (adjoint) sensitivity
+* ``\lambda_k``: the **adjoint variable**, identical to what physicists or control theorists call the “costate.”
+
+Thus, backpropagation = repeated application of adjoint (transpose) operators through the computational graph.
+
+"""
+
 # ╔═╡ 1eebe5fd-75a2-411d-830a-091cbf769cdf
 md"""
 #### Summary
@@ -2046,8 +2140,9 @@ version = "1.9.2+0"
 # ╟─eae7314e-1902-4bf5-b60d-3b3e494fbbc9
 # ╠═8e6d1006-1c4c-4a22-a325-98f7d2f79e33
 # ╟─5f240efc-3b5c-4aeb-a728-6f57cc7697d0
-# ╠═132a4e5a-8184-44fb-ac62-f90ebf601e82
-# ╠═de70015c-afdc-49e1-93fa-0c61fc2e5cee
+# ╟─132a4e5a-8184-44fb-ac62-f90ebf601e82
+# ╟─de70015c-afdc-49e1-93fa-0c61fc2e5cee
+# ╟─3accd6dd-f58e-47fd-a380-06757a2dec62
 # ╟─1eebe5fd-75a2-411d-830a-091cbf769cdf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
