@@ -9,4 +9,3 @@ Nov 4
 Nov 6
 : [PINN](/lecture/#lecture-22-pinn)
   : [Pluto Notebook](../assets/pluto_notebooks/Module11_PINN.html)
-: **Release**{: .label .label-green}[**HW #5**](#)

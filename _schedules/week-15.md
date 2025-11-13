@@ -9,4 +9,4 @@ Dec 2
 Dec 4
 : [Review Session for Final Exam](/lecture/#lecture-30-review-session-for-final-exam)
   : [Pluto Notebook](../assets/pluto_notebooks/Module16_review.html)
-: **Due**{: .label .label-purple}[**HW #6**](#)
+: **Due**{: .label .label-purple}[**HW #5**](#)
