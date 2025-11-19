@@ -8,4 +8,4 @@ Nov 4
 
 Nov 6
 : [Operator Learning](/lecture/)
-  : [Pluto Notebook](../assets/pluto_notebooks/Module12_operator_learning.html)
+  : [Pluto Notebook](../assets/pluto_notebooks/Module12_neural_operator_learning.html)
