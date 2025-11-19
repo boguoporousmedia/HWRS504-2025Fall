@@ -83,6 +83,8 @@ A ResNet is essentially forward Euler applied to a learned function (or vector f
 md"""
 ### What is a Neural ODE?
 
+Chen, R.T., Rubanova, Y., Bettencourt, J. and Duvenaud, D.K., 2018. Neural ordinary differential equations. Advances in neural information processing systems, 31.
+
 #### Continuous-depth model
 
 A **neural ODE** defines a continuous evolution of ``h(t)``
