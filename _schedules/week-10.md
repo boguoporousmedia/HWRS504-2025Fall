@@ -3,8 +3,8 @@ title: Week 10
 ---
 
 Oct 28
-: [Midterm Exam (Oral)](/lecture/#lecture-19-midterm-exam-oral)
+: [Midterm Exam (Oral)](/lecture/)
 
 Oct 30
-: [PINN](/lecture/#lecture-20-pinn)
+: [PINN](/lecture/)
   : [Pluto Notebook](../assets/Module11_PINN.html)

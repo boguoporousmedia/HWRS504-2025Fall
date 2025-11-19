@@ -3,7 +3,7 @@ title: Week 16
 ---
 
 Dec 9
-: [Final Project Presentation](/lecture/#lecture-31-final-project-presentation)
+: [Final Project Presentation](/lecture/)
 
 Dec 11
-: [Reading Day (No Class)](/lecture/#lecture-32-reading-day-no-class)
+: [Reading Day (No Class)](/lecture/)
