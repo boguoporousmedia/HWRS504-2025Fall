@@ -7,4 +7,4 @@ Oct 28
 
 Oct 30
 : [PINN](/lecture/#lecture-20-pinn)
-  : [Pluto Notebook](../assets/Module10_Neural_Networks_2.html)
+  : [Pluto Notebook](../assets/Module11_PINN.html)

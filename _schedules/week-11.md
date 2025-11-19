@@ -7,5 +7,5 @@ Nov 4
   : [Pluto Notebook](../assets/pluto_notebooks/Module11_PINN.html)
 
 Nov 6
-: [PINN](/lecture/#lecture-22-pinn)
-  : [Pluto Notebook](../assets/pluto_notebooks/Module11_PINN.html)
+: [Operator Learning](/lecture/#lecture-22-pinn)
+  : [Pluto Notebook](../assets/pluto_notebooks/Module12_operator_learning.html)
