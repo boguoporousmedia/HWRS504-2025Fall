@@ -9,4 +9,4 @@ Nov 25
 : **Release**{: .label .label-green} **HW #5**([Notebook](../homework/hw5.html), [PDF](../homework/hw5.pdf))
 
 Nov 27
-: [Thanksgiving Recess (No Class)]
+: Thanksgiving Recess (No Class)
