@@ -3,7 +3,7 @@ title: Week 14
 ---
 
 Nov 25
-: [Diffusion Model]
+: Diffusion Model
   : [Pluto Notebook](../assets/pluto_notebooks/Module16_diffusion_model.html)
 : **Due**{: .label .label-purple}[**HW #4**](#)
 : **Release**{: .label .label-green} **HW #5**([Notebook](../homework/hw5.html), [PDF](../homework/hw5.pdf))
