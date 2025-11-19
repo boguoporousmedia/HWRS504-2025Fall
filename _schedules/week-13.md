@@ -3,7 +3,7 @@ title: Week 13
 ---
 
 Nov 18
-: [Fourier Neural Operators](/lecture/)
+: [Neural ODE](/lecture/)
   : [Pluto Notebook](../assets/pluto_notebooks/Module14_neural_ODE.html)
 
 Nov 20
