@@ -3,7 +3,7 @@ title: Week 02
 ---
 
 Sep 2
-: [Numerical Integration](/lecture/)
+: [Numerical Integration]
   : [Pluto Notebook](../assets/pluto_notebooks/Module2_numerical_integration.html)
 
 Sep 4
