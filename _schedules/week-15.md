@@ -9,4 +9,3 @@ Dec 2
 Dec 4
 : Review Session for Final Exam
   : [Pluto Notebook](../assets/pluto_notebooks/Module17_review.html)
-: **Due**{: .label .label-purple}[**HW #5**](#)
