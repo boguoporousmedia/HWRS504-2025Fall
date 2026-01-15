@@ -1,4 +1,7 @@
-<h2 class="fs-4" id="{{ page.title | slugify }}" >{{ page.title }}</h2>
+{% if page.module_title %}
+<h2 class="fs-4 mt-0 module-title" id="{{ page.module_title | slugify }}">{{ page.module_title }}</h2>
+{% endif %}
+<h3 class="fs-5 mt-2" id="{{ page.title | slugify }}">{{ page.title }}</h3>
 <div class="module">
   {{ content }}
 </div>
